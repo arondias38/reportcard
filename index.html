@@ -1,470 +1,81 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>학원 성적표 통합 시스템</title>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <style>
-    @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
-    
-    /* 기본 리셋 및 폰트 */
-    body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; }
-    
-    /* 스피너(로딩) 오버레이 */
-    .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
-    .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1a3978; border-radius: 50%; animation: spin 1s linear infinite; }
-    .spinner-text { margin-top: 15px; font-weight: bold; color: #1a3978; font-size: 15px; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-    /* 모달 알림창 */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center; }
-    .modal-box { background: white; width: 340px; border-radius: 12px; padding: 25px 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-    .modal-message { font-size: 15px; font-weight: 600; color: #333; line-height: 1.5; margin-bottom: 20px; white-space: pre-wrap; word-break: keep-all; }
-    .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; background-color: #1a3978; color: white; transition: 0.2s; }
-    .modal-btn:hover { background-color: #112652; }
-
-    /* 상단 헤더 */
-    .academy-header-bar { background-color: #1a3978; color: #ffffff; padding: 12px 25px; font-size: 18px; font-weight: 900; display: flex; justify-content: center; align-items: center; position: relative; letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
-    .academy-header-bar .version { position: absolute; right: 25px; font-size: 11px; color: #adb5bd; font-weight: normal; }
-
-    /* 메인 컨테이너 */
-    .app-body { padding: 20px; max-width: 1600px; margin: 0 auto; }
-
-    /* 탭 메뉴 UI */
-    .tab-container { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ced4da; padding-bottom: 0; }
-    .tab-btn { background-color: #e9ecef; color: #495057; border: 1px solid #ced4da; border-bottom: none; padding: 10px 30px; font-size: 15px; font-weight: bold; border-radius: 8px 8px 0 0; cursor: pointer; transition: 0.2s; }
-    .tab-btn:hover { background-color: #dee2e6; }
-    .tab-btn.active { background-color: #fff; color: #1a3978; border-color: #1a3978; border-bottom: 2px solid #fff; margin-bottom: -2px; z-index: 2; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); }
-
-    /* 탭 콘텐츠 영역 */
-    .tab-content { display: none; background-color: #fff; border-radius: 0 8px 8px 8px; padding: 25px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); min-height: 600px; }
-    .tab-content.active { display: block; }
-
-    /* 공통 폼 요소 */
-    .header-bar { background-color: #f8f9fa; padding: 15px 20px; border-radius: 8px; border: 1px solid #dee2e6; display: flex; gap: 20px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
-    .select-group { display: flex; align-items: center; gap: 10px; }
-    .select-group label { font-weight: bold; font-size: 14px; color: #1a3978; }
-    select, input[type="text"], input[type="number"] { width: 150px; padding: 8px 12px; border: 1px solid #ced4da; border-radius: 4px; font-family: 'Pretendard', sans-serif; font-size: 14px; outline: none; box-sizing: border-box; }
-    select:focus, input:focus { border-color: #1a3978; }
-    
-    .btn-primary { padding: 0 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; background-color: #1366ce; color: white; transition: 0.2s; height: 38px; cursor: pointer; }
-    .btn-primary:hover { background-color: #0f52a8; }
-    
-    /* 표(Grid) 공통 스타일 */
-    .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #dee2e6; border-radius: 4px; }
-    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; text-align: center; white-space: nowrap; }
-    th, td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 8px 4px; }
-    th { background-color: #f1f3f5; font-weight: bold; color: #333; position: sticky; top: 0; z-index: 10; border-top: none; }
-    td:last-child, th:last-child { border-right: none; }
-    
-    .setup-input { width: 90%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; font-family: 'Pretendard'; font-size: 13.5px; box-sizing: border-box; }
-    .setup-input:focus { border-color: #1366ce; outline: none; }
-
-    /* O/X 입력 인풋 특화 */
-    .ox-input { width: 40px; text-align: center; font-weight: 900; font-size: 15px; border: 1px solid #ccc; border-radius: 3px; padding: 4px; text-transform: uppercase; }
-    .ox-input:focus { background-color: #e6f0ff; border-color: #1366ce; outline: none; }
-    .ox-input.val-o { color: #28a745; } 
-    .ox-input.val-x { color: #dc3545; } 
-
-    /* 성적표 출력용 미리보기 컨테이너 */
-    .report-preview { width: 21cm; min-height: 29.7cm; margin: 0 auto; padding: 2cm; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); border: 1px solid #ccc; box-sizing: border-box; }
-    
-    /* 붙여넣기 인식 안내 영역 */
-    .paste-zone { border: 2px dashed #1a3978; background-color: #f4f6f9; padding: 30px; text-align: center; border-radius: 8px; margin-bottom: 20px; cursor: pointer; transition: 0.2s; }
-    .paste-zone:hover { background-color: #e6f0ff; }
-  </style>
-</head>
-<body>
-
-  <!-- 글로벌 로딩 오버레이 -->
-  <div class="spinner-overlay" id="globalSpinner">
-    <div class="spinner"></div>
-    <div class="spinner-text" id="spinnerText">처리 중입니다...</div>
-  </div>
-
-  <!-- 글로벌 알림 모달 -->
-  <div class="modal-overlay" id="customAlertModal">
-    <div class="modal-box">
-      <div id="modalMessage" class="modal-message"></div>
-      <button class="modal-btn" onclick="document.getElementById('customAlertModal').style.display='none'">확인</button>
-    </div>
-  </div>
-
-  <div class="academy-header-bar">
-    <span>SG청운학원 - 성적표 통합 관리 시스템</span>
-    <span class="version">v.26.07.23-02</span>
-  </div>
-
-  <div class="app-body">
-    <!-- 탭 네비게이션 -->
-    <div class="tab-container">
-      <button class="tab-btn active" onclick="switchTab('tab-setup')">1. 시험 기본 세팅 (관리자)</button>
-      <button class="tab-btn" onclick="switchTab('tab-input')">2. 채점 입력 (선생님)</button>
-      <button class="tab-btn" onclick="switchTab('tab-report')">3. 성적표 출력</button>
-    </div>
-
-    <!-- 1. 시험 기본 세팅 탭 -->
-    <div id="tab-setup" class="tab-content active">
-      <div class="header-bar">
-        <div class="select-group">
-          <label>시험명</label>
-          <input type="text" id="setupExamName" placeholder="예: LT-중간고사">
-        </div>
-        <div class="select-group">
-          <label>과정명</label>
-          <input type="text" id="setupCourseName" placeholder="예: 초6-1">
-        </div>
-        <!-- Vercel 배포 대비용 통신 URL (환경에 맞춰 변경 예정) -->
-        <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycbz_YOUR_GAS_ID_HERE/exec">
-        <button class="btn-primary" onclick="saveExamSetup()">세팅 정보 저장</button>
-      </div>
-
-      <div class="paste-zone" id="hwpPasteZone">
-        <h3 style="margin-top: 0; color: #1a3978;">📄 한글(HWP) / 엑셀 표 복사-붙여넣기 영역</h3>
-        <p style="color: #666; margin-bottom: 0;">답지 표(단원명, 난이도 등)를 복사한 후 이곳을 클릭하고 <b>Ctrl + V</b>를 누르세요.<br>자동으로 45문항 틀이 채워지며, 배점은 난이도에 따라 자동 계산됩니다.</p>
-        <input type="text" id="pasteCatcher" style="opacity: 0; position: absolute; pointer-events: none;">
-      </div>
-
-      <div class="table-wrapper" style="max-height: 500px;">
-        <table>
-          <thead>
-            <tr>
-              <th width="8%">문항번호</th>
-              <th width="42%">출제 단원명</th>
-              <th width="20%">난이도 (하/중/상/최상)</th>
-              <th width="20%">배점 (자동입력)</th>
-              <th width="10%">상태</th>
-            </tr>
-          </thead>
-          <tbody id="setupTableBody">
-            <!-- JS로 45문항 렌더링 -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 2. 채점 입력 탭 -->
-    <div id="tab-input" class="tab-content">
-      <div class="header-bar">
-        <div class="select-group">
-          <label>캠퍼스</label>
-          <select><option>영통</option><option>동탄</option></select>
-        </div>
-        <div class="select-group">
-          <label>과정명</label>
-          <select><option>초6-1</option><option>중2-2</option></select>
-        </div>
-        <div class="select-group">
-          <label>반명</label>
-          <select><option>갈마-7나</option></select>
-        </div>
-        <button class="btn-primary">명단 불러오기</button>
-      </div>
-
-      <div class="table-wrapper" style="height: 600px;">
-        <table>
-          <thead>
-            <tr>
-              <th width="6%" rowspan="2">No.</th>
-              <th width="8%" rowspan="2">학생명</th>
-              <th width="6%" rowspan="2">총점</th>
-              <th colspan="45">문항별 O/X 입력 (1/2, o/x 혼용 가능)</th>
-            </tr>
-            <tr>
-              <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
-              <th colspan="40" style="background:#e9ecef; color:#888;">... (6~45번 생략) ...</th>
-            </tr>
-          </thead>
-          <tbody id="inputTableBody">
-            <tr>
-              <td style="background-color: #f8f9fa;">01</td>
-              <td style="font-weight: bold;">이재원</td>
-              <td style="font-weight: 900; color: #1a3978;">155</td>
-              <td><input type="text" class="ox-input" maxlength="1" oninput="handleOxInput(event)"></td>
-              <td><input type="text" class="ox-input" maxlength="1" oninput="handleOxInput(event)"></td>
-              <td><input type="text" class="ox-input" maxlength="1" oninput="handleOxInput(event)"></td>
-              <td><input type="text" class="ox-input" maxlength="1" oninput="handleOxInput(event)"></td>
-              <td><input type="text" class="ox-input" maxlength="1" oninput="handleOxInput(event)"></td>
-              <td colspan="40" style="background:#f8f9fa;"></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 3. 성적표 출력 탭 -->
-    <div id="tab-report" class="tab-content">
-      <div class="header-bar">
-        <div class="select-group">
-          <label>출력할 반</label>
-          <select><option>갈마-7나</option></select>
-        </div>
-        <button class="btn-primary" style="background-color: #28a745;">전체 학생 PDF 생성</button>
-        <button class="btn-primary" style="background-color: #1a3978;" onclick="window.print()">연속 인쇄</button>
-      </div>
-      <div class="report-preview" id="reportPreviewArea">
-        <div style="text-align: center; color: #aaa; margin-top: 10cm;">
-          <h1>성적표 대시보드 렌더링 영역</h1>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <script>
-    // --- 공통 유틸리티 ---
-    function showAlert(msg) {
-      document.getElementById('modalMessage').innerHTML = msg;
-      document.getElementById('customAlertModal').style.display = 'flex';
-    }
-
-    function showLoading(status, msg = "처리 중입니다...") {
-      const spinner = document.getElementById('globalSpinner');
-      document.getElementById('spinnerText').innerText = msg;
-      spinner.style.display = status ? 'flex' : 'none';
-    }
-
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      event.target.classList.add('active');
-    }
-
-    // --- 1. 시험 세팅 탭 관련 로직 ---
-
-    // 45문항 테이블 렌더링
-    function renderSetupTable() {
-      const tbody = document.getElementById('setupTableBody');
-      tbody.innerHTML = '';
-      for (let i = 1; i <= 45; i++) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${i}</td>
-          <td><input type="text" class="setup-input unit-input" id="unit_${i}" placeholder="단원명 입력"></td>
-          <td>
-            <select class="setup-input diff-select" id="diff_${i}" onchange="updateScore(${i})">
-              <option value="" disabled selected hidden>선택</option>
-              <option value="하">하</option>
-              <option value="중">중</option>
-              <option value="상">상</option>
-              <option value="최상">최상</option>
-            </select>
-          </td>
-          <td><input type="number" class="setup-input score-input" id="score_${i}" readonly style="background-color:#f1f3f5; font-weight:bold; text-align:center;"></td>
-          <td id="status_${i}" style="color:#adb5bd;">-</td>
-        `;
-        tbody.appendChild(tr);
+// 채점 결과 성적DB 저장
+    function saveGrades() {
+      if (!currentExamSetup) {
+        showAlert("명단과 세팅을 먼저 불러와 주세요.");
+        return;
       }
-    }
 
-    // 난이도 선택 시 배점 자동 매핑 (하:2, 중:3, 상:4, 최상:5)
-    function updateScore(index) {
-      const diffVal = document.getElementById(`diff_${index}`).value;
-      const scoreInput = document.getElementById(`score_${index}`);
-      const statusCell = document.getElementById(`status_${index}`);
+      const campusEl = document.getElementById('inputCampus');
+      const campus = campusEl.options[campusEl.selectedIndex].text;
+      const examName = document.getElementById('inputExamName').value.trim();
+      const courseName = document.getElementById('inputCourseName').value.trim();
+      const className = document.getElementById('inputClassName').value.trim();
       
-      let score = "";
-      if (diffVal === "하") score = 2;
-      else if (diffVal === "중") score = 3;
-      else if (diffVal === "상") score = 4;
-      else if (diffVal === "최상") score = 5;
+      // TODO: 추후 선생님 로그인/인증 연동 시 변경될 부분
+      const teacherName = "담임선생님"; 
+
+      const tbody = document.getElementById('inputTableBody');
+      const rows = tbody.querySelectorAll('tr');
       
-      scoreInput.value = score;
+      let studentsData = [];
 
-      // 단원명과 난이도가 모두 채워졌으면 체크 표시
-      const unitVal = document.getElementById(`unit_${index}`).value.trim();
-      if (unitVal && score) {
-        statusCell.innerHTML = "✔";
-        statusCell.style.color = "#28a745";
-        statusCell.style.fontWeight = "bold";
-      } else {
-        statusCell.innerHTML = "-";
-        statusCell.style.color = "#adb5bd";
-      }
-    }
-
-    // 초기 렌더링 실행
-    window.onload = function() {
-      renderSetupTable();
-    };
-
-    // HWP/Excel 붙여넣기 기능
-    document.getElementById('hwpPasteZone').addEventListener('click', function() {
-      let catcher = document.getElementById('pasteCatcher');
-      catcher.focus();
-      this.style.backgroundColor = '#e6f0ff';
-      setTimeout(() => { this.style.backgroundColor = '#f4f6f9'; }, 500);
-    });
-
-    document.getElementById('pasteCatcher').addEventListener('paste', function(e) {
-      e.preventDefault();
-      let clipboardData = e.clipboardData || window.clipboardData;
-      let htmlData = clipboardData.getData('text/html');
-      let textData = clipboardData.getData('text/plain');
-
-      let parsedRows = [];
-
-      // 1. HTML 형태 (한글/엑셀의 <table> 구조 파싱)
-      if (htmlData && htmlData.includes('<table')) {
-        let tempDiv = document.createElement('div');
-        // 불필요한 태그 제거 후 파싱
-        tempDiv.innerHTML = htmlData.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '').replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
-        let table = tempDiv.querySelector('table');
-        if (table) {
-          let trs = table.querySelectorAll('tr');
-          trs.forEach(tr => {
-            let cells = tr.querySelectorAll('td, th');
-            let rowData = Array.from(cells).map(c => c.innerText.replace(/<[^>]+>/g, '').trim());
-            // 빈 행이 아닐 경우만 추가
-            if (rowData.join('').trim() !== '') {
-              parsedRows.push(rowData);
-            }
-          });
-        }
-      } 
-      // 2. Text 형태 (탭 분리 데이터 파싱)
-      else if (textData) {
-        let lines = textData.split(/\r?\n/);
-        lines.forEach(line => {
-          let rowData = line.split('\t').map(c => c.trim());
-          if (rowData.join('').trim() !== '') {
-            parsedRows.push(rowData);
-          }
+      rows.forEach((tr, rIdx) => {
+        // 학생명 (2번째 td)
+        let studentName = tr.cells[1].innerText.trim();
+        let totalScore = document.getElementById(`totalScore_${rIdx}`).innerText;
+        
+        // 해당 학생의 O/X 입력값 수집 (시작 번호부터 세팅된 문항 수만큼)
+        let answers = {};
+        const inputs = tr.querySelectorAll('.grid-nav');
+        inputs.forEach((input, cIdx) => {
+          let qNum = currentExamSetup.startNum + cIdx;
+          let val = input.value; // 'O', 'X', 혹은 빈칸
+          answers[qNum] = val;
         });
-      }
 
-      if (parsedRows.length === 0) {
-        showAlert("붙여넣은 데이터에서 표 형식을 찾을 수 없습니다.");
+        studentsData.push({
+          name: studentName,
+          school: "미상", // 현재 모의 데이터 기준
+          grade: "미상",  // 현재 모의 데이터 기준
+          totalScore: totalScore,
+          answers: answers
+        });
+      });
+
+      if (studentsData.length === 0) {
+        showAlert("저장할 학생 명단 데이터가 없습니다.");
         return;
-      }
-
-      // 파싱된 데이터를 45문항 입력칸에 뿌려주기
-      // 보통 표의 헤더(첫 줄)를 제외하고 데이터를 넣음
-      let startIndex = 0;
-      // 첫 행이 '단원', '문항' 등의 글자를 포함하면 헤더로 간주하고 건너뜀
-      if (parsedRows[0].join('').includes('단원') || parsedRows[0].join('').includes('난이도') || parsedRows[0].join('').includes('번호')) {
-        startIndex = 1;
-      }
-
-      let applyCount = 0;
-      for (let i = startIndex; i < parsedRows.length; i++) {
-        if (applyCount >= 45) break; // 최대 45문항까지만
-        
-        let row = parsedRows[i];
-        let qNum = applyCount + 1;
-        
-        // 데이터의 열(Column) 구성에 따라 매핑 수정 가능 (현재: 1열=단원명, 2열=난이도 라고 가정)
-        // 만약 1열이 '문항번호', 2열이 '단원명', 3열이 '난이도'라면 인덱스를 1, 2로 조정
-        let unitText = "";
-        let diffText = "";
-
-        if (row.length >= 3 && !isNaN(parseInt(row[0]))) {
-          // [번호, 단원명, 난이도] 형태일 경우
-          unitText = row[1];
-          diffText = row[2];
-        } else if (row.length >= 2) {
-          // [단원명, 난이도] 형태일 경우
-          unitText = row[0];
-          diffText = row[1];
-        }
-
-        if (unitText) document.getElementById(`unit_${qNum}`).value = unitText;
-        if (diffText) {
-          // '하', '중', '상', '최상' 글자 매핑
-          let cleanDiff = diffText.replace(/[^가-힣]/g, ''); // 한글만 추출
-          const diffSelect = document.getElementById(`diff_${qNum}`);
-          
-          for (let opt of diffSelect.options) {
-            if (opt.value === cleanDiff) {
-              diffSelect.value = cleanDiff;
-              break;
-            }
-          }
-        }
-        
-        // 배점 업데이트 트리거
-        updateScore(qNum);
-        applyCount++;
-      }
-
-      showAlert(`총 ${applyCount}개의 문항 정보가 성공적으로 입력되었습니다.`);
-    });
-
-    // 세팅 정보 DB 저장
-    function saveExamSetup() {
-      const examName = document.getElementById('setupExamName').value.trim();
-      const courseName = document.getElementById('setupCourseName').value.trim();
-
-      if (!examName || !courseName) {
-        showAlert("시험명과 과정명을 모두 입력해 주세요.");
-        return;
-      }
-
-      const items = [];
-      for (let i = 1; i <= 45; i++) {
-        const unit = document.getElementById(`unit_${i}`).value.trim();
-        const diff = document.getElementById(`diff_${i}`).value;
-        const score = document.getElementById(`score_${i}`).value;
-        
-        // 비어있는 행 무시 X, 45개 규격을 무조건 보냄 (나중에 채점 편의를 위해)
-        items.push({ num: i, unit: unit, diff: diff, score: score });
       }
 
       const payload = {
-        action: 'saveExamSetup',
+        action: 'saveStudentGrades',
+        campus: campus,
         examName: examName,
         courseName: courseName,
-        items: items
+        className: className,
+        teacherName: teacherName,
+        students: studentsData
       };
 
-      showLoading(true, "시험 세팅 정보를 저장하고 있습니다...");
+      showLoading(true, "채점 결과를 성적DB에 저장 중입니다...");
 
-      // GAS 통신 (체크리스트의 fetch 구조 활용)
       const url = document.getElementById('backendUrl').value;
-      if(url.includes('YOUR_GAS_ID_HERE')) {
-        // 로컬 테스트용 모의(Mock) 딜레이
+      if (url.includes('YOUR_GAS_ID_HERE')) {
         setTimeout(() => {
           showLoading(false);
-          showAlert("✔ [저장 성공 (로컬 모의)]<br>시험명: " + examName + "<br>과정명: " + courseName + "<br>세팅이 완료되었습니다. (실제 배포 시 구글 시트에 저장됩니다.)");
-        }, 1000);
+          showAlert("✔ [저장 성공 (로컬 모의)]<br>성적 데이터가 성공적으로 저장되었습니다.");
+        }, 800);
         return;
       }
 
-      fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
-      })
+      fetch(url, { method: 'POST', body: JSON.stringify(payload) })
       .then(res => res.json())
       .then(result => {
         showLoading(false);
-        if(result.success) showAlert("✔ <b>저장 완료</b><br>시험 세팅 정보가 데이터베이스에 성공적으로 저장되었습니다.");
+        if(result.success) showAlert("✔ <b>저장 완료</b><br>학생들의 채점 결과가 성적DB에 안전하게 저장되었습니다.");
         else showAlert("· Error: " + result.error);
       })
       .catch(err => {
-        showLoading(false);
-        showAlert("통신 오류가 발생했습니다.<br>" + err.message);
+        showLoading(false); showAlert("통신 오류가 발생했습니다.<br>" + err.message);
       });
     }
-
-    // --- 2. 채점 입력 탭 관련 로직 ---
-    function handleOxInput(e) {
-      let inputEl = e.target;
-      let val = inputEl.value.toLowerCase();
-      inputEl.classList.remove('val-o', 'val-x');
-
-      if (val === '1' || val === 'o' || val === 'ㅇ') {
-        inputEl.value = 'O';
-        inputEl.classList.add('val-o');
-      } else if (val === '2' || val === 'x' || val === 'ㅂ') {
-        inputEl.value = 'X';
-        inputEl.classList.add('val-x');
-      } else {
-        inputEl.value = '';
-      }
-    }
-  </script>
-</body>
-</html>
