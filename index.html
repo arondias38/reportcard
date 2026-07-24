@@ -76,14 +76,14 @@
 
   <div class="modal-overlay" id="customAlertModal">
     <div class="modal-box">
-      <div id="modalMessage" class="modal-message"></div>
+      <div id="modalMessage" class="modal-message" style="word-break: break-all; text-align: left;"></div>
       <button class="modal-btn" onclick="document.getElementById('customAlertModal').style.display='none'">확인</button>
     </div>
   </div>
 
   <div class="academy-header-bar">
     <span>SG청운학원 - 성적표 통합 시스템</span>
-    <span class="version">v.26.07.24-02</span>
+    <span class="version">v.26.07.24-03</span>
   </div>
 
   <div class="app-body">
@@ -180,7 +180,6 @@
 
     <!-- 3. 성적표 출력 -->
     <div id="tab-report" class="tab-content">
-      <!-- 성적표 출력 코드는 추후 구현 -->
       <h3 style="color:#aaa; text-align:center; padding-top:100px;">성적표 출력 화면 구성 중...</h3>
     </div>
 
@@ -192,12 +191,23 @@
 
     function showAlert(msg) { document.getElementById('modalMessage').innerHTML = msg; document.getElementById('customAlertModal').style.display = 'flex'; }
     function showLoading(status, msg = "처리 중입니다...") { document.getElementById('spinnerText').innerText = msg; document.getElementById('globalSpinner').style.display = status ? 'flex' : 'none'; }
+    
+    // 에러 공통 처리 함수 (Failed to fetch 방어 로직 추가)
+    function handleError(err) {
+      showLoading(false);
+      if(err.message === "Failed to fetch" || err.name === "TypeError") {
+        showAlert("🚫 <b>네트워크 통신 에러 (Failed to fetch)</b><br><br>1. GAS 배포 시 <b>액세스 권한을 '모든 사용자(Anyone)'</b>로 설정했는지 확인해주세요.<br><br>2. <b>backendUrl</b> 주소에 오타나 공백이 없는지 확인해주세요.");
+      } else {
+        showAlert("에러: " + err.message);
+      }
+    }
+
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       event.target.classList.add('active');
-      if(tabId === 'tab-input' && globalMetadata.setups.length === 0) fetchMetadata(); // 선생님 탭 진입 시 데이터 로드
+      if(tabId === 'tab-input' && globalMetadata.setups.length === 0) fetchMetadata(); 
     }
 
     window.onload = function() { renderSetupTable(); };
@@ -241,7 +251,6 @@
       }
     }
 
-    // 기존 세팅값 불러오기 (양방향 바인딩)
     function checkExistingSetup() {
       const y = document.getElementById('setupYear').value;
       const t = document.getElementById('setupTerm').value;
@@ -250,7 +259,7 @@
       if (!l || !c) return;
 
       const payload = { action: 'getExamSetup', year: y, term: t, level: l, course: c };
-      const url = document.getElementById('backendUrl').value;
+      const url = document.getElementById('backendUrl').value.trim();
       if (url.includes('YOUR_GAS_ID_HERE')) return;
 
       fetch(url, { method: 'POST', body: JSON.stringify(payload) })
@@ -268,12 +277,12 @@
            });
            showAlert("기존 세팅 데이터가 자동으로 불러와졌습니다.");
         } else {
-           renderSetupTable(); // 데이터 없으면 초기화
+           renderSetupTable();
         }
-      });
+      })
+      .catch(handleError);
     }
 
-    // 붙여넣기 파싱
     document.getElementById('hwpPasteZone').addEventListener('click', function() { document.getElementById('pasteCatcher').focus(); this.style.backgroundColor = '#e6f0ff'; setTimeout(() => this.style.backgroundColor = '#f4f6f9', 500); });
     document.getElementById('pasteCatcher').addEventListener('paste', function(e) {
       e.preventDefault();
@@ -331,19 +340,23 @@
 
       const payload = { action: 'saveExamSetup', year, term, level, course, totalCount, startNum, items };
       showLoading(true, "세팅 정보를 저장 중입니다...");
-      fetch(document.getElementById('backendUrl').value, { method: 'POST', body: JSON.stringify(payload) })
-      .then(res => res.json()).then(res => { showLoading(false); if(res.success) { showAlert("✔ <b>저장 완료</b>"); globalMetadata.setups=[]; } })
-      .catch(err => { showLoading(false); showAlert("에러: " + err.message); });
+      
+      const url = document.getElementById('backendUrl').value.trim();
+      
+      fetch(url, { method: 'POST', body: JSON.stringify(payload) })
+      .then(res => res.json()).then(res => { showLoading(false); if(res.success) { showAlert("✔ <b>저장 완료</b>"); globalMetadata.setups=[]; } else { showAlert("에러: " + res.error); } })
+      .catch(handleError);
     }
 
 
     // ==========================================
-    // 2. 채점 입력 (선생님) - 연쇄 드롭다운
+    // 2. 채점 입력 (선생님)
     // ==========================================
     function fetchMetadata() {
-      const url = document.getElementById('backendUrl').value;
+      const url = document.getElementById('backendUrl').value.trim();
       if (url.includes('YOUR_GAS_ID_HERE')) return;
       showLoading(true, "시스템 데이터를 불러오는 중...");
+      
       fetch(url, { method: 'POST', body: JSON.stringify({ action: 'getDropdownData' }) })
       .then(res => res.json())
       .then(res => {
@@ -351,11 +364,11 @@
         if(res.success) {
           globalMetadata = res.data;
           populateTerms();
-        }
-      });
+        } else { showAlert("에러: " + res.error); }
+      })
+      .catch(handleError);
     }
 
-    // 학기 가중치로 순차 정렬 (연도 오름차순 -> 봄,여름,가을,겨울 오름차순)
     function sortTerms(terms) {
       const seasonWeight = { '봄학기': 1, '여름학기': 2, '가을학기': 3, '겨울학기': 4 };
       return terms.sort((a, b) => {
@@ -410,7 +423,6 @@
       }
     }
 
-    // 명단 및 기존 성적 데이터 불러오기
     function loadGradesData() {
       const term = document.getElementById('tchTerm').value;
       const course = document.getElementById('tchCourse').value;
@@ -419,13 +431,16 @@
       if (!term || !course || !teacher || !className) return showAlert("모든 조건을 선택해주세요.");
 
       showLoading(true, "명단과 성적 데이터를 불러옵니다...");
-      fetch(document.getElementById('backendUrl').value, { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, course, teacher, className }) })
+      const url = document.getElementById('backendUrl').value.trim();
+      
+      fetch(url, { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, course, teacher, className }) })
       .then(res => res.json())
       .then(res => {
         showLoading(false);
         if(res.success) renderInputTable(res.data.setupData, res.data.students, res.data.grades);
         else showAlert("· Error: " + res.error);
-      });
+      })
+      .catch(handleError);
     }
 
     function renderInputTable(setupData, students, grades) {
@@ -445,7 +460,6 @@
       if(students.length === 0) return tbody.innerHTML = `<tr><td colspan="${3 + setupData.totalCount}" style="padding: 20px; color: red;">명단이 없습니다.</td></tr>`;
 
       students.forEach((st, rIdx) => {
-        // 기존 성적 매핑
         let stGrade = grades.find(g => g.name === st.name) || { totalScore: 0, answers: {} };
         
         let rowHtml = `<tr>
@@ -524,8 +538,11 @@
       });
 
       showLoading(true, "성적DB에 저장 중입니다...");
-      fetch(document.getElementById('backendUrl').value, { method: 'POST', body: JSON.stringify({ action: 'saveStudentGrades', term, course, teacher, className, students: studentsData }) })
-      .then(res => res.json()).then(res => { showLoading(false); if(res.success) showAlert("✔ <b>저장 완료</b>"); else showAlert("에러: " + res.error); });
+      const url = document.getElementById('backendUrl').value.trim();
+      
+      fetch(url, { method: 'POST', body: JSON.stringify({ action: 'saveStudentGrades', term, course, teacher, className, students: studentsData }) })
+      .then(res => res.json()).then(res => { showLoading(false); if(res.success) showAlert("✔ <b>저장 완료</b>"); else showAlert("에러: " + res.error); })
+      .catch(handleError);
     }
   </script>
 </body>
