@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>학원 성적표 통합 시스템</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <!-- 엑셀 파일 파싱을 위한 xlsx 라이브러리 -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
     
@@ -40,7 +42,7 @@
     select, input[type="text"], input[type="number"] { padding: 8px; border: 1px solid #ced4da; border-radius: 4px; font-family: 'Pretendard', sans-serif; font-size: 14px; outline: none; box-sizing: border-box; }
     select:focus, input:focus { border-color: #1a3978; }
     
-    .btn-primary { padding: 0 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; background-color: #1366ce; color: white; transition: 0.2s; height: 38px; cursor: pointer; }
+    .btn-primary { padding: 0 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; background-color: #1366ce; color: white; transition: 0.2s; height: 38px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .btn-primary:hover { background-color: #0f52a8; }
     
     .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #dee2e6; border-radius: 4px; }
@@ -81,9 +83,50 @@
     </div>
   </div>
 
+  <!-- 🟢 엑셀 명단 업로드 모달 -->
+  <div class="modal-overlay" id="rosterUploadModal">
+    <div class="modal-box" style="width: 480px; padding: 25px;">
+      <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">전체 명단 일괄 업로드</div>
+      
+      <div style="display: flex; gap: 15px; margin-bottom: 20px; text-align: left;">
+         <div style="flex:1;">
+            <label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">연도</label>
+            <select id="rosterYear" style="width:100%; height:38px;">
+               <option value="2026년">2026년</option><option value="2027년">2027년</option>
+            </select>
+         </div>
+         <div style="flex:1;">
+            <label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">학기</label>
+            <select id="rosterTerm" style="width:100%; height:38px;">
+               <option value="봄학기">봄학기</option><option value="여름학기">여름학기</option>
+               <option value="가을학기">가을학기</option><option value="겨울학기">겨울학기</option>
+            </select>
+         </div>
+      </div>
+
+      <div id="dropZone" style="border: 2px dashed #28a745; border-radius: 8px; padding: 40px 15px; background-color: #f8f9fa; cursor: pointer; transition: 0.2s; margin-bottom:20px;">
+         <div style="font-size:32px; margin-bottom:10px;">📂</div>
+         <div style="font-size:15px; font-weight:bold; color:#28a745; margin-bottom:8px;">엑셀 파일을 이곳에 끌어다 놓거나 클릭하세요.</div>
+         <div style="font-size:13px; color:#888; line-height: 1.4;">
+            ※ '반명, 학생명, 담임, 학교, 학년' 열을 자동으로 분석하여<br>과정명과 난이도를 추출합니다.
+         </div>
+         <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;">
+      </div>
+
+      <div class="modal-buttons" style="margin-bottom: 5px; display: flex; width: 100%;">
+        <button class="modal-btn btn-no" style="flex:none; width: 100%; border-radius: 50px; padding: 10px 20px; background-color: #6c757d;" onclick="document.getElementById('rosterUploadModal').style.display='none'">닫기</button>
+      </div>
+    </div>
+  </div>
+
   <div class="academy-header-bar">
     <span>SG청운학원 - 성적표 통합 시스템</span>
-    <span class="version">v.26.07.24-04</span>
+    <!-- 🟢 명단 일괄 업로드 버튼 추가 -->
+    <button class="btn-primary" style="background-color: #28a745; position: absolute; right: 120px;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+      명단 일괄 업로드
+    </button>
+    <span class="version">v.26.07.24-05</span>
   </div>
 
   <div class="app-body">
@@ -206,14 +249,121 @@
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       event.target.classList.add('active');
-      
-      // 🟢 선생님 탭 진입 시 무조건 최신 데이터를 다시 불러오도록 수정
-      if(tabId === 'tab-input') {
-        fetchMetadata(); 
-      }
+      if(tabId === 'tab-input') fetchMetadata(); 
     }
 
     window.onload = function() { renderSetupTable(); };
+
+    // ==========================================
+    // 0. 엑셀 파일 스마트 업로드 (난이도 자동 추출)
+    // ==========================================
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#e6f0ff'; });
+    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#f8f9fa'; });
+    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#f8f9fa'; if (e.dataTransfer.files.length) processExcel(e.dataTransfer.files[0]); });
+    fileInput.addEventListener('change', (e) => { if (e.target.files.length) processExcel(e.target.files[0]); });
+
+    // 반 이름에서 난이도와 과정명 자동 추출기
+    function extractCourseInfo(className) {
+      let parts = className.split('-');
+      if(parts.length < 2) return "기타 " + className; 
+      
+      let part1 = parts[0];
+      let part2 = parts.slice(1).join('-'); 
+      
+      let levelMatch = part1.match(/(별하|한빛|누리|마루|과고|누|별\+마|E별하)/);
+      let level = levelMatch ? levelMatch[1] : "기타";
+      if (level === "누") level = "누리";
+      if (level === "별+마") level = "별하+마루";
+      if (level === "E별하") level = "별하";
+      
+      let courseMatch = part2.match(/^([가-힣0-9]+)/);
+      let course = courseMatch ? courseMatch[1] : part2;
+      
+      return level + " " + course;
+    }
+
+    function processExcel(file) {
+      showLoading(true, "엑셀 파일을 분석 중입니다...");
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          let data = new Uint8Array(e.target.result);
+          let workbook = XLSX.read(data, {type: 'array'});
+          let worksheet = workbook.Sheets[workbook.SheetNames[0]];
+          let jsonArr = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+
+          let headerRowIdx = -1;
+          let colMap = { ban: -1, name: -1, school: -1, grade: -1, teacher: -1 };
+
+          for (let i = 0; i < Math.min(20, jsonArr.length); i++) {
+            let row = jsonArr[i];
+            if (!row) continue;
+            let strRow = row.map(cell => String(cell || '').replace(/\s+/g, '')).join(',');
+            if (strRow.includes('반명') && strRow.includes('학생명')) {
+              headerRowIdx = i;
+              for (let c = 0; c < row.length; c++) {
+                let h = String(row[c] || '').replace(/\s+/g, '');
+                if (h === '반명') colMap.ban = c;
+                else if (h === '학생명') colMap.name = c;
+                else if (h === '학교명' || h === '학교') colMap.school = c;
+                else if (h === '학년') colMap.grade = c;
+                else if (h === '담임' || h === '담임명') colMap.teacher = c;
+              }
+              break;
+            }
+          }
+
+          if (headerRowIdx === -1 || colMap.ban === -1 || colMap.name === -1) {
+            throw new Error("엑셀에서 필수 머릿글(반명, 학생명)을 찾을 수 없습니다.");
+          }
+
+          let termName = document.getElementById('rosterYear').value + " " + document.getElementById('rosterTerm').value;
+          let parsedStudents = [];
+
+          for (let i = headerRowIdx + 1; i < jsonArr.length; i++) {
+            let row = jsonArr[i];
+            if (!row || row.length === 0) continue;
+            
+            let ban = String(row[colMap.ban] || '').trim();
+            let name = String(row[colMap.name] || '').trim();
+            if (!ban || !name) continue; 
+
+            let school = colMap.school !== -1 ? String(row[colMap.school] || '').trim() : '';
+            let grade = colMap.grade !== -1 ? String(row[colMap.grade] || '').trim() : '';
+            let teacher = colMap.teacher !== -1 ? String(row[colMap.teacher] || '').trim() : '';
+            let courseName = extractCourseInfo(ban);
+
+            parsedStudents.push([termName, courseName, teacher, ban, name, school, grade]);
+          }
+
+          if(parsedStudents.length === 0) throw new Error("추출할 수 있는 학생 데이터가 없습니다.");
+
+          const payload = { action: 'uploadRoster', students: parsedStudents };
+          fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify(payload) })
+          .then(res => res.json())
+          .then(result => {
+            showLoading(false);
+            document.getElementById('fileInput').value = '';
+            if(result.success) {
+              document.getElementById('rosterUploadModal').style.display = 'none';
+              showAlert(`✔ <b>${termName} 명단 업로드 완료!</b><br>총 ${parsedStudents.length}명의 데이터가 저장되었습니다.`);
+              globalMetadata.rosters = []; 
+            } else { showAlert("· Error: " + result.error); }
+          }).catch(err => { document.getElementById('fileInput').value = ''; handleError(err); });
+
+        } catch (err) {
+          showLoading(false);
+          document.getElementById('fileInput').value = '';
+          showAlert("· Error: " + err.message);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
 
     // ==========================================
     // 1. 시험 기본 세팅 (관리자)
@@ -386,7 +536,7 @@
       let terms = [...new Set(globalMetadata.setups.map(s => s.fullTerm))];
       terms = sortTerms(terms);
       const termSel = document.getElementById('tchTerm');
-      termSel.innerHTML = '<option value="">학기 선택</option>';
+      termSel.innerHTML = '<option value="">선택하세요</option>';
       terms.forEach(t => termSel.innerHTML += `<option value="${t}">${t}</option>`);
       filterCourses();
     }
@@ -394,7 +544,7 @@
     function filterCourses() {
       const term = document.getElementById('tchTerm').value;
       const crsSel = document.getElementById('tchCourse');
-      crsSel.innerHTML = '<option value="">과정 선택</option>';
+      crsSel.innerHTML = '<option value="">선택하세요</option>';
       if(term) {
         let courses = [...new Set(globalMetadata.setups.filter(s => s.fullTerm === term).map(s => s.fullCourse))];
         courses.sort().forEach(c => crsSel.innerHTML += `<option value="${c}">${c}</option>`);
