@@ -10,7 +10,7 @@
     
     body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; }
     
-    .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
+    .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1a3978; border-radius: 50%; animation: spin 1s linear infinite; }
     .spinner-text { margin-top: 15px; font-weight: bold; color: #1a3978; font-size: 15px; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -37,7 +37,7 @@
     .header-bar { background-color: #f8f9fa; padding: 15px 20px; border-radius: 8px; border: 1px solid #dee2e6; display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
     .select-group { display: flex; align-items: center; gap: 6px; }
     .select-group label { font-weight: bold; font-size: 14px; color: #1a3978; margin-right: 4px;}
-    select, input[type="text"], input[type="number"] { width: 120px; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; font-family: 'Pretendard', sans-serif; font-size: 14px; outline: none; box-sizing: border-box; }
+    select, input[type="text"], input[type="number"] { padding: 8px; border: 1px solid #ced4da; border-radius: 4px; font-family: 'Pretendard', sans-serif; font-size: 14px; outline: none; box-sizing: border-box; }
     select:focus, input:focus { border-color: #1a3978; }
     
     .btn-primary { padding: 0 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; background-color: #1366ce; color: white; transition: 0.2s; height: 38px; cursor: pointer; }
@@ -66,6 +66,9 @@
 </head>
 <body>
 
+  <!-- Vercel 배포 URL 입력란 -->
+  <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycbz_YOUR_GAS_ID_HERE/exec">
+
   <div class="spinner-overlay" id="globalSpinner">
     <div class="spinner"></div>
     <div class="spinner-text" id="spinnerText">처리 중입니다...</div>
@@ -79,12 +82,11 @@
   </div>
 
   <div class="academy-header-bar">
-    <span>SG청운학원 - 성적표 통합 관리 시스템</span>
-    <span class="version">v.26.07.24-01</span>
+    <span>SG청운학원 - 성적표 통합 시스템</span>
+    <span class="version">v.26.07.24-02</span>
   </div>
 
   <div class="app-body">
-    <!-- 탭 네비게이션 -->
     <div class="tab-container">
       <button class="tab-btn active" onclick="switchTab('tab-setup')">1. 시험 기본 세팅 (관리자)</button>
       <button class="tab-btn" onclick="switchTab('tab-input')">2. 채점 입력 (선생님)</button>
@@ -92,39 +94,35 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- 1. 시험 기본 세팅 탭 -->
+    <!-- 1. 시험 기본 세팅 (관리자) -->
     <!-- ========================================== -->
     <div id="tab-setup" class="tab-content active">
       <div class="header-bar">
         <div class="select-group">
-          <label>시험명</label>
-          <select id="setupYear"><option value="2026년">2026년</option><option value="2027년">2027년</option></select>
-          <select id="setupTerm"><option value="봄학기">봄학기</option><option value="여름학기">여름학기</option><option value="가을학기">가을학기</option><option value="겨울학기">겨울학기</option></select>
-          <select id="setupTest"><option value="LT-중간고사">LT-중간고사</option><option value="LT-기말고사">LT-기말고사</option></select>
+          <label>연도/학기</label>
+          <select id="setupYear" onchange="checkExistingSetup()"><option value="2026년">2026년</option><option value="2027년">2027년</option></select>
+          <select id="setupTerm" onchange="checkExistingSetup()"><option value="봄학기">봄학기</option><option value="여름학기">여름학기</option><option value="가을학기">가을학기</option><option value="겨울학기">겨울학기</option></select>
         </div>
         <div class="select-group" style="margin-left: 10px;">
-          <label>과정명</label>
-          <select id="setupCourseMain"><option value="초6-1">초6-1</option><option value="중2-2">중2-2</option><option value="8-가">8-가</option></select>
-          <select id="setupCourseLevel"><option value="마루">마루</option><option value="별하">별하</option><option value="가온">가온</option></select>
+          <label>과정</label>
+          <input type="text" id="setupLevel" placeholder="난이도 (ex.별하)" style="width: 100px;" onchange="checkExistingSetup()">
+          <input type="text" id="setupCourse" placeholder="과정명 (ex.초5-1)" style="width: 120px;" onchange="checkExistingSetup()">
         </div>
         
         <div class="select-group" style="margin-left: auto; border-left: 2px solid #dee2e6; padding-left: 15px;">
-          <label>문항 수</label>
-          <input type="number" id="setupTotalCount" value="45" min="1" max="100" style="width: 70px;" onchange="renderSetupTable()">
+          <label>총 문항 수</label>
+          <input type="number" id="setupTotalCount" value="45" min="1" max="100" style="width: 60px;" onchange="renderSetupTable()">
         </div>
         <div class="select-group">
           <label>시작 번호</label>
-          <input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 70px;" onchange="renderSetupTable()">
+          <input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 60px;" onchange="renderSetupTable()">
         </div>
-        
-        <!-- Vercel 배포 대비용 통신 URL (본인의 GAS 배포 URL로 변경) -->
-        <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycbz_YOUR_GAS_ID_HERE/exec">
         <button class="btn-primary" style="margin-left: 10px;" onclick="saveExamSetup()">세팅 정보 저장</button>
       </div>
 
       <div class="paste-zone" id="hwpPasteZone">
-        <h4 style="margin-top: 0; color: #1a3978; margin-bottom: 8px;">📄 한글(HWP) / 엑셀 표 복사-붙여넣기 영역</h4>
-        <p style="color: #666; margin-bottom: 0; font-size: 14px;">답지 표(단원명, 난이도 또는 배점)를 복사한 후 이곳을 클릭하고 <b>Ctrl + V</b>를 누르세요. 배점 숫자를 넣어도 난이도로 자동 인식됩니다.</p>
+        <h4 style="margin-top: 0; color: #1a3978; margin-bottom: 8px;">📄 엑셀/한글 출제표 복사-붙여넣기 영역</h4>
+        <p style="color: #666; margin-bottom: 0; font-size: 14px;">답지 표(단원명, 배점)를 복사한 후 이곳을 클릭하고 <b>Ctrl + V</b>를 누르세요. 자동으로 매핑됩니다.</p>
         <input type="text" id="pasteCatcher" style="opacity: 0; position: absolute; pointer-events: none;">
       </div>
 
@@ -134,187 +132,154 @@
             <tr>
               <th width="8%">문항번호</th>
               <th width="42%">출제 단원명</th>
-              <th width="20%">난이도 (하/중/상/최상)</th>
-              <th width="20%">배점 (자동입력)</th>
+              <th width="20%">배점 (난이도 자동)</th>
+              <th width="20%">난이도 (확인용)</th>
               <th width="10%">상태</th>
             </tr>
           </thead>
-          <tbody id="setupTableBody">
-            <!-- JS 동적 렌더링 -->
-          </tbody>
+          <tbody id="setupTableBody"></tbody>
         </table>
       </div>
     </div>
 
     <!-- ========================================== -->
-    <!-- 2. 채점 입력 탭 -->
+    <!-- 2. 채점 입력 (선생님) -->
     <!-- ========================================== -->
     <div id="tab-input" class="tab-content">
       <div class="header-bar">
         <div class="select-group">
-          <label>캠퍼스</label>
-          <select id="inputCampus" style="width:80px;"><option value="영통">영통</option><option value="동탄">동탄</option></select>
+          <label>학기 선택</label>
+          <select id="tchTerm" style="width:140px;" onchange="filterCourses()"><option value="">선택하세요</option></select>
         </div>
         <div class="select-group">
-          <label>시험명</label>
-          <select id="inputYear"><option value="2026년">2026년</option><option value="2027년">2027년</option></select>
-          <select id="inputTerm"><option value="봄학기">봄학기</option><option value="여름학기">여름학기</option><option value="가을학기">가을학기</option><option value="겨울학기">겨울학기</option></select>
-          <select id="inputTest"><option value="LT-중간고사">LT-중간고사</option><option value="LT-기말고사">LT-기말고사</option></select>
+          <label>과정 선택</label>
+          <select id="tchCourse" style="width:140px;" onchange="filterTeachers()"><option value="">선택하세요</option></select>
         </div>
         <div class="select-group">
-          <label>과정명</label>
-          <select id="inputCourseMain"><option value="초6-1">초6-1</option><option value="중2-2">중2-2</option><option value="8-가">8-가</option></select>
-          <select id="inputCourseLevel"><option value="마루">마루</option><option value="별하">별하</option><option value="가온">가온</option></select>
+          <label>선생님 선택</label>
+          <select id="tchTeacher" style="width:100px;" onchange="filterClasses()"><option value="">선택</option></select>
         </div>
         <div class="select-group">
-          <label>반명</label>
-          <input type="text" id="inputClassName" placeholder="예: H마루-공수2M2">
+          <label>반 선택</label>
+          <select id="tchClass" style="width:140px;"><option value="">선택</option></select>
         </div>
-        <button class="btn-primary" style="margin-left: auto;" onclick="loadInputData()">명단 불러오기</button>
+        <button class="btn-primary" style="margin-left: auto;" onclick="loadGradesData()">명단 불러오기</button>
         <button class="btn-primary" style="background-color: #d32f2f;" onclick="saveGrades()">결과 저장</button>
       </div>
 
       <div class="table-wrapper" style="height: 600px; display: none;" id="inputTableContainer">
         <table>
-          <thead id="inputTableHeader">
-          </thead>
-          <tbody id="inputTableBody">
-          </tbody>
+          <thead id="inputTableHeader"></thead>
+          <tbody id="inputTableBody"></tbody>
         </table>
       </div>
       <div id="inputEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px;">
-        상단의 정보를 입력하고 [명단 불러오기]를 눌러주세요.
+        상단의 학기, 과정, 선생님, 반을 선택하고 [명단 불러오기]를 눌러주세요.
       </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 3. 성적표 출력 탭 -->
-    <!-- ========================================== -->
+    <!-- 3. 성적표 출력 -->
     <div id="tab-report" class="tab-content">
-      <div class="header-bar">
-        <div class="select-group">
-          <label>출력할 반</label>
-          <input type="text" placeholder="예: H마루-공수2M2">
-        </div>
-        <button class="btn-primary" style="background-color: #28a745;">전체 학생 PDF 생성</button>
-        <button class="btn-primary" style="background-color: #1a3978;" onclick="window.print()">연속 인쇄</button>
-      </div>
-      <div class="report-preview" id="reportPreviewArea" style="width: 21cm; min-height: 29.7cm; margin: 0 auto; padding: 2cm; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); border: 1px solid #ccc; box-sizing: border-box;">
-        <div style="text-align: center; color: #aaa; margin-top: 10cm;">
-          <h1>성적표 대시보드 렌더링 영역</h1>
-        </div>
-      </div>
+      <!-- 성적표 출력 코드는 추후 구현 -->
+      <h3 style="color:#aaa; text-align:center; padding-top:100px;">성적표 출력 화면 구성 중...</h3>
     </div>
 
   </div>
 
   <script>
-    // 공통 유틸리티
-    function showAlert(msg) {
-      document.getElementById('modalMessage').innerHTML = msg;
-      document.getElementById('customAlertModal').style.display = 'flex';
-    }
+    let globalMetadata = { setups: [], rosters: [] };
+    let currentExamSetup = null;
 
-    function showLoading(status, msg = "처리 중입니다...") {
-      const spinner = document.getElementById('globalSpinner');
-      document.getElementById('spinnerText').innerText = msg;
-      spinner.style.display = status ? 'flex' : 'none';
-    }
-
+    function showAlert(msg) { document.getElementById('modalMessage').innerHTML = msg; document.getElementById('customAlertModal').style.display = 'flex'; }
+    function showLoading(status, msg = "처리 중입니다...") { document.getElementById('spinnerText').innerText = msg; document.getElementById('globalSpinner').style.display = status ? 'flex' : 'none'; }
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       event.target.classList.add('active');
+      if(tabId === 'tab-input' && globalMetadata.setups.length === 0) fetchMetadata(); // 선생님 탭 진입 시 데이터 로드
     }
 
-    // UI 다중 선택값을 하나로 합치는 함수
-    function getExamName(prefix) {
-      return document.getElementById(prefix + 'Year').value + " " +
-             document.getElementById(prefix + 'Term').value + " " +
-             document.getElementById(prefix + 'Test').value;
-    }
-
-    function getCourseName(prefix) {
-      return document.getElementById(prefix + 'CourseMain').value + " " +
-             document.getElementById(prefix + 'CourseLevel').value;
-    }
-
-    let currentExamSetup = null; 
+    window.onload = function() { renderSetupTable(); };
 
     // ==========================================
-    // 1. 시험 세팅 탭 로직
+    // 1. 시험 기본 세팅 (관리자)
     // ==========================================
     function renderSetupTable() {
       const totalCount = parseInt(document.getElementById('setupTotalCount').value) || 45;
       const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
       const tbody = document.getElementById('setupTableBody');
       tbody.innerHTML = '';
-      
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${qNum}</td>
-          <td><input type="text" class="setup-input unit-input" id="unit_${qNum}" placeholder="단원명 입력"></td>
-          <td>
-            <select class="setup-input diff-select" id="diff_${qNum}" onchange="updateScore(${qNum})">
-              <option value="" disabled selected hidden>선택</option>
-              <option value="하">하</option>
-              <option value="중">중</option>
-              <option value="상">상</option>
-              <option value="최상">최상</option>
-            </select>
-          </td>
-          <td><input type="number" class="setup-input score-input" id="score_${qNum}" readonly style="background-color:#f1f3f5; font-weight:bold; text-align:center;"></td>
-          <td id="status_${qNum}" style="color:#adb5bd;">-</td>
-        `;
-        tbody.appendChild(tr);
+        tbody.innerHTML += `
+          <tr>
+            <td>${qNum}</td>
+            <td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td>
+            <td><input type="number" class="setup-input score-input" id="score_${qNum}" oninput="updateDiff(${qNum})" placeholder="2,3,4,5"></td>
+            <td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:#f1f3f5; text-align:center;"></td>
+            <td id="status_${qNum}" style="color:#adb5bd;">-</td>
+          </tr>`;
       }
     }
 
-    window.onload = function() {
-      renderSetupTable();
-    };
-
-    function updateScore(qNum) {
-      const diffVal = document.getElementById(`diff_${qNum}`).value;
-      const scoreInput = document.getElementById(`score_${qNum}`);
+    function updateDiff(qNum) {
+      const score = document.getElementById(`score_${qNum}`).value;
+      const diffInput = document.getElementById(`diff_${qNum}`);
       const statusCell = document.getElementById(`status_${qNum}`);
-      
-      let score = "";
-      if (diffVal === "하") score = 2;
-      else if (diffVal === "중") score = 3;
-      else if (diffVal === "상") score = 4;
-      else if (diffVal === "최상") score = 5;
-      
-      scoreInput.value = score;
+      let diff = "";
+      if (score == "2") diff = "하";
+      else if (score == "3") diff = "중";
+      else if (score == "4") diff = "상";
+      else if (score == "5") diff = "최상";
+      diffInput.value = diff;
 
-      const unitVal = document.getElementById(`unit_${qNum}`).value.trim();
-      if (unitVal && score) {
-        statusCell.innerHTML = "✔";
-        statusCell.style.color = "#28a745";
-        statusCell.style.fontWeight = "bold";
+      if (document.getElementById(`unit_${qNum}`).value.trim() && diff) {
+        statusCell.innerHTML = "✔"; statusCell.style.color = "#28a745"; statusCell.style.fontWeight = "bold";
       } else {
-        statusCell.innerHTML = "-";
-        statusCell.style.color = "#adb5bd";
+        statusCell.innerHTML = "-"; statusCell.style.color = "#adb5bd";
       }
     }
 
-    // HWP/Excel 붙여넣기 기능 (배점 2,3,4,5 -> 하,중,상,최상 자동 변환 포함)
-    document.getElementById('hwpPasteZone').addEventListener('click', function() {
-      let catcher = document.getElementById('pasteCatcher');
-      catcher.focus();
-      this.style.backgroundColor = '#e6f0ff';
-      setTimeout(() => { this.style.backgroundColor = '#f4f6f9'; }, 500);
-    });
+    // 기존 세팅값 불러오기 (양방향 바인딩)
+    function checkExistingSetup() {
+      const y = document.getElementById('setupYear').value;
+      const t = document.getElementById('setupTerm').value;
+      const l = document.getElementById('setupLevel').value.trim();
+      const c = document.getElementById('setupCourse').value.trim();
+      if (!l || !c) return;
 
+      const payload = { action: 'getExamSetup', year: y, term: t, level: l, course: c };
+      const url = document.getElementById('backendUrl').value;
+      if (url.includes('YOUR_GAS_ID_HERE')) return;
+
+      fetch(url, { method: 'POST', body: JSON.stringify(payload) })
+      .then(res => res.json())
+      .then(res => {
+        if(res.success && res.data) {
+           document.getElementById('setupTotalCount').value = res.data.totalCount;
+           document.getElementById('setupStartNum').value = res.data.startNum;
+           renderSetupTable();
+           res.data.items.forEach(item => {
+             let u = document.getElementById(`unit_${item.num}`);
+             let s = document.getElementById(`score_${item.num}`);
+             if(u) u.value = item.unit;
+             if(s) { s.value = item.score; updateDiff(item.num); }
+           });
+           showAlert("기존 세팅 데이터가 자동으로 불러와졌습니다.");
+        } else {
+           renderSetupTable(); // 데이터 없으면 초기화
+        }
+      });
+    }
+
+    // 붙여넣기 파싱
+    document.getElementById('hwpPasteZone').addEventListener('click', function() { document.getElementById('pasteCatcher').focus(); this.style.backgroundColor = '#e6f0ff'; setTimeout(() => this.style.backgroundColor = '#f4f6f9', 500); });
     document.getElementById('pasteCatcher').addEventListener('paste', function(e) {
       e.preventDefault();
       let htmlData = (e.clipboardData || window.clipboardData).getData('text/html');
       let textData = (e.clipboardData || window.clipboardData).getData('text/plain');
       let rows = [];
-      
       if(htmlData) {
         let t = document.createElement('div'); t.innerHTML = htmlData;
         let tbl = t.querySelector('table');
@@ -325,7 +290,6 @@
       } else if(textData) {
         textData.split(/\r?\n/).forEach(l => { let r = l.split('\t').map(c => c.trim()); if(r.join('')) rows.push(r); });
       }
-      
       if(rows.length===0) return showAlert("표 데이터가 아닙니다.");
       
       let st = (rows[0].join('').includes('단원') || rows[0].join('').includes('난이도') || rows[0].join('').includes('배점')) ? 1 : 0;
@@ -336,131 +300,164 @@
       for(let i = st; i < rows.length && c < count; i++) {
         let u = rows[i].length >= 3 ? rows[i][1] : rows[i][0];
         let d = rows[i].length >= 3 ? rows[i][2] : rows[i][1];
-        
         if(u) document.getElementById(`unit_${sNum+c}`).value = u;
         if(d) {
-          let cleanDiff = d.replace(/[^가-힣0-9]/g, ''); 
-          if (cleanDiff === '2') cleanDiff = '하';
-          else if (cleanDiff === '3') cleanDiff = '중';
-          else if (cleanDiff === '4') cleanDiff = '상';
-          else if (cleanDiff === '5') cleanDiff = '최상';
-
-          let sel = document.getElementById(`diff_${sNum+c}`);
-          if(sel) {
-            for (let opt of sel.options) {
-              if (opt.value === cleanDiff) {
-                sel.value = cleanDiff;
-                break;
-              }
-            }
-          }
+          let score = d.replace(/[^0-9]/g, '');
+          if(score) { document.getElementById(`score_${sNum+c}`).value = score; updateDiff(sNum+c); }
         }
-        updateScore(sNum+c);
         c++;
       }
-      showAlert(`총 ${c}개의 문항 정보가 성공적으로 자동 입력되었습니다.`);
     });
 
-    // 세팅 정보 저장
     function saveExamSetup() {
-      const examName = getExamName('setup');
-      const courseName = getCourseName('setup');
+      const year = document.getElementById('setupYear').value;
+      const term = document.getElementById('setupTerm').value;
+      const level = document.getElementById('setupLevel').value.trim();
+      const course = document.getElementById('setupCourse').value.trim();
+      if(!level || !course) return showAlert("과정 난이도와 과정명을 모두 입력하세요.");
+
       const totalCount = parseInt(document.getElementById('setupTotalCount').value);
       const startNum = parseInt(document.getElementById('setupStartNum').value);
-
       const items = [];
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i;
-        const unit = document.getElementById(`unit_${qNum}`).value.trim();
-        const diff = document.getElementById(`diff_${qNum}`).value;
-        const score = document.getElementById(`score_${qNum}`).value;
-        items.push({ num: qNum, unit: unit, diff: diff, score: parseInt(score)||0 });
+        items.push({ 
+          num: qNum, 
+          unit: document.getElementById(`unit_${qNum}`).value.trim(), 
+          score: parseInt(document.getElementById(`score_${qNum}`).value)||0,
+          diff: document.getElementById(`diff_${qNum}`).value
+        });
       }
 
-      const payload = {
-        action: 'saveExamSetup',
-        examName: examName,
-        courseName: courseName,
-        totalCount: totalCount,
-        startNum: startNum,
-        items: items
-      };
-
+      const payload = { action: 'saveExamSetup', year, term, level, course, totalCount, startNum, items };
       showLoading(true, "세팅 정보를 저장 중입니다...");
-      const url = document.getElementById('backendUrl').value;
-      if(url.includes('YOUR_GAS_ID_HERE')) {
-        setTimeout(() => { showLoading(false); showAlert("✔ 로컬 테스트 성공"); }, 800);
-        return;
-      }
-
-      fetch(url, { method: 'POST', body: JSON.stringify(payload) })
-      .then(res => res.json())
-      .then(result => {
-        showLoading(false);
-        if(result.success) showAlert("✔ <b>저장 완료</b>");
-        else showAlert("· Error: " + result.error);
-      })
-      .catch(err => { showLoading(false); showAlert(err.message); });
+      fetch(document.getElementById('backendUrl').value, { method: 'POST', body: JSON.stringify(payload) })
+      .then(res => res.json()).then(res => { showLoading(false); if(res.success) { showAlert("✔ <b>저장 완료</b>"); globalMetadata.setups=[]; } })
+      .catch(err => { showLoading(false); showAlert("에러: " + err.message); });
     }
 
-    // ==========================================
-    // 2. 채점 입력 탭 로직
-    // ==========================================
-    function loadInputData() {
-      const examName = getExamName('input');
-      const courseName = getCourseName('input');
-      const className = document.getElementById('inputClassName').value.trim();
 
-      if (!className) { showAlert("반명을 입력해주세요."); return; }
-
-      showLoading(true, "명단과 세팅 정보를 불러오는 중입니다...");
+    // ==========================================
+    // 2. 채점 입력 (선생님) - 연쇄 드롭다운
+    // ==========================================
+    function fetchMetadata() {
       const url = document.getElementById('backendUrl').value;
-      const payload = { action: 'loadInputWorkflow', examName, courseName, className };
-
-      if(url.includes('YOUR_GAS_ID_HERE')) {
-        setTimeout(() => { showLoading(false); showAlert("가짜 URL 연결됨"); }, 800);
-        return;
-      }
-
-      fetch(url, { method: 'POST', body: JSON.stringify(payload) })
+      if (url.includes('YOUR_GAS_ID_HERE')) return;
+      showLoading(true, "시스템 데이터를 불러오는 중...");
+      fetch(url, { method: 'POST', body: JSON.stringify({ action: 'getDropdownData' }) })
       .then(res => res.json())
-      .then(result => {
+      .then(res => {
         showLoading(false);
-        if(result.success) renderInputTable(result.data.setupData, result.data.students);
-        else showAlert("· Error: " + result.error);
-      })
-      .catch(err => { showLoading(false); showAlert(err.message); });
+        if(res.success) {
+          globalMetadata = res.data;
+          populateTerms();
+        }
+      });
     }
 
-    function renderInputTable(setupData, students) {
+    // 학기 가중치로 순차 정렬 (연도 오름차순 -> 봄,여름,가을,겨울 오름차순)
+    function sortTerms(terms) {
+      const seasonWeight = { '봄학기': 1, '여름학기': 2, '가을학기': 3, '겨울학기': 4 };
+      return terms.sort((a, b) => {
+        let aYear = parseInt(a.split(' ')[0]), bYear = parseInt(b.split(' ')[0]);
+        if(aYear !== bYear) return aYear - bYear;
+        let aS = seasonWeight[a.split(' ')[1]] || 5, bS = seasonWeight[b.split(' ')[1]] || 5;
+        return aS - bS;
+      });
+    }
+
+    function populateTerms() {
+      let terms = [...new Set(globalMetadata.setups.map(s => s.fullTerm))];
+      terms = sortTerms(terms);
+      const termSel = document.getElementById('tchTerm');
+      termSel.innerHTML = '<option value="">학기 선택</option>';
+      terms.forEach(t => termSel.innerHTML += `<option value="${t}">${t}</option>`);
+      filterCourses();
+    }
+
+    function filterCourses() {
+      const term = document.getElementById('tchTerm').value;
+      const crsSel = document.getElementById('tchCourse');
+      crsSel.innerHTML = '<option value="">과정 선택</option>';
+      if(term) {
+        let courses = [...new Set(globalMetadata.setups.filter(s => s.fullTerm === term).map(s => s.fullCourse))];
+        courses.sort().forEach(c => crsSel.innerHTML += `<option value="${c}">${c}</option>`);
+      }
+      filterTeachers();
+    }
+
+    function filterTeachers() {
+      const term = document.getElementById('tchTerm').value;
+      const course = document.getElementById('tchCourse').value;
+      const tSel = document.getElementById('tchTeacher');
+      tSel.innerHTML = '<option value="">선택</option>';
+      if(term && course) {
+        let teachers = [...new Set(globalMetadata.rosters.filter(r => r.fullTerm === term && r.fullCourse === course).map(r => r.teacher))];
+        teachers.sort().forEach(t => tSel.innerHTML += `<option value="${t}">${t}</option>`);
+      }
+      filterClasses();
+    }
+
+    function filterClasses() {
+      const term = document.getElementById('tchTerm').value;
+      const course = document.getElementById('tchCourse').value;
+      const teacher = document.getElementById('tchTeacher').value;
+      const cSel = document.getElementById('tchClass');
+      cSel.innerHTML = '<option value="">선택</option>';
+      if(term && course && teacher) {
+        let classes = [...new Set(globalMetadata.rosters.filter(r => r.fullTerm === term && r.fullCourse === course && r.teacher === teacher).map(r => r.className))];
+        classes.sort().forEach(c => cSel.innerHTML += `<option value="${c}">${c}</option>`);
+      }
+    }
+
+    // 명단 및 기존 성적 데이터 불러오기
+    function loadGradesData() {
+      const term = document.getElementById('tchTerm').value;
+      const course = document.getElementById('tchCourse').value;
+      const teacher = document.getElementById('tchTeacher').value;
+      const className = document.getElementById('tchClass').value;
+      if (!term || !course || !teacher || !className) return showAlert("모든 조건을 선택해주세요.");
+
+      showLoading(true, "명단과 성적 데이터를 불러옵니다...");
+      fetch(document.getElementById('backendUrl').value, { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, course, teacher, className }) })
+      .then(res => res.json())
+      .then(res => {
+        showLoading(false);
+        if(res.success) renderInputTable(res.data.setupData, res.data.students, res.data.grades);
+        else showAlert("· Error: " + res.error);
+      });
+    }
+
+    function renderInputTable(setupData, students, grades) {
       document.getElementById('inputEmptyState').style.display = 'none';
       document.getElementById('inputTableContainer').style.display = 'block';
-
       currentExamSetup = setupData; 
+
       const thead = document.getElementById('inputTableHeader');
       const tbody = document.getElementById('inputTableBody');
 
-      let tr1 = `<tr><th width="4%" rowspan="2">No.</th><th width="8%" rowspan="2" class="sticky-col">학생명</th><th width="6%" rowspan="2" class="sticky-col" style="left: 8%;">현재총점</th>`;
-      tr1 += `<th colspan="${setupData.totalCount}">문항별 O/X 입력 (1/2 자동 변환)</th></tr><tr>`;
-      for (let i = 0; i < setupData.totalCount; i++) {
-        tr1 += `<th>${setupData.startNum + i}</th>`;
-      }
+      let tr1 = `<tr><th width="4%" rowspan="2">No.</th><th width="8%" rowspan="2" class="sticky-col">학생명</th><th width="6%" rowspan="2" class="sticky-col" style="left: 8%;">현재총점</th><th colspan="${setupData.totalCount}">문항별 O/X 입력 (1/2 자동 변환)</th></tr><tr>`;
+      for (let i = 0; i < setupData.totalCount; i++) tr1 += `<th>${setupData.startNum + i}</th>`;
       tr1 += `</tr>`;
       thead.innerHTML = tr1;
 
       tbody.innerHTML = '';
-      if(students.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${3 + setupData.totalCount}" style="padding: 20px; color: red; font-weight: bold;">조건과 일치하는 명단이 없습니다.</td></tr>`;
-        return;
-      }
+      if(students.length === 0) return tbody.innerHTML = `<tr><td colspan="${3 + setupData.totalCount}" style="padding: 20px; color: red;">명단이 없습니다.</td></tr>`;
 
       students.forEach((st, rIdx) => {
+        // 기존 성적 매핑
+        let stGrade = grades.find(g => g.name === st.name) || { totalScore: 0, answers: {} };
+        
         let rowHtml = `<tr>
           <td style="background-color: #f8f9fa;">${String(rIdx + 1).padStart(2, '0')}</td>
           <td class="sticky-col" style="font-weight: bold;">${st.name}</td>
-          <td class="sticky-col" style="left: 8%; font-weight: 900; color: #1a3978;" id="totalScore_${rIdx}">0</td>`;
+          <td class="sticky-col" style="left: 8%; font-weight: 900; color: #1a3978;" id="totalScore_${rIdx}">${stGrade.totalScore}</td>`;
+        
         for (let cIdx = 0; cIdx < setupData.totalCount; cIdx++) {
-          rowHtml += `<td><input type="text" class="ox-input grid-nav" data-row="${rIdx}" data-col="${cIdx}" maxlength="1" oninput="handleOxInput(event, ${rIdx})"></td>`;
+          let qNum = setupData.startNum + cIdx;
+          let val = stGrade.answers[qNum] || "";
+          let colorClass = val === 'O' ? 'val-o' : (val === 'X' ? 'val-x' : '');
+          rowHtml += `<td><input type="text" class="ox-input grid-nav ${colorClass}" data-row="${rIdx}" data-col="${cIdx}" maxlength="1" value="${val}" oninput="handleOxInput(event, ${rIdx})"></td>`;
         }
         rowHtml += `</tr>`;
         tbody.insertAdjacentHTML('beforeend', rowHtml);
@@ -470,106 +467,65 @@
     }
 
     function handleOxInput(e, rIdx) {
-      let inputEl = e.target;
-      let val = inputEl.value.toLowerCase();
+      let inputEl = e.target; let val = inputEl.value.toLowerCase();
       inputEl.classList.remove('val-o', 'val-x');
       let isValidInput = false;
 
-      if (val === '1' || val === 'o' || val === 'ㅇ') {
-        inputEl.value = 'O'; inputEl.classList.add('val-o'); isValidInput = true;
-      } else if (val === '2' || val === 'x' || val === 'ㅂ') {
-        inputEl.value = 'X'; inputEl.classList.add('val-x'); isValidInput = true;
-      } else {
-        inputEl.value = '';
-      }
+      if (['1','o','ㅇ'].includes(val)) { inputEl.value = 'O'; inputEl.classList.add('val-o'); isValidInput = true; }
+      else if (['2','x','ㅂ'].includes(val)) { inputEl.value = 'X'; inputEl.classList.add('val-x'); isValidInput = true; }
+      else { inputEl.value = ''; }
 
       calculateRowScore(rIdx);
       if (isValidInput) moveToNextInput(inputEl);
     }
 
     function calculateRowScore(rIdx) {
-      if (!currentExamSetup) return;
       let totalScore = 0;
-      const inputs = document.querySelectorAll(`.grid-nav[data-row="${rIdx}"]`);
-      inputs.forEach((input, cIdx) => {
+      document.querySelectorAll(`.grid-nav[data-row="${rIdx}"]`).forEach((input, cIdx) => {
         if (input.value === 'O') totalScore += (currentExamSetup.items[cIdx].score || 0);
       });
       document.getElementById(`totalScore_${rIdx}`).innerText = totalScore;
     }
 
+    function moveToNextInput(currentInput) {
+      let r = parseInt(currentInput.dataset.row), c = parseInt(currentInput.dataset.col);
+      let next = document.querySelector(`.grid-nav[data-row="${r}"][data-col="${c + 1}"]`) || document.querySelector(`.grid-nav[data-row="${r + 1}"][data-col="0"]`);
+      if(next) { next.focus(); if(next.value) next.select(); }
+    }
+
     function attachKeyboardNavigationListeners(totalCols, totalRows) {
-      const inputs = document.querySelectorAll('.grid-nav');
-      inputs.forEach(input => {
+      document.querySelectorAll('.grid-nav').forEach(input => {
         input.onkeydown = function(e) {
-          let curRow = parseInt(this.dataset.row); let curCol = parseInt(this.dataset.col); let nextInput;
-          if (e.key === "ArrowRight") nextInput = document.querySelector(`.grid-nav[data-row="${curRow}"][data-col="${curCol + 1}"]`);
-          else if (e.key === "ArrowLeft") nextInput = document.querySelector(`.grid-nav[data-row="${curRow}"][data-col="${curCol - 1}"]`);
-          else if (e.key === "ArrowDown") nextInput = document.querySelector(`.grid-nav[data-row="${curRow + 1}"][data-col="${curCol}"]`);
-          else if (e.key === "ArrowUp") nextInput = document.querySelector(`.grid-nav[data-row="${curRow - 1}"][data-col="${curCol}"]`);
-          else if (e.key === "Enter") {
-            e.preventDefault();
-            nextInput = document.querySelector(`.grid-nav[data-row="${curRow}"][data-col="${curCol + 1}"]`);
-            if (!nextInput && curRow + 1 < totalRows) nextInput = document.querySelector(`.grid-nav[data-row="${curRow + 1}"][data-col="0"]`);
-          }
-          if (nextInput) { e.preventDefault(); nextInput.focus(); if(nextInput.value) nextInput.select(); }
+          let r = parseInt(this.dataset.row), c = parseInt(this.dataset.col), next;
+          if (e.key === "ArrowRight") next = document.querySelector(`.grid-nav[data-row="${r}"][data-col="${c + 1}"]`);
+          else if (e.key === "ArrowLeft") next = document.querySelector(`.grid-nav[data-row="${r}"][data-col="${c - 1}"]`);
+          else if (e.key === "ArrowDown") next = document.querySelector(`.grid-nav[data-row="${r + 1}"][data-col="${c}"]`);
+          else if (e.key === "ArrowUp") next = document.querySelector(`.grid-nav[data-row="${r - 1}"][data-col="${c}"]`);
+          else if (e.key === "Enter") { e.preventDefault(); next = document.querySelector(`.grid-nav[data-row="${r}"][data-col="${c + 1}"]`) || document.querySelector(`.grid-nav[data-row="${r + 1}"][data-col="0"]`); }
+          if (next) { e.preventDefault(); next.focus(); if(next.value) next.select(); }
         };
       });
     }
 
-    function moveToNextInput(currentInput) {
-      let curRow = parseInt(currentInput.dataset.row); let curCol = parseInt(currentInput.dataset.col);
-      let nextInput = document.querySelector(`.grid-nav[data-row="${curRow}"][data-col="${curCol + 1}"]`);
-      if (nextInput) { nextInput.focus(); if(nextInput.value) nextInput.select(); }
-      else {
-        nextInput = document.querySelector(`.grid-nav[data-row="${curRow + 1}"][data-col="0"]`);
-        if(nextInput) { nextInput.focus(); if(nextInput.value) nextInput.select(); }
-      }
-    }
-
     function saveGrades() {
-      if (!currentExamSetup) { showAlert("명단과 세팅을 먼저 불러와 주세요."); return; }
-
-      const campus = document.getElementById('inputCampus').value;
-      const examName = getExamName('input');
-      const courseName = getCourseName('input');
-      const className = document.getElementById('inputClassName').value.trim();
-      const teacherName = "담임선생님"; 
-
-      const tbody = document.getElementById('inputTableBody');
-      const rows = tbody.querySelectorAll('tr');
+      if (!currentExamSetup) return showAlert("명단을 먼저 불러와 주세요.");
+      const term = document.getElementById('tchTerm').value;
+      const course = document.getElementById('tchCourse').value;
+      const teacher = document.getElementById('tchTeacher').value;
+      const className = document.getElementById('tchClass').value;
+      
       let studentsData = [];
-
-      rows.forEach((tr, rIdx) => {
-        let studentName = tr.cells[1].innerText.trim();
-        let totalScore = document.getElementById(`totalScore_${rIdx}`).innerText;
+      document.getElementById('inputTableBody').querySelectorAll('tr').forEach((tr, rIdx) => {
+        let name = tr.cells[1].innerText.trim();
+        let total = document.getElementById(`totalScore_${rIdx}`).innerText;
         let answers = {};
-        const inputs = tr.querySelectorAll('.grid-nav');
-        inputs.forEach((input, cIdx) => {
-          answers[currentExamSetup.startNum + cIdx] = input.value;
-        });
-
-        studentsData.push({ name: studentName, school: "", grade: "", totalScore: totalScore, answers: answers });
+        tr.querySelectorAll('.grid-nav').forEach((input, cIdx) => answers[currentExamSetup.startNum + cIdx] = input.value);
+        studentsData.push({ name: name, totalScore: total, answers: answers });
       });
 
-      if (studentsData.length === 0) { showAlert("저장할 데이터가 없습니다."); return; }
-
-      const payload = {
-        action: 'saveStudentGrades', campus: campus, examName: examName, courseName: courseName,
-        className: className, teacherName: teacherName, students: studentsData
-      };
-
       showLoading(true, "성적DB에 저장 중입니다...");
-      const url = document.getElementById('backendUrl').value;
-      if (url.includes('YOUR_GAS_ID_HERE')) return setTimeout(() => { showLoading(false); showAlert("로컬 저장 성공"); }, 800);
-
-      fetch(url, { method: 'POST', body: JSON.stringify(payload) })
-      .then(res => res.json())
-      .then(result => {
-        showLoading(false);
-        if(result.success) showAlert("✔ <b>저장 완료</b><br>성적DB에 안전하게 저장되었습니다.");
-        else showAlert("· Error: " + result.error);
-      })
-      .catch(err => { showLoading(false); showAlert(err.message); });
+      fetch(document.getElementById('backendUrl').value, { method: 'POST', body: JSON.stringify({ action: 'saveStudentGrades', term, course, teacher, className, students: studentsData }) })
+      .then(res => res.json()).then(res => { showLoading(false); if(res.success) showAlert("✔ <b>저장 완료</b>"); else showAlert("에러: " + res.error); });
     }
   </script>
 </body>
