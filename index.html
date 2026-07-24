@@ -83,7 +83,7 @@
 
   <div class="academy-header-bar">
     <span>SG청운학원 - 성적표 통합 시스템</span>
-    <span class="version">v.26.07.24-03</span>
+    <span class="version">v.26.07.24-04</span>
   </div>
 
   <div class="app-body">
@@ -105,7 +105,7 @@
         </div>
         <div class="select-group" style="margin-left: 10px;">
           <label>과정</label>
-          <input type="text" id="setupLevel" placeholder="난이도 (ex.별하)" style="width: 100px;" onchange="checkExistingSetup()">
+          <input type="text" id="setupLevel" placeholder="난이도 (ex.마루)" style="width: 100px;" onchange="checkExistingSetup()">
           <input type="text" id="setupCourse" placeholder="과정명 (ex.초5-1)" style="width: 120px;" onchange="checkExistingSetup()">
         </div>
         
@@ -192,7 +192,6 @@
     function showAlert(msg) { document.getElementById('modalMessage').innerHTML = msg; document.getElementById('customAlertModal').style.display = 'flex'; }
     function showLoading(status, msg = "처리 중입니다...") { document.getElementById('spinnerText').innerText = msg; document.getElementById('globalSpinner').style.display = status ? 'flex' : 'none'; }
     
-    // 에러 공통 처리 함수 (Failed to fetch 방어 로직 추가)
     function handleError(err) {
       showLoading(false);
       if(err.message === "Failed to fetch" || err.name === "TypeError") {
@@ -207,7 +206,11 @@
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       event.target.classList.add('active');
-      if(tabId === 'tab-input' && globalMetadata.setups.length === 0) fetchMetadata(); 
+      
+      // 🟢 선생님 탭 진입 시 무조건 최신 데이터를 다시 불러오도록 수정
+      if(tabId === 'tab-input') {
+        fetchMetadata(); 
+      }
     }
 
     window.onload = function() { renderSetupTable(); };
