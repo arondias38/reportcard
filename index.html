@@ -12,117 +12,126 @@
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
-    /* 가로 스크롤 전체 적용 (표 내부 스크롤 제거) */
-    body { margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow-x: auto; }
+    /* 🟢 5. 스크롤 생성 시 화면 흔들림 방지 (세로 스크롤바 강제 표시), 가로 스크롤 제어 */
+    body { margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow-y: scroll; overflow-x: hidden; }
     
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
-    .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1a3978; border-radius: 50%; animation: spin 1s linear infinite; }
-    .spinner-text { margin-top: 15px; font-weight: bold; color: #1a3978; font-size: 15px; }
+    .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1366ce; border-radius: 50%; animation: spin 1s linear infinite; }
+    .spinner-text { margin-top: 15px; font-weight: bold; color: #1366ce; font-size: 15px; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center; }
     .modal-box { background: white; border-radius: 12px; padding: 25px 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
     .modal-message { font-size: 15px; font-weight: 600; color: #333; line-height: 1.5; margin-bottom: 20px; white-space: pre-wrap; word-break: keep-all; }
-    .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; background-color: #1a3978; color: white; transition: 0.2s; }
-    .modal-btn:hover { background-color: #112652; }
+    .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; background-color: #1366ce; color: white; transition: 0.2s; }
+    .modal-btn:hover { background-color: #0f52a8; }
 
-    /* 🟢 1. 상단 제목바 체크리스트 스타일 일치 (높이, 색상, 상하단 공백) */
-    .academy-header-bar { background-color: #1a3978; color: #ffffff; padding: 20px 30px; font-size: 22px; font-weight: 900; display: flex; justify-content: center; align-items: center; position: relative; letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); min-width: max-content; }
-    .academy-header-bar .version { position: absolute; right: 30px; font-size: 12px; color: #adb5bd; font-weight: normal; }
-    .icon-btn { background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 50%; transition: 0.2s; }
+    /* 🟢 1. 상단 제목 바 디자인 수정 (높이 축소, 색상 변경, 폰트 두께 조절, 상하 공백 동일) */
+    .header-wrapper { padding: 15px 30px; background-color: #f4f6f9; width: 100%; box-sizing: border-box; }
+    .academy-header-bar { 
+      background-color: #1366ce; 
+      color: #ffffff; 
+      height: 48px; 
+      border-radius: 8px;
+      font-size: 18px; 
+      font-weight: 600; 
+      display: flex; justify-content: center; align-items: center; 
+      position: relative; letter-spacing: 0.5px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+    }
+    .icon-btn { background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 50%; transition: 0.2s; margin-left: 10px; }
     .icon-btn:hover { background-color: rgba(255,255,255,0.2); }
 
-    .app-body { padding: 30px 40px; min-width: max-content; }
+    .app-body { padding: 5px 30px 30px 30px; box-sizing: border-box; width: 100%; }
     .page-content { display: none; }
     .page-content.active { display: block; }
 
-    /* 🟢 5. 체크리스트 스타일 필터 박스 및 좌측 색 띠지 */
-    .filter-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 18px 25px; border-left: 6px solid #1a3978; margin-bottom: 25px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; }
+    /* 🟢 9. 입력 그룹 박스 높이 축소 */
+    .filter-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 14px 20px; border-left: 6px solid #1366ce; margin-bottom: 20px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; }
     
-    .select-group { display: flex; align-items: center; gap: 8px; }
-    .select-group label { font-weight: bold; font-size: 14px; color: #1a3978; white-space: nowrap; }
-    .select-group select { width: 140px; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; outline: none; box-sizing: border-box; }
-    .select-group input, .select-group textarea { padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; outline: none; box-sizing: border-box; }
-    .select-group select:focus, input:focus, textarea:focus { border-color: #1a3978; }
+    .select-group { display: flex; align-items: center; gap: 6px; }
+    .select-group label { font-weight: bold; font-size: 13px; color: #1366ce; white-space: nowrap; }
+    .select-group select { width: 130px; height: 32px; padding: 4px 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; box-sizing: border-box; }
+    .select-group input, .select-group textarea { height: 32px; padding: 4px 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; box-sizing: border-box; }
+    .select-group select:focus, input:focus, textarea:focus { border-color: #1366ce; }
     
-    .btn-primary { padding: 0 22px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; background-color: #1366ce; color: white; transition: 0.2s; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .btn-primary { height: 32px; padding: 0 15px; border: none; border-radius: 50px; font-weight: bold; font-size: 13px; background-color: #1366ce; color: white; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .btn-primary:hover { background-color: #0f52a8; }
     
-    /* 가로 스크롤 전체 적용 및 표 틀 고정 (Sticky) */
-    .table-wrapper { width: 100%; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 100px; }
-    table.data-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; text-align: center; white-space: nowrap; background-color: #fff; }
-    table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 10px 4px; box-sizing: border-box; background-color: #fff; }
+    /* 🟢 2. 표가 창 너비에 맞춰지고 내부 스크롤로만 작동하도록 수정 */
+    .table-wrapper { width: 100%; max-height: calc(100vh - 200px); overflow-x: auto; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; }
+    table.data-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; }
+    table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 8px 4px; box-sizing: border-box; background-color: #fff; }
     
-    /* 상단 제목표시줄(문항번호) 이중 고정 */
-    table.data-table thead th { background-color: #f1f3f5; font-weight: bold; color: #333; position: sticky; top: 76px; border-top: none; z-index: 90; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1); }
+    /* 상단 제목표시줄(문항번호) 표 내부 고정 */
+    table.data-table thead th { background-color: #f1f3f5; font-weight: bold; color: #333; position: sticky; top: 0; border-top: none; z-index: 10; }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
     /* 왼쪽 3열 고정 (No, 학생명, 현재총점) */
-    .sticky-no { position: sticky; left: 0; min-width: 45px; z-index: 50; }
-    .sticky-name { position: sticky; left: 45px; min-width: 85px; z-index: 50; }
-    .sticky-score { position: sticky; left: 130px; min-width: 75px; z-index: 50; border-right: 2px solid #ced4da !important; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.15); }
+    .sticky-no { position: sticky; left: 0; min-width: 45px; z-index: 5; }
+    .sticky-name { position: sticky; left: 45px; min-width: 85px; z-index: 5; }
+    .sticky-score { position: sticky; left: 130px; min-width: 75px; z-index: 5; border-right: 2px solid #ced4da !important; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.15); }
     
-    table.data-table thead th.sticky-no, table.data-table thead th.sticky-name, table.data-table thead th.sticky-score { z-index: 95; background-color: #e9ecef; }
+    table.data-table thead th.sticky-no, table.data-table thead th.sticky-name, table.data-table thead th.sticky-score { z-index: 15; background-color: #e9ecef; }
     table.data-table tbody td.sticky-no, table.data-table tbody td.sticky-name, table.data-table tbody td.sticky-score { background-color: #f8f9fa; }
 
-    .setup-input { width: 90%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13.5px; box-sizing: border-box; }
+    .setup-input { width: 90%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; box-sizing: border-box; }
     .setup-input:focus { border-color: #1366ce; outline: none; }
 
-    .ox-input { width: 40px; text-align: center; font-weight: 900; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; padding: 6px; text-transform: uppercase; background-color: transparent; }
+    .ox-input { width: 36px; text-align: center; font-weight: 900; font-size: 15px; border: 1px solid #ccc; border-radius: 4px; padding: 4px; text-transform: uppercase; background-color: transparent; }
     .ox-input:focus { background-color: #e6f0ff; border-color: #1366ce; outline: none; box-shadow: 0 0 0 2px rgba(19,102,206,0.3); }
     .ox-input.val-o { color: #28a745; } 
     .ox-input.val-x { color: #dc3545; } 
 
-    .paste-zone { border: 2px dashed #1a3978; background-color: #fff; padding: 30px; text-align: center; border-radius: 8px; margin-bottom: 25px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+    .paste-zone { border: 2px dashed #1366ce; background-color: #fff; padding: 25px; text-align: center; border-radius: 8px; margin-bottom: 20px; cursor: pointer; transition: 0.2s; }
     .paste-zone:hover { background-color: #e6f0ff; }
 
     /* 환경설정 테이블 모달 */
     .settings-table-wrapper { max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px; }
-    .settings-table { width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: center; }
-    .settings-table th { background: #e9ecef; padding: 12px; position: sticky; top: 0; z-index: 5; color: #1a3978; border-bottom: 2px solid #ced4da; }
+    .settings-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: center; }
+    .settings-table th { background: #e9ecef; padding: 10px; position: sticky; top: 0; z-index: 5; color: #1366ce; border-bottom: 2px solid #ced4da; }
     .settings-table td { padding: 0; border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
-    .set-input { width: 100%; border: none; padding: 12px; box-sizing: border-box; text-align: center; outline: none; background: transparent; }
+    .set-input { width: 100%; border: none; padding: 10px; box-sizing: border-box; text-align: center; outline: none; background: transparent; }
     .set-input:focus { background-color: #e6f0ff; }
 
-    /* 🟢 3. 플로팅 액션 버튼 (FAB) */
-    .fab-container { position: fixed; bottom: 40px; right: 40px; display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
-    .fab-btn { background-color: #68488e; color: white; border: none; border-radius: 50px; width: 56px; height: 56px; display: flex; align-items: center; padding: 0 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.25); transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.2s; overflow: hidden; white-space: nowrap; }
+    /* 🟢 3. 플로팅 액션 버튼 (가로 정렬, 사이즈 축소) */
+    .fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: row-reverse; gap: 12px; z-index: 1000; }
+    .fab-btn { background-color: #68488e; color: white; border: none; border-radius: 50px; width: 44px; height: 44px; display: flex; align-items: center; padding: 0 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.2s; overflow: hidden; white-space: nowrap; }
     .fab-btn.btn-print { background-color: #333; }
-    .fab-btn:hover { width: 180px; }
-    .fab-btn svg { flex-shrink: 0; margin-right: 15px; }
-    .fab-text { font-size: 16px; font-weight: bold; opacity: 0; transition: opacity 0.2s; }
+    .fab-btn:hover { width: 140px; }
+    .fab-btn svg { flex-shrink: 0; margin-right: 10px; width: 20px; height: 20px; }
+    .fab-text { font-size: 13px; font-weight: bold; opacity: 0; transition: opacity 0.2s; }
     .fab-btn:hover .fab-text { opacity: 1; transition-delay: 0.1s; }
 
     /* 성적표 출력용 CSS */
     .report-container { width: 100%; max-width: 1100px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; gap: 40px; margin-bottom: 100px; }
     .report-page { width: 100%; aspect-ratio: 297/210; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; padding: 30px; display: flex; flex-direction: column; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 3px solid #1a3978; padding-bottom: 10px; }
-    .report-logo { font-size: 26px; font-weight: 900; color: #111; letter-spacing: -1px; }
+    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 3px solid #1366ce; padding-bottom: 10px; }
+    .report-logo { font-size: 24px; font-weight: 900; color: #111; letter-spacing: -1px; }
     .report-info { display: flex; gap: 15px; }
-    .info-badge { border: 2px solid #333; border-radius: 8px; padding: 8px 15px; text-align: center; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+    .info-badge { border: 2px solid #333; border-radius: 8px; padding: 6px 12px; text-align: center; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
     .report-grid { display: flex; gap: 15px; flex: 1; min-height: 0; }
     .grid-col { flex: 1; display: flex; flex-direction: column; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; }
     .grid-col-right { flex: 0.5; display: flex; flex-direction: column; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; }
-    .col-header { color: white; padding: 10px; text-align: center; font-weight: bold; font-size: 15px; letter-spacing: 1px; }
+    .col-header { color: white; padding: 8px; text-align: center; font-weight: bold; font-size: 14px; letter-spacing: 1px; }
     .bg-blue { background-color: #3b5998; }
     .bg-green { background-color: #6a8c3d; }
     .bg-purple { background-color: #68488e; }
-    table.report-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: center; }
-    table.report-table th, table.report-table td { border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; padding: 6px 2px; }
+    table.report-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; }
+    table.report-table th, table.report-table td { border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; padding: 5px 2px; }
     table.report-table th { background-color: #f1f3f5; color: #333; }
     table.report-table td { font-weight: bold; }
     table.report-table td:last-child, table.report-table th:last-child { border-right: none; }
     table.report-table tr:last-child td, table.report-table tr:last-child th { border-bottom: none; }
     .chart-container { flex: 1; padding: 15px; position: relative; display: flex; justify-content: center; align-items: center; }
-    .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; font-weight: 900; color: #68488e; }
-    .report-footer { margin-top: 15px; padding: 10px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; font-size: 11px; color: #555; line-height: 1.6; }
+    .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 22px; font-weight: 900; color: #68488e; }
+    .report-footer { margin-top: 15px; padding: 10px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; font-size: 11px; color: #555; line-height: 1.5; }
 
     @media print {
       body * { visibility: hidden; }
       .app-body { padding: 0; margin: 0; min-width: 0; }
       #reportContainer, #reportContainer * { visibility: visible; }
       #reportContainer { position: absolute; left: 0; top: 0; width: 100%; margin-bottom: 0; }
-      .academy-header-bar, .filter-card, .fab-container { display: none !important; }
+      .header-wrapper, .filter-card, .fab-container { display: none !important; }
       .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; }
       @page { size: A4 landscape; margin: 0; }
     }
@@ -136,10 +145,10 @@
   <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">처리 중입니다...</div></div>
   <div class="modal-overlay" id="customAlertModal"><div class="modal-box" style="width: 320px;"><div id="modalMessage" class="modal-message" style="text-align: left;"></div><button class="modal-btn" onclick="document.getElementById('customAlertModal').style.display='none'">확인</button></div></div>
 
-  <!-- 환경설정 모달 -->
+  <!-- 🟢 7. 환경설정 모달 (필수) -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box" style="width: 700px; padding: 25px; text-align: left;">
-      <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">⚙️ 기본 환경설정</div>
+      <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">환경설정 (필수)</div>
       <p style="font-size: 13px; color: #666; margin-bottom: 15px;">항목을 차례대로 입력해 주세요. (마지막 줄에 입력하면 <b>자동으로 새 줄이 추가</b>됩니다.)</p>
       
       <div class="settings-table-wrapper">
@@ -152,9 +161,9 @@
       </div>
 
       <div style="display: flex; gap: 10px; justify-content: flex-end;">
-        <button class="modal-btn" style="background-color: #6c757d; width: 120px;" onclick="document.getElementById('settingsModal').style.display='none'">닫기</button>
-        <button class="modal-btn" style="background-color: #28a745; width: 150px;" onclick="saveSettings()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 설정 저장
+        <button class="modal-btn" style="background-color: #6c757d; width: 100px;" onclick="document.getElementById('settingsModal').style.display='none'">닫기</button>
+        <button class="modal-btn" style="background-color: #28a745; width: 130px;" onclick="saveSettings()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 설정 저장
         </button>
       </div>
     </div>
@@ -163,10 +172,10 @@
   <!-- 명단 업로드 모달 -->
   <div class="modal-overlay" id="rosterUploadModal">
     <div class="modal-box" style="width: 480px; padding: 25px;">
-      <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">전체 명단 일괄 업로드</div>
+      <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">학생명단 일괄 업로드</div>
       <div style="display: flex; gap: 15px; margin-bottom: 20px; text-align: left;">
-         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">학기</label><select id="rosterTerm" style="width:100%; height:40px;"></select></div>
-         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">캠퍼스</label><select id="rosterCampus" style="width:100%; height:40px;"></select></div>
+         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">학기</label><select id="rosterTerm" style="width:100%; height:36px; border-radius:4px; border:1px solid #ccc;"></select></div>
+         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">캠퍼스</label><select id="rosterCampus" style="width:100%; height:36px; border-radius:4px; border:1px solid #ccc;"></select></div>
       </div>
       <div id="dropZone" style="border: 2px dashed #28a745; border-radius: 8px; padding: 40px 15px; background-color: #f8f9fa; cursor: pointer; transition: 0.2s; margin-bottom:20px;">
          <div style="font-size:32px; margin-bottom:10px;">📂</div>
@@ -180,17 +189,20 @@
     </div>
   </div>
 
-  <div class="academy-header-bar">
-    <!-- 메인 로고 클릭 시 메인 화면(채점 입력)으로 이동 -->
-    <span style="cursor: pointer;" onclick="switchPage('page-main')">SG청운학원 - 성적표 통합 시스템</span>
-    <div style="position: absolute; right: 30px; display: flex; gap: 15px; align-items: center;">
-      <button class="btn-primary" style="background-color: #28a745; height: 36px; padding: 0 15px;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> 명단 업로드
-      </button>
-      <!-- 우측 상단 톱니바퀴 -> 관리자 화면 전환 -->
-      <button class="icon-btn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-      </button>
+  <!-- 🟢 1. 상하 공백 및 체크리스트 디자인이 반영된 메인 헤더 -->
+  <div class="header-wrapper">
+    <div class="academy-header-bar">
+      <span style="cursor: pointer;" onclick="switchPage('page-main')">SG청운학원 - 성적표 통합 시스템</span>
+      
+      <!-- 🟢 4. 톱니바퀴 / 뒤로가기 아이콘 스위칭 -->
+      <div style="position: absolute; right: 20px; display: flex; align-items: center;">
+        <button class="icon-btn" id="headerAdminBtn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+        <button class="icon-btn" id="headerMainBtn" style="display: none;" onclick="switchPage('page-main')" title="채점 입력으로 돌아가기">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -202,7 +214,6 @@
     <!-- ========================================== -->
     <div id="page-main" class="page-content active">
       
-      <!-- 공통 필터 박스 (체크리스트 디자인 적용) -->
       <div class="filter-card">
         <div class="select-group"><label>학기</label><select id="mainTerm" onchange="filterCampuses('main')"><option value="">선택</option></select></div>
         <div class="select-group"><label>캠퍼스</label><select id="mainCampus" onchange="filterCourses('main')"><option value="">선택</option></select></div>
@@ -210,12 +221,10 @@
         <div class="select-group"><label>선생님</label><select id="mainTeacher" onchange="filterClasses('main')"><option value="">선택</option></select></div>
         <div class="select-group"><label>반명</label><select id="mainClass"><option value="">선택</option></select></div>
         
-        <!-- 명단 불러오기 좌측 배치 -->
         <button class="btn-primary" style="margin-left: 15px;" onclick="loadGradesData()">명단 불러오기</button>
         
-        <!-- 결과 저장 아이콘 추가 -->
         <button class="btn-primary" style="margin-left: auto; background-color: #d32f2f;" onclick="saveGrades()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 결과 저장
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 결과 저장
         </button>
       </div>
 
@@ -234,44 +243,44 @@
         상단의 검색 조건을 모두 선택하고 [명단 불러오기]를 눌러주세요.
       </div>
 
-      <!-- 🟢 3. 플로팅 액션 버튼 (성적표 관련) -->
+      <!-- 🟢 3. 플로팅 액션 버튼 (가로 배열, 작은 사이즈) -->
       <div class="fab-container" id="reportFabs">
-        <button class="fab-btn" onclick="generateReports()" title="성적표 렌더링">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-          <span class="fab-text">성적표 렌더링</span>
-        </button>
         <button class="fab-btn btn-print" onclick="window.print()" title="일괄 인쇄 (PDF)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
           <span class="fab-text">일괄 인쇄 (PDF)</span>
+        </button>
+        <button class="fab-btn" onclick="generateReports()" title="성적표 렌더링">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          <span class="fab-text">성적표 렌더링</span>
         </button>
       </div>
     </div>
 
     <!-- ========================================== -->
-    <!-- 🟢 관리자 화면 (시험 세팅) -->
+    <!-- 🟢 6, 7, 8. 관리자 화면 (시험 세팅 & 환경설정) -->
     <!-- ========================================== -->
     <div id="page-admin" class="page-content">
-      <!-- 4. 제목 추가 -->
-      <h2 style="color: #1a3978; border-left: 6px solid #1a3978; padding-left: 12px; margin-top: 0; margin-bottom: 25px; font-size: 24px;">시험 기본 세팅 (관리자)</h2>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: #1366ce; border-left: 5px solid #1366ce; padding-left: 10px; margin: 0; font-size: 20px;">시험 기본 세팅 (관리자)</h2>
+        <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">환경설정 (필수)</button>
+      </div>
 
       <div class="filter-card">
         <div class="select-group"><label>학기</label><select id="setupTerm" onchange="checkExistingSetup()"></select></div>
         <div class="select-group" style="margin-left: 10px;"><label>과정</label><select id="setupLevel" onchange="checkExistingSetup()"></select><select id="setupCourse" onchange="checkExistingSetup()"></select></div>
+        <div class="select-group" style="margin-left: auto; border-left: 2px solid #dee2e6; padding-left: 20px;"><label>총 문항 수</label><input type="number" id="setupTotalCount" value="45" min="1" max="100" style="width: 60px;" onchange="renderSetupTable()"></div>
+        <div class="select-group"><label>시작 번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 60px;" onchange="renderSetupTable()"></div>
         
-        <div class="select-group" style="margin-left: auto; border-left: 2px solid #dee2e6; padding-left: 20px;"><label>총 문항 수</label><input type="number" id="setupTotalCount" value="45" min="1" max="100" style="width: 70px;" onchange="renderSetupTable()"></div>
-        <div class="select-group"><label>시작 번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 70px;" onchange="renderSetupTable()"></div>
-        
-        <!-- 시험 정보 저장 및 기본 환경설정 -->
         <button class="btn-primary" style="margin-left: 15px;" onclick="saveExamSetup()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 시험 정보 저장
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 시험 정보 저장
         </button>
-        <button class="btn-primary" style="margin-left: 10px; background-color: #6c757d;" onclick="openSettingsModal()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> 환경설정
+        <button class="btn-primary" style="margin-left: 10px; background-color: #28a745;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> 학생명단 업로드
         </button>
       </div>
 
       <div class="paste-zone" id="hwpPasteZone">
-        <h4 style="margin-top: 0; color: #1a3978; margin-bottom: 8px;">📄 엑셀/한글 출제표 복사-붙여넣기 영역</h4>
+        <h4 style="margin-top: 0; color: #1366ce; margin-bottom: 8px;">📄 엑셀/한글 출제표 복사-붙여넣기 영역</h4>
         <p style="color: #666; margin-bottom: 0; font-size: 14px;">답지 표(단원명, 배점)를 복사한 후 이곳을 클릭하고 <b>Ctrl + V</b>를 누르세요. 자동으로 매핑됩니다.</p>
         <input type="text" id="pasteCatcher" style="opacity: 0; position: absolute; pointer-events: none;">
       </div>
@@ -296,17 +305,23 @@
     function showLoading(status, msg = "처리 중입니다...") { document.getElementById('spinnerText').innerText = msg; document.getElementById('globalSpinner').style.display = status ? 'flex' : 'none'; }
     function handleError(err) { showLoading(false); showAlert("🚫 에러 발생: " + err.message); }
 
-    // 페이지 전환 로직 (탭 제거)
+    // 🟢 4. 페이지 전환 및 헤더 아이콘 스위칭 로직
     function switchPage(pageId) {
       document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
       document.getElementById(pageId).classList.add('active');
       
-      // 메인 화면일 때만 FAB 버튼 표시
       const fabs = document.getElementById('reportFabs');
+      const adminBtn = document.getElementById('headerAdminBtn');
+      const mainBtn = document.getElementById('headerMainBtn');
+
       if (pageId === 'page-main') {
         fabs.style.display = 'flex';
+        adminBtn.style.display = 'flex';
+        mainBtn.style.display = 'none';
       } else {
         fabs.style.display = 'none';
+        adminBtn.style.display = 'none';
+        mainBtn.style.display = 'flex';
       }
     }
 
@@ -379,7 +394,6 @@
 
       fillSelect('setupTerm', s.terms); fillSelect('setupLevel', s.levels); fillSelect('setupCourse', s.courses); fillSelect('rosterTerm', s.terms); fillSelect('rosterCampus', s.campuses);
       
-      // 메인 통합 필터 세팅
       document.getElementById('mainTerm').innerHTML = '<option value="">선택</option>';
       (s.terms||[]).forEach(t => document.getElementById('mainTerm').innerHTML += `<option value="${t}">${t}</option>`);
     }
@@ -432,7 +446,7 @@
             fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'uploadRoster', term: termName, campus: campusName, students: parsedStudents }) })
             .then(res => res.json()).then(result => {
               showLoading(false); document.getElementById('fileInput').value = '';
-              if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showAlert(`✔ <b>명단 업로드 완료!</b>`); fetchMetadata(); } else { showAlert("· Error: " + result.error); }
+              if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showAlert(`✔ <b>학생명단 업로드 완료!</b>`); fetchMetadata(); } else { showAlert("· Error: " + result.error); }
             }).catch(err => { document.getElementById('fileInput').value = ''; handleError(err); });
           };
 
@@ -444,7 +458,7 @@
     }
 
     // ==========================================
-    // 통합 필터링 체인 (main prefix 사용)
+    // 통합 필터링 체인 
     // ==========================================
     function filterCampuses(prefix) {
       const term = document.getElementById(`${prefix}Term`).value, sel = document.getElementById(`${prefix}Campus`); sel.innerHTML = '<option value="">선택</option>';
@@ -467,7 +481,7 @@
     }
 
     // ==========================================
-    // 관리자: 시험 기본 세팅
+    // 시험 기본 세팅 (관리자)
     // ==========================================
     function renderSetupTable() {
       const totalCount = parseInt(document.getElementById('setupTotalCount').value) || 45, startNum = parseInt(document.getElementById('setupStartNum').value) || 1, tbody = document.getElementById('setupTableBody');
@@ -533,7 +547,6 @@
       .then(res => res.json()).then(res => { 
         showLoading(false); 
         if(res.success) {
-          // 화면 전환: 입력 표를 띄우고 리포트를 숨김
           document.getElementById('reportContainer').style.display = 'none';
           renderInputTable(res.data.setupData, res.data.students, res.data.grades); 
         } else { showAlert("· Error: " + res.error); } 
@@ -550,7 +563,7 @@
 
       students.forEach((st, rIdx) => {
         let stGrade = grades.find(g => g.name === st.name) || { totalScore: 0, answers: {} };
-        let rowHtml = `<tr><td class="sticky-no">${String(rIdx + 1).padStart(2, '0')}</td><td class="sticky-name" style="font-weight: bold;">${st.name}</td><td class="sticky-score" style="font-weight: 900; color: #1a3978;" id="totalScore_${rIdx}">${stGrade.totalScore}</td>`;
+        let rowHtml = `<tr><td class="sticky-no">${String(rIdx + 1).padStart(2, '0')}</td><td class="sticky-name" style="font-weight: bold;">${st.name}</td><td class="sticky-score" style="font-weight: 900; color: #1366ce;" id="totalScore_${rIdx}">${stGrade.totalScore}</td>`;
         for (let cIdx = 0; cIdx < setupData.totalCount; cIdx++) {
           let qNum = setupData.startNum + cIdx, val = stGrade.answers[qNum] || "";
           let colorClass = val === 'O' ? 'val-o' : (val === 'X' ? 'val-x' : '');
@@ -644,7 +657,7 @@
           <div class="report-page">
             <div class="report-header">
               <div class="report-logo">SG청운학원 <span style="font-size:16px; font-weight:normal; color:#666;">(${examInfo.campus}캠퍼스)</span></div>
-              <div class="report-info"><div class="info-badge"><span>테스트:</span> <span>${examInfo.term} 평가</span></div><div class="info-badge"><span>학생명:</span> <span style="color:#1a3978;">${st.name}</span></div><div class="info-badge"><span>과정명:</span> <span>${examInfo.className}</span></div><div class="info-badge"><span>담임명:</span> <span>${examInfo.teacher}</span></div></div>
+              <div class="report-info"><div class="info-badge"><span>테스트:</span> <span>${examInfo.term} 평가</span></div><div class="info-badge"><span>학생명:</span> <span style="color:#1366ce;">${st.name}</span></div><div class="info-badge"><span>과정명:</span> <span>${examInfo.className}</span></div><div class="info-badge"><span>담임명:</span> <span>${examInfo.teacher}</span></div></div>
             </div>
             <div class="report-grid">
               <div class="grid-col"><div class="col-header bg-blue">단원별 성적</div><table class="report-table"><tr><th>단원</th>${unitCols}</tr><tr><th>기준만점</th>${unitMaxs}</tr><tr><th>${st.name} <span style="color:#2e5b99;">▲</span></th>${unitScores}</tr><tr><th>전체평균</th>${unitAvgs}</tr><tr><th>정답률</th>${unitPcts}</tr></table><div class="chart-container"><canvas id="chart_unit_${idx}"></canvas></div></div>
