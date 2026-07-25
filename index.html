@@ -50,13 +50,17 @@
     
     .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #dee2e6; border-radius: 4px; }
     table.data-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; text-align: center; white-space: nowrap; }
-    table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 8px 4px; }
-    table.data-table th { background-color: #f1f3f5; font-weight: bold; color: #333; position: sticky; top: 0; z-index: 10; border-top: none; }
+    table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 8px 4px; box-sizing: border-box; }
+    table.data-table th { background-color: #f1f3f5; font-weight: bold; color: #333; position: sticky; top: 0; border-top: none; }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
-    .sticky-col { position: sticky; background-color: #fff; z-index: 5; border-right: 2px solid #dee2e6; }
-    th.sticky-col { background-color: #f1f3f5; z-index: 11; }
+    /* 🟢 3열 고정 (Sticky) CSS 정밀 계산 */
+    .sticky-no { position: sticky; left: 0; width: 45px; min-width: 45px; z-index: 5; background-color: #fff; }
+    .sticky-name { position: sticky; left: 45px; width: 85px; min-width: 85px; z-index: 5; background-color: #fff; }
+    .sticky-score { position: sticky; left: 130px; width: 75px; min-width: 75px; z-index: 5; background-color: #fff; border-right: 2px solid #dee2e6 !important; box-shadow: 2px 0 4px -2px rgba(0,0,0,0.15); }
     
+    table.data-table th.sticky-no, table.data-table th.sticky-name, table.data-table th.sticky-score { z-index: 11; background-color: #f1f3f5; }
+
     .setup-input { width: 90%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; font-family: 'Pretendard'; font-size: 13.5px; box-sizing: border-box; }
     .setup-input:focus { border-color: #1366ce; outline: none; }
 
@@ -68,7 +72,7 @@
     .paste-zone { border: 2px dashed #1a3978; background-color: #f4f6f9; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 20px; cursor: pointer; transition: 0.2s; }
     .paste-zone:hover { background-color: #e6f0ff; }
 
-    /* 성적표 전용 CSS */
+    /* 성적표 출력용 CSS 생략 (기존과 동일) */
     .report-container { width: 100%; max-width: 1100px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; gap: 40px; }
     .report-page { width: 100%; aspect-ratio: 297/210; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; padding: 30px; display: flex; flex-direction: column; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 3px solid #1a3978; padding-bottom: 10px; }
@@ -109,40 +113,19 @@
   <!-- Vercel 배포 URL 입력란 -->
   <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycbwvGxr_gp1L2e7L5D_1u8LZ0BP2K07LMtjuRsvqKEVyCnBikAEYpqztc0REuXmoNMHvtg/exec">
 
-  <div class="spinner-overlay" id="globalSpinner">
-    <div class="spinner"></div>
-    <div class="spinner-text" id="spinnerText">처리 중입니다...</div>
-  </div>
+  <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">처리 중입니다...</div></div>
+  <div class="modal-overlay" id="customAlertModal"><div class="modal-box"><div id="modalMessage" class="modal-message" style="text-align: left;"></div><button class="modal-btn" onclick="document.getElementById('customAlertModal').style.display='none'">확인</button></div></div>
 
-  <div class="modal-overlay" id="customAlertModal">
-    <div class="modal-box">
-      <div id="modalMessage" class="modal-message" style="word-break: break-all; text-align: left;"></div>
-      <button class="modal-btn" onclick="document.getElementById('customAlertModal').style.display='none'">확인</button>
-    </div>
-  </div>
-
-  <!-- 🟢 환경설정 모달 -->
+  <!-- 환경설정 모달 -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box" style="width: 450px; padding: 25px; text-align: left;">
       <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 20px; text-align: center;">⚙️ 환경설정</div>
       <p style="font-size: 13px; color: #666; margin-bottom: 15px;">각 항목을 <b>콤마(,)</b>로 구분하여 입력해 주세요.</p>
       
-      <div style="margin-bottom: 15px;">
-        <label style="font-size: 14px; font-weight: bold; color: #1a3978; display: block; margin-bottom: 5px;">캠퍼스 목록</label>
-        <textarea id="setCampuses" rows="2" style="width: 100%;" placeholder="영통, 동탄"></textarea>
-      </div>
-      <div style="margin-bottom: 15px;">
-        <label style="font-size: 14px; font-weight: bold; color: #1a3978; display: block; margin-bottom: 5px;">학기 목록</label>
-        <textarea id="setTerms" rows="2" style="width: 100%;" placeholder="2026년 봄학기, 2026년 여름학기"></textarea>
-      </div>
-      <div style="margin-bottom: 15px;">
-        <label style="font-size: 14px; font-weight: bold; color: #1a3978; display: block; margin-bottom: 5px;">난이도 목록</label>
-        <textarea id="setLevels" rows="2" style="width: 100%;" placeholder="마루, 별하, 누리, 과고"></textarea>
-      </div>
-      <div style="margin-bottom: 20px;">
-        <label style="font-size: 14px; font-weight: bold; color: #1a3978; display: block; margin-bottom: 5px;">과정명 목록</label>
-        <textarea id="setCourses" rows="2" style="width: 100%;" placeholder="초5-1, 중2-1, 공수1"></textarea>
-      </div>
+      <div style="margin-bottom: 15px;"><label style="font-size: 14px; font-weight: bold; color: #1a3978; display: block; margin-bottom: 5px;">캠퍼스 목록</label><textarea id="setCampuses" rows="2" style="width: 100%;"></textarea></div>
+      <div style="margin-bottom: 15px;"><label style="font-size: 14px; font-weight: bold; color: #1a3978; display: block; margin-bottom: 5px;">학기 목록</label><textarea id="setTerms" rows="2" style="width: 100%;"></textarea></div>
+      <div style="margin-bottom: 15px;"><label style="font-size: 14px; font-weight: bold; color: #1a3978; display: block; margin-bottom: 5px;">난이도 목록</label><textarea id="setLevels" rows="2" style="width: 100%;"></textarea></div>
+      <div style="margin-bottom: 20px;"><label style="font-size: 14px; font-weight: bold; color: #1a3978; display: block; margin-bottom: 5px;">과정명 목록</label><textarea id="setCourses" rows="2" style="width: 100%;"></textarea></div>
 
       <div style="display: flex; gap: 10px;">
         <button class="modal-btn" style="background-color: #6c757d;" onclick="document.getElementById('settingsModal').style.display='none'">닫기</button>
@@ -157,23 +140,15 @@
       <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">전체 명단 일괄 업로드</div>
       
       <div style="display: flex; gap: 15px; margin-bottom: 20px; text-align: left;">
-         <div style="flex:1;">
-            <label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">학기</label>
-            <select id="rosterTerm" style="width:100%; height:38px;"></select>
-         </div>
-         <div style="flex:1;">
-            <label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">캠퍼스</label>
-            <select id="rosterCampus" style="width:100%; height:38px;"></select>
-         </div>
+         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">학기</label><select id="rosterTerm" style="width:100%; height:38px;"></select></div>
+         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">캠퍼스</label><select id="rosterCampus" style="width:100%; height:38px;"></select></div>
       </div>
-
       <div id="dropZone" style="border: 2px dashed #28a745; border-radius: 8px; padding: 40px 15px; background-color: #f8f9fa; cursor: pointer; transition: 0.2s; margin-bottom:20px;">
          <div style="font-size:32px; margin-bottom:10px;">📂</div>
          <div style="font-size:15px; font-weight:bold; color:#28a745; margin-bottom:8px;">엑셀 파일을 이곳에 끌어다 놓거나 클릭하세요.</div>
          <div style="font-size:13px; color:#888; line-height: 1.4;">※ '담임명, 반명, 학생명, 학교, 학년' 열을 자동으로 추출합니다.</div>
          <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;">
       </div>
-
       <div class="modal-buttons" style="margin-bottom: 5px; display: flex; width: 100%;">
         <button class="modal-btn btn-no" style="flex:none; width: 100%; border-radius: 50px; padding: 10px 20px; background-color: #6c757d;" onclick="document.getElementById('rosterUploadModal').style.display='none'">닫기</button>
       </div>
@@ -184,10 +159,8 @@
     <span>SG청운학원 - 성적표 통합 시스템</span>
     <div style="position: absolute; right: 100px; display: flex; gap: 15px; align-items: center;">
       <button class="btn-primary" style="background-color: #28a745; height: 32px;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-        명단 업로드
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> 명단 업로드
       </button>
-      <!-- 🟢 톱니바퀴 환경설정 버튼 -->
       <button class="icon-btn" onclick="openSettingsModal()" title="환경설정">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       </button>
@@ -202,17 +175,13 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- 1. 시험 기본 세팅 (관리자) -->
+    <!-- 1. 시험 기본 세팅 (캠퍼스 제외) -->
     <!-- ========================================== -->
     <div id="tab-setup" class="tab-content active">
       <div class="header-bar">
         <div class="select-group">
           <label>학기</label>
           <select id="setupTerm" onchange="checkExistingSetup()"></select>
-        </div>
-        <div class="select-group">
-          <label>캠퍼스</label>
-          <select id="setupCampus" onchange="checkExistingSetup()"></select>
         </div>
         <div class="select-group" style="margin-left: 10px;">
           <label>과정</label>
@@ -241,11 +210,7 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th width="8%">문항번호</th>
-              <th width="42%">출제 단원명</th>
-              <th width="20%">배점 (난이도 자동)</th>
-              <th width="20%">난이도 (확인용)</th>
-              <th width="10%">상태</th>
+              <th width="8%">문항번호</th><th width="42%">출제 단원명</th><th width="20%">배점 (난이도 자동)</th><th width="20%">난이도 (확인용)</th><th width="10%">상태</th>
             </tr>
           </thead>
           <tbody id="setupTableBody"></tbody>
@@ -258,31 +223,17 @@
     <!-- ========================================== -->
     <div id="tab-input" class="tab-content">
       <div class="header-bar">
-        <div class="select-group">
-          <label>학기</label>
-          <select id="tchTerm" style="width:140px;" onchange="filterCampuses('tch')"><option value="">선택</option></select>
-        </div>
-        <div class="select-group">
-          <label>캠퍼스</label>
-          <select id="tchCampus" style="width:100px;" onchange="filterCourses('tch')"><option value="">선택</option></select>
-        </div>
-        <div class="select-group">
-          <label>과정</label>
-          <select id="tchCourse" style="width:140px;" onchange="filterTeachers('tch')"><option value="">선택</option></select>
-        </div>
-        <div class="select-group">
-          <label>선생님</label>
-          <select id="tchTeacher" style="width:100px;" onchange="filterClasses('tch')"><option value="">선택</option></select>
-        </div>
-        <div class="select-group">
-          <label>반명</label>
-          <select id="tchClass" style="width:140px;"><option value="">선택</option></select>
-        </div>
+        <div class="select-group"><label>학기</label><select id="tchTerm" style="width:140px;" onchange="filterCampuses('tch')"><option value="">선택</option></select></div>
+        <div class="select-group"><label>캠퍼스</label><select id="tchCampus" style="width:100px;" onchange="filterCourses('tch')"><option value="">선택</option></select></div>
+        <div class="select-group"><label>과정</label><select id="tchCourse" style="width:140px;" onchange="filterTeachers('tch')"><option value="">선택</option></select></div>
+        <div class="select-group"><label>선생님</label><select id="tchTeacher" style="width:100px;" onchange="filterClasses('tch')"><option value="">선택</option></select></div>
+        <div class="select-group"><label>반명</label><select id="tchClass" style="width:140px;"><option value="">선택</option></select></div>
         <button class="btn-primary" style="margin-left: auto;" onclick="loadGradesData()">명단 불러오기</button>
         <button class="btn-primary" style="background-color: #d32f2f;" onclick="saveGrades()">결과 저장</button>
       </div>
 
-      <div class="table-wrapper" style="height: 600px; display: none;" id="inputTableContainer">
+      <!-- 🟢 2번 탭 높이 제한(height) 해제하여 전체 스크롤 통합 -->
+      <div class="table-wrapper" style="display: none;" id="inputTableContainer">
         <table class="data-table">
           <thead id="inputTableHeader"></thead>
           <tbody id="inputTableBody"></tbody>
@@ -298,26 +249,11 @@
     <!-- ========================================== -->
     <div id="tab-report" class="tab-content">
       <div class="header-bar">
-        <div class="select-group">
-          <label>학기</label>
-          <select id="rptTerm" style="width:140px;" onchange="filterCampuses('rpt')"><option value="">선택</option></select>
-        </div>
-        <div class="select-group">
-          <label>캠퍼스</label>
-          <select id="rptCampus" style="width:100px;" onchange="filterCourses('rpt')"><option value="">선택</option></select>
-        </div>
-        <div class="select-group">
-          <label>과정</label>
-          <select id="rptCourse" style="width:140px;" onchange="filterTeachers('rpt')"><option value="">선택</option></select>
-        </div>
-        <div class="select-group">
-          <label>선생님</label>
-          <select id="rptTeacher" style="width:100px;" onchange="filterClasses('rpt')"><option value="">선택</option></select>
-        </div>
-        <div class="select-group">
-          <label>반명</label>
-          <select id="rptClass" style="width:140px;"><option value="">선택</option></select>
-        </div>
+        <div class="select-group"><label>학기</label><select id="rptTerm" style="width:140px;" onchange="filterCampuses('rpt')"><option value="">선택</option></select></div>
+        <div class="select-group"><label>캠퍼스</label><select id="rptCampus" style="width:100px;" onchange="filterCourses('rpt')"><option value="">선택</option></select></div>
+        <div class="select-group"><label>과정</label><select id="rptCourse" style="width:140px;" onchange="filterTeachers('rpt')"><option value="">선택</option></select></div>
+        <div class="select-group"><label>선생님</label><select id="rptTeacher" style="width:100px;" onchange="filterClasses('rpt')"><option value="">선택</option></select></div>
+        <div class="select-group"><label>반명</label><select id="rptClass" style="width:140px;"><option value="">선택</option></select></div>
         <button class="btn-primary" style="margin-left: auto; background-color: #68488e;" onclick="generateReports()">성적표 렌더링</button>
         <button class="btn-primary" style="background-color: #333;" onclick="window.print()">일괄 인쇄 (PDF)</button>
       </div>
@@ -345,11 +281,10 @@
       event.target.classList.add('active');
     }
 
-    // 초기 실행 시 메타데이터 조회
     window.onload = function() { fetchMetadata(); renderSetupTable(); };
 
     // ==========================================
-    // 🟢 환경설정 및 드롭다운 관리
+    // 🟢 환경설정 
     // ==========================================
     function fetchMetadata() {
       const url = document.getElementById('backendUrl').value.trim();
@@ -358,78 +293,51 @@
       fetch(url, { method: 'POST', body: JSON.stringify({ action: 'getDropdownData' }) })
       .then(res => res.json()).then(res => {
         showLoading(false);
-        if(res.success) {
-          globalData = res.data;
-          populateSettingsAndDropdowns();
-        } else { showAlert("에러: " + res.error); }
+        if(res.success) { globalData = res.data; populateSettingsAndDropdowns(); } else { showAlert("에러: " + res.error); }
       }).catch(handleError);
     }
 
     function populateSettingsAndDropdowns() {
-      // 1. 환경설정 모달 및 기본 세팅 탭 채우기
       const s = globalData.settings;
       document.getElementById('setCampuses').value = s.campuses.join(', ');
       document.getElementById('setTerms').value = s.terms.join(', ');
       document.getElementById('setLevels').value = s.levels.join(', ');
       document.getElementById('setCourses').value = s.courses.join(', ');
 
-      const fillSelect = (id, arr) => {
-        let el = document.getElementById(id);
-        if(!el) return;
-        el.innerHTML = '';
-        arr.forEach(val => el.innerHTML += `<option value="${val}">${val}</option>`);
-      };
+      const fillSelect = (id, arr) => { let el = document.getElementById(id); if(!el) return; el.innerHTML = ''; arr.forEach(val => el.innerHTML += `<option value="${val}">${val}</option>`); };
 
-      // 1번 탭 (모든 목록을 세팅값 기준으로 나열)
       fillSelect('setupTerm', s.terms);
-      fillSelect('setupCampus', s.campuses);
       fillSelect('setupLevel', s.levels);
       fillSelect('setupCourse', s.courses);
-
-      // 명단 업로드 모달
       fillSelect('rosterTerm', s.terms);
       fillSelect('rosterCampus', s.campuses);
 
-      // 2, 3번 탭 (Term만 먼저 채우고, 나머지는 필터링 체인)
       document.getElementById('tchTerm').innerHTML = '<option value="">선택</option>';
       document.getElementById('rptTerm').innerHTML = '<option value="">선택</option>';
-      s.terms.forEach(t => {
-        document.getElementById('tchTerm').innerHTML += `<option value="${t}">${t}</option>`;
-        document.getElementById('rptTerm').innerHTML += `<option value="${t}">${t}</option>`;
-      });
+      s.terms.forEach(t => { document.getElementById('tchTerm').innerHTML += `<option value="${t}">${t}</option>`; document.getElementById('rptTerm').innerHTML += `<option value="${t}">${t}</option>`; });
     }
 
     function openSettingsModal() { document.getElementById('settingsModal').style.display = 'flex'; }
     function saveSettings() {
       const splitClean = val => val.split(',').map(s => s.trim()).filter(s => s);
-      const payload = {
-        action: 'saveSettings',
-        campuses: splitClean(document.getElementById('setCampuses').value),
-        terms: splitClean(document.getElementById('setTerms').value),
-        levels: splitClean(document.getElementById('setLevels').value),
-        courses: splitClean(document.getElementById('setCourses').value)
-      };
+      const payload = { action: 'saveSettings', campuses: splitClean(document.getElementById('setCampuses').value), terms: splitClean(document.getElementById('setTerms').value), levels: splitClean(document.getElementById('setLevels').value), courses: splitClean(document.getElementById('setCourses').value) };
       if(payload.campuses.length === 0 || payload.terms.length === 0) return showAlert("캠퍼스와 학기 목록은 최소 1개 이상 입력해야 합니다.");
-
       showLoading(true, "환경설정을 저장 중입니다...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify(payload) })
       .then(res => res.json()).then(res => {
-        if(res.success) { document.getElementById('settingsModal').style.display = 'none'; fetchMetadata(); }
-        else { showLoading(false); showAlert("에러: " + res.error); }
+        if(res.success) { document.getElementById('settingsModal').style.display = 'none'; fetchMetadata(); } else { showLoading(false); showAlert("에러: " + res.error); }
       }).catch(handleError);
     }
 
     // ==========================================
-    // 필터링 체인 로직 (Term -> Campus -> Course -> Teacher -> Class)
+    // 필터링 체인 
     // ==========================================
     function filterCampuses(prefix) {
       const term = document.getElementById(`${prefix}Term`).value;
       const sel = document.getElementById(`${prefix}Campus`);
       sel.innerHTML = '<option value="">선택</option>';
       if(term) {
-        let c1 = globalData.setups.filter(s => s.term === term).map(s => s.campus);
-        let c2 = globalData.rosters.filter(r => r.term === term).map(r => r.campus);
-        let campuses = [...new Set([...c1, ...c2])].sort();
+        let campuses = [...new Set(globalData.rosters.filter(r => r.term === term).map(r => r.campus))].sort();
         campuses.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
       }
       filterCourses(prefix);
@@ -437,12 +345,11 @@
 
     function filterCourses(prefix) {
       const term = document.getElementById(`${prefix}Term`).value;
-      const campus = document.getElementById(`${prefix}Campus`).value;
       const sel = document.getElementById(`${prefix}Course`);
       sel.innerHTML = '<option value="">선택</option>';
-      if(term && campus) {
-        let courses = [...new Set(globalData.setups.filter(s => s.term === term && s.campus === campus).map(s => s.course))];
-        courses.sort().forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+      if(term) {
+        let courses = [...new Set(globalData.setups.filter(s => s.term === term).map(s => s.course))].sort();
+        courses.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
       }
       filterTeachers(prefix);
     }
@@ -453,30 +360,26 @@
       const sel = document.getElementById(`${prefix}Teacher`);
       sel.innerHTML = '<option value="">선택</option>';
       if(term && campus) {
-        let teachers = [...new Set(globalData.rosters.filter(r => r.term === term && r.campus === campus).map(r => r.teacher))];
-        teachers.sort().forEach(t => sel.innerHTML += `<option value="${t}">${t}</option>`);
+        let teachers = [...new Set(globalData.rosters.filter(r => r.term === term && r.campus === campus).map(r => r.teacher))].sort();
+        teachers.forEach(t => sel.innerHTML += `<option value="${t}">${t}</option>`);
       }
       filterClasses(prefix);
     }
 
     function filterClasses(prefix) {
-      const term = document.getElementById(`${prefix}Term`).value;
-      const campus = document.getElementById(`${prefix}Campus`).value;
-      const teacher = document.getElementById(`${prefix}Teacher`).value;
+      const term = document.getElementById(`${prefix}Term`).value, campus = document.getElementById(`${prefix}Campus`).value, teacher = document.getElementById(`${prefix}Teacher`).value;
       const sel = document.getElementById(`${prefix}Class`);
       sel.innerHTML = '<option value="">선택</option>';
       if(term && campus && teacher) {
-        let classes = [...new Set(globalData.rosters.filter(r => r.term === term && r.campus === campus && r.teacher === teacher).map(r => r.className))];
-        classes.sort().forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+        let classes = [...new Set(globalData.rosters.filter(r => r.term === term && r.campus === campus && r.teacher === teacher).map(r => r.className))].sort();
+        classes.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
       }
     }
 
     // ==========================================
-    // 엑셀 파일 스마트 업로드 
+    // 명단 업로드 
     // ==========================================
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-
+    const dropZone = document.getElementById('dropZone'); const fileInput = document.getElementById('fileInput');
     dropZone.addEventListener('click', () => fileInput.click());
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#e6f0ff'; });
     dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#f8f9fa'; });
@@ -488,114 +391,70 @@
       let reader = new FileReader();
       reader.onload = function(e) {
         try {
-          let data = new Uint8Array(e.target.result);
-          let workbook = XLSX.read(data, {type: 'array'});
-          let worksheet = workbook.Sheets[workbook.SheetNames[0]];
-          let jsonArr = XLSX.utils.sheet_to_json(worksheet, {header: 1});
-
-          let headerRowIdx = -1;
-          let colMap = { ban: -1, name: -1, school: -1, grade: -1, teacher: -1 };
+          let data = new Uint8Array(e.target.result), workbook = XLSX.read(data, {type: 'array'}), worksheet = workbook.Sheets[workbook.SheetNames[0]], jsonArr = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+          let headerRowIdx = -1, colMap = { ban: -1, name: -1, school: -1, grade: -1, teacher: -1 };
 
           for (let i = 0; i < Math.min(20, jsonArr.length); i++) {
-            let row = jsonArr[i];
-            if (!row) continue;
+            let row = jsonArr[i]; if (!row) continue;
             let strRow = row.map(cell => String(cell || '').replace(/\s+/g, '')).join(',');
             if (strRow.includes('반명') && strRow.includes('학생명')) {
               headerRowIdx = i;
               for (let c = 0; c < row.length; c++) {
                 let h = String(row[c] || '').replace(/\s+/g, '');
-                if (h === '반명') colMap.ban = c;
-                else if (h === '학생명') colMap.name = c;
-                else if (h === '학교명' || h === '학교') colMap.school = c;
-                else if (h === '학년') colMap.grade = c;
-                else if (h === '담임' || h === '담임명') colMap.teacher = c;
-              }
-              break;
+                if (h === '반명') colMap.ban = c; else if (h === '학생명') colMap.name = c; else if (h === '학교명' || h === '학교') colMap.school = c; else if (h === '학년') colMap.grade = c; else if (h === '담임' || h === '담임명') colMap.teacher = c;
+              } break;
             }
           }
 
           if (headerRowIdx === -1 || colMap.ban === -1 || colMap.name === -1) throw new Error("엑셀에서 필수 머릿글(반명, 학생명)을 찾을 수 없습니다.");
 
-          let termName = document.getElementById('rosterTerm').value;
-          let campusName = document.getElementById('rosterCampus').value;
-          let parsedStudents = [];
-
+          let termName = document.getElementById('rosterTerm').value, campusName = document.getElementById('rosterCampus').value, parsedStudents = [];
           for (let i = headerRowIdx + 1; i < jsonArr.length; i++) {
-            let row = jsonArr[i];
-            if (!row || row.length === 0) continue;
-            let ban = String(row[colMap.ban] || '').trim();
-            let name = String(row[colMap.name] || '').trim();
+            let row = jsonArr[i]; if (!row || row.length === 0) continue;
+            let ban = String(row[colMap.ban] || '').trim(), name = String(row[colMap.name] || '').trim();
             if (!ban || !name) continue; 
-            let school = colMap.school !== -1 ? String(row[colMap.school] || '').trim() : '';
-            let grade = colMap.grade !== -1 ? String(row[colMap.grade] || '').trim() : '';
-            let teacher = colMap.teacher !== -1 ? String(row[colMap.teacher] || '').trim() : '';
-            
-            // [학기명, 캠퍼스명, 담임명, 반명, 학생명, 학교명, 학년]
+            let school = colMap.school !== -1 ? String(row[colMap.school] || '').trim() : '', grade = colMap.grade !== -1 ? String(row[colMap.grade] || '').trim() : '', teacher = colMap.teacher !== -1 ? String(row[colMap.teacher] || '').trim() : '';
             parsedStudents.push([termName, campusName, teacher, ban, name, school, grade]);
           }
 
           if(parsedStudents.length === 0) throw new Error("추출할 수 있는 학생 데이터가 없습니다.");
 
-          const payload = { action: 'uploadRoster', term: termName, campus: campusName, students: parsedStudents };
-          fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify(payload) })
-          .then(res => res.json())
-          .then(result => {
+          fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'uploadRoster', term: termName, campus: campusName, students: parsedStudents }) })
+          .then(res => res.json()).then(result => {
             showLoading(false); document.getElementById('fileInput').value = '';
-            if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showAlert(`✔ <b>명단 업로드 완료!</b>`); fetchMetadata(); } 
-            else { showAlert("· Error: " + result.error); }
+            if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showAlert(`✔ <b>명단 업로드 완료!</b>`); fetchMetadata(); } else { showAlert("· Error: " + result.error); }
           }).catch(err => { document.getElementById('fileInput').value = ''; handleError(err); });
-
         } catch (err) { showLoading(false); document.getElementById('fileInput').value = ''; showAlert("· Error: " + err.message); }
-      };
-      reader.readAsArrayBuffer(file);
+      }; reader.readAsArrayBuffer(file);
     }
 
     // ==========================================
-    // 1. 시험 기본 세팅 로직
+    // 1. 시험 기본 세팅 (캠퍼스 제외됨)
     // ==========================================
     function renderSetupTable() {
-      const totalCount = parseInt(document.getElementById('setupTotalCount').value) || 45;
-      const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
-      const tbody = document.getElementById('setupTableBody');
+      const totalCount = parseInt(document.getElementById('setupTotalCount').value) || 45, startNum = parseInt(document.getElementById('setupStartNum').value) || 1, tbody = document.getElementById('setupTableBody');
       tbody.innerHTML = '';
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i;
-        tbody.innerHTML += `
-          <tr>
-            <td>${qNum}</td>
-            <td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td>
-            <td><input type="number" class="setup-input score-input" id="score_${qNum}" oninput="updateDiff(${qNum})" placeholder="2,3,4,5"></td>
-            <td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:#f1f3f5; text-align:center;"></td>
-            <td id="status_${qNum}" style="color:#adb5bd;">-</td>
-          </tr>`;
+        tbody.innerHTML += `<tr><td>${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" oninput="updateDiff(${qNum})" placeholder="2,3,4,5"></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:#f1f3f5; text-align:center;"></td><td id="status_${qNum}" style="color:#adb5bd;">-</td></tr>`;
       }
     }
 
     function updateDiff(qNum) {
-      const score = document.getElementById(`score_${qNum}`).value;
-      const diffInput = document.getElementById(`diff_${qNum}`);
-      const statusCell = document.getElementById(`status_${qNum}`);
+      const score = document.getElementById(`score_${qNum}`).value, diffInput = document.getElementById(`diff_${qNum}`), statusCell = document.getElementById(`status_${qNum}`);
       let diff = "";
-      if (score == "2") diff = "하";
-      else if (score == "3") diff = "중";
-      else if (score == "4") diff = "상";
-      else if (score == "5") diff = "최상";
+      if (score == "2") diff = "하"; else if (score == "3") diff = "중"; else if (score == "4") diff = "상"; else if (score == "5") diff = "최상";
       diffInput.value = diff;
-      if (document.getElementById(`unit_${qNum}`).value.trim() && diff) { statusCell.innerHTML = "✔"; statusCell.style.color = "#28a745"; statusCell.style.fontWeight = "bold"; } 
-      else { statusCell.innerHTML = "-"; statusCell.style.color = "#adb5bd"; }
+      if (document.getElementById(`unit_${qNum}`).value.trim() && diff) { statusCell.innerHTML = "✔"; statusCell.style.color = "#28a745"; statusCell.style.fontWeight = "bold"; } else { statusCell.innerHTML = "-"; statusCell.style.color = "#adb5bd"; }
     }
 
     function checkExistingSetup() {
-      const t = document.getElementById('setupTerm').value, c = document.getElementById('setupCampus').value, l = document.getElementById('setupLevel').value, cr = document.getElementById('setupCourse').value;
-      if (!t || !c || !l || !cr) return;
-      const payload = { action: 'getExamSetup', term: t, campus: c, level: l, course: cr };
-      const url = document.getElementById('backendUrl').value.trim();
-      
-      fetch(url, { method: 'POST', body: JSON.stringify(payload) }).then(res => res.json()).then(res => {
+      const t = document.getElementById('setupTerm').value, l = document.getElementById('setupLevel').value, cr = document.getElementById('setupCourse').value;
+      if (!t || !l || !cr) return;
+      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getExamSetup', term: t, level: l, course: cr }) }).then(res => res.json()).then(res => {
         if(res.success && res.data) {
-           document.getElementById('setupTotalCount').value = res.data.totalCount; document.getElementById('setupStartNum').value = res.data.startNum;
-           renderSetupTable();
-           res.data.items.forEach(item => { let u = document.getElementById(`unit_${item.num}`); let s = document.getElementById(`score_${item.num}`); if(u) u.value = item.unit; if(s) { s.value = item.score; updateDiff(item.num); } });
+           document.getElementById('setupTotalCount').value = res.data.totalCount; document.getElementById('setupStartNum').value = res.data.startNum; renderSetupTable();
+           res.data.items.forEach(item => { let u = document.getElementById(`unit_${item.num}`), s = document.getElementById(`score_${item.num}`); if(u) u.value = item.unit; if(s) { s.value = item.score; updateDiff(item.num); } });
            showAlert("기존 세팅 데이터가 자동으로 불러와졌습니다.");
         } else { renderSetupTable(); }
       }).catch(handleError);
@@ -603,8 +462,7 @@
 
     document.getElementById('hwpPasteZone').addEventListener('click', function() { document.getElementById('pasteCatcher').focus(); this.style.backgroundColor = '#e6f0ff'; setTimeout(() => this.style.backgroundColor = '#f4f6f9', 500); });
     document.getElementById('pasteCatcher').addEventListener('paste', function(e) {
-      e.preventDefault();
-      let htmlData = (e.clipboardData || window.clipboardData).getData('text/html'); let textData = (e.clipboardData || window.clipboardData).getData('text/plain'); let rows = [];
+      e.preventDefault(); let htmlData = (e.clipboardData || window.clipboardData).getData('text/html'), textData = (e.clipboardData || window.clipboardData).getData('text/plain'), rows = [];
       if(htmlData) { let t = document.createElement('div'); t.innerHTML = htmlData; let tbl = t.querySelector('table'); if(tbl) tbl.querySelectorAll('tr').forEach(tr => { let r = Array.from(tr.querySelectorAll('td,th')).map(c => c.innerText.replace(/<[^>]+>/g, '').trim()); if(r.join('')) rows.push(r); }); } 
       else if(textData) { textData.split(/\r?\n/).forEach(l => { let r = l.split('\t').map(c => c.trim()); if(r.join('')) rows.push(r); }); }
       if(rows.length===0) return showAlert("표 데이터가 아닙니다.");
@@ -620,22 +478,20 @@
     });
 
     function saveExamSetup() {
-      const term = document.getElementById('setupTerm').value, campus = document.getElementById('setupCampus').value, level = document.getElementById('setupLevel').value, course = document.getElementById('setupCourse').value;
-      if(!term || !campus || !level || !course) return showAlert("모든 항목을 선택하세요.");
-      
+      const term = document.getElementById('setupTerm').value, level = document.getElementById('setupLevel').value, course = document.getElementById('setupCourse').value;
+      if(!term || !level || !course) return showAlert("모든 항목을 선택하세요.");
       const totalCount = parseInt(document.getElementById('setupTotalCount').value), startNum = parseInt(document.getElementById('setupStartNum').value), items = [];
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i;
         items.push({ num: qNum, unit: document.getElementById(`unit_${qNum}`).value.trim(), score: parseInt(document.getElementById(`score_${qNum}`).value)||0, diff: document.getElementById(`diff_${qNum}`).value });
       }
-      const payload = { action: 'saveExamSetup', term, campus, level, course, totalCount, startNum, items };
       showLoading(true, "세팅 정보를 저장 중입니다...");
-      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify(payload) })
+      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveExamSetup', term, level, course, totalCount, startNum, items }) })
       .then(res => res.json()).then(res => { showLoading(false); if(res.success) { showAlert("✔ <b>저장 완료</b>"); fetchMetadata(); } else { showAlert("에러: " + res.error); } }).catch(handleError);
     }
 
     // ==========================================
-    // 2. 채점 입력 로직
+    // 2. 채점 입력 로직 (Sticky 적용 및 포커스 개선)
     // ==========================================
     function loadGradesData() {
       const term = document.getElementById('tchTerm').value, campus = document.getElementById('tchCampus').value, course = document.getElementById('tchCourse').value, teacher = document.getElementById('tchTeacher').value, className = document.getElementById('tchClass').value;
@@ -649,14 +505,25 @@
     function renderInputTable(setupData, students, grades) {
       document.getElementById('inputEmptyState').style.display = 'none'; document.getElementById('inputTableContainer').style.display = 'block'; currentExamSetup = setupData; 
       const thead = document.getElementById('inputTableHeader'), tbody = document.getElementById('inputTableBody');
-      let tr1 = `<tr><th width="4%" rowspan="2">No.</th><th width="8%" rowspan="2" class="sticky-col">학생명</th><th width="6%" rowspan="2" class="sticky-col" style="left: 8%;">현재총점</th><th colspan="${setupData.totalCount}">문항별 O/X 입력 (1/2 자동 변환)</th></tr><tr>`;
+      
+      // 🟢 헤더에 Sticky 클래스 부여
+      let tr1 = `<tr>
+        <th class="sticky-no" rowspan="2">No.</th>
+        <th class="sticky-name" rowspan="2">학생명</th>
+        <th class="sticky-score" rowspan="2">현재총점</th>
+        <th colspan="${setupData.totalCount}">문항별 O/X 입력 (1/2 자동 변환)</th>
+      </tr><tr>`;
       for (let i = 0; i < setupData.totalCount; i++) tr1 += `<th>${setupData.startNum + i}</th>`;
       tr1 += `</tr>`; thead.innerHTML = tr1; tbody.innerHTML = '';
       if(students.length === 0) return tbody.innerHTML = `<tr><td colspan="${3 + setupData.totalCount}" style="padding: 20px; color: red;">명단이 없습니다.</td></tr>`;
 
       students.forEach((st, rIdx) => {
         let stGrade = grades.find(g => g.name === st.name) || { totalScore: 0, answers: {} };
-        let rowHtml = `<tr><td style="background-color: #f8f9fa;">${String(rIdx + 1).padStart(2, '0')}</td><td class="sticky-col" style="font-weight: bold;">${st.name}</td><td class="sticky-col" style="left: 8%; font-weight: 900; color: #1a3978;" id="totalScore_${rIdx}">${stGrade.totalScore}</td>`;
+        // 🟢 본문 열에 Sticky 클래스 부여 및 배경색 지정(스크롤 시 글자 겹침 방지)
+        let rowHtml = `<tr>
+          <td class="sticky-no" style="background-color: #f8f9fa;">${String(rIdx + 1).padStart(2, '0')}</td>
+          <td class="sticky-name" style="font-weight: bold; background-color: #fff;">${st.name}</td>
+          <td class="sticky-score" style="font-weight: 900; color: #1a3978; background-color: #fff;" id="totalScore_${rIdx}">${stGrade.totalScore}</td>`;
         for (let cIdx = 0; cIdx < setupData.totalCount; cIdx++) {
           let qNum = setupData.startNum + cIdx, val = stGrade.answers[qNum] || "";
           let colorClass = val === 'O' ? 'val-o' : (val === 'X' ? 'val-x' : '');
@@ -665,6 +532,15 @@
         rowHtml += `</tr>`; tbody.insertAdjacentHTML('beforeend', rowHtml);
       });
       attachKeyboardNavigationListeners(setupData.totalCount, students.length);
+    }
+
+    // 🟢 다음 칸으로 이동 시 부드럽게 한 칸씩 스크롤하는 공통 함수
+    function focusNextCell(nextInput) {
+      if (nextInput) {
+        nextInput.focus({ preventScroll: true }); // 브라우저 기본 점프 방지
+        nextInput.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' }); // 한 칸만 부드럽게 밀기
+        if (nextInput.value) nextInput.select();
+      }
     }
 
     function handleOxInput(e, rIdx) {
@@ -677,7 +553,7 @@
       if (isValidInput) {
         let r = parseInt(inputEl.dataset.row), c = parseInt(inputEl.dataset.col);
         let next = document.querySelector(`.grid-nav[data-row="${r}"][data-col="${c + 1}"]`) || document.querySelector(`.grid-nav[data-row="${r + 1}"][data-col="0"]`);
-        if(next) { next.focus(); if(next.value) next.select(); }
+        focusNextCell(next);
       }
     }
 
@@ -696,7 +572,7 @@
           else if (e.key === "ArrowDown") next = document.querySelector(`.grid-nav[data-row="${r + 1}"][data-col="${c}"]`);
           else if (e.key === "ArrowUp") next = document.querySelector(`.grid-nav[data-row="${r - 1}"][data-col="${c}"]`);
           else if (e.key === "Enter") { e.preventDefault(); next = document.querySelector(`.grid-nav[data-row="${r}"][data-col="${c + 1}"]`) || document.querySelector(`.grid-nav[data-row="${r + 1}"][data-col="0"]`); }
-          if (next) { e.preventDefault(); next.focus(); if(next.value) next.select(); }
+          if (next) { e.preventDefault(); focusNextCell(next); }
         };
       });
     }
@@ -716,98 +592,42 @@
     }
 
     // ==========================================
-    // 3. 성적표 렌더링
+    // 3. 성적표 렌더링 (변경 없음)
     // ==========================================
     function generateReports() {
       const term = document.getElementById('rptTerm').value, campus = document.getElementById('rptCampus').value, course = document.getElementById('rptCourse').value, teacher = document.getElementById('rptTeacher').value, className = document.getElementById('rptClass').value;
       if (!term || !campus || !course || !teacher || !className) return showAlert("모든 조건을 선택해주세요.");
-      
       showLoading(true, "성적 데이터를 통계 분석 중입니다...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getReportData', term, campus, course, teacher, className }) })
       .then(res => res.json()).then(res => {
         showLoading(false);
-        if(res.success) {
-          document.getElementById('reportEmptyState').style.display = 'none';
-          document.getElementById('reportContainer').style.display = 'flex';
-          renderReportCards(res.data.examInfo, res.data.students);
-        } else { showAlert("· Error: " + res.error); }
+        if(res.success) { document.getElementById('reportEmptyState').style.display = 'none'; document.getElementById('reportContainer').style.display = 'flex'; renderReportCards(res.data.examInfo, res.data.students); } 
+        else { showAlert("· Error: " + res.error); }
       }).catch(handleError);
     }
 
     function renderReportCards(examInfo, students) {
-      chartInstances.forEach(chart => chart.destroy());
-      chartInstances = [];
-      
-      const container = document.getElementById('reportContainer');
-      container.innerHTML = '';
-      
-      if(students.length === 0) {
-        container.innerHTML = '<h3 style="text-align:center; color:red; padding:40px;">해당 반에 입력된 성적 데이터가 없습니다.</h3>';
-        return;
-      }
+      chartInstances.forEach(chart => chart.destroy()); chartInstances = []; const container = document.getElementById('reportContainer'); container.innerHTML = '';
+      if(students.length === 0) { container.innerHTML = '<h3 style="text-align:center; color:red; padding:40px;">해당 반에 입력된 성적 데이터가 없습니다.</h3>'; return; }
 
       students.forEach((st, idx) => {
-        let unitCols = st.unitsData.map(u => `<th>${u.name}</th>`).join('');
-        let unitMaxs = st.unitsData.map(u => `<td>${u.max}</td>`).join('');
-        let unitScores = st.unitsData.map(u => `<td>${u.score}</td>`).join('');
-        let unitAvgs = st.unitsData.map(u => `<td>${u.avg}</td>`).join('');
-        let unitPcts = st.unitsData.map(u => `<td>${u.pct}%</td>`).join('');
+        let unitCols = st.unitsData.map(u => `<th>${u.name}</th>`).join(''), unitMaxs = st.unitsData.map(u => `<td>${u.max}</td>`).join(''), unitScores = st.unitsData.map(u => `<td>${u.score}</td>`).join(''), unitAvgs = st.unitsData.map(u => `<td>${u.avg}</td>`).join(''), unitPcts = st.unitsData.map(u => `<td>${u.pct}%</td>`).join('');
         let unitLabels = st.unitsData.map(u => u.name), unitMyData = st.unitsData.map(u => u.pct), unitAvgData = st.unitsData.map(u => u.avgPct);
-
-        let diffCols = st.diffsData.map(d => `<th>${d.name}</th>`).join('');
-        let diffMaxs = st.diffsData.map(d => `<td>${d.max}</td>`).join('');
-        let diffScores = st.diffsData.map(d => `<td>${d.score}</td>`).join('');
-        let diffAvgs = st.diffsData.map(d => `<td>${d.avg}</td>`).join('');
-        let diffPcts = st.diffsData.map(d => `<td>${d.pct}%</td>`).join('');
+        let diffCols = st.diffsData.map(d => `<th>${d.name}</th>`).join(''), diffMaxs = st.diffsData.map(d => `<td>${d.max}</td>`).join(''), diffScores = st.diffsData.map(d => `<td>${d.score}</td>`).join(''), diffAvgs = st.diffsData.map(d => `<td>${d.avg}</td>`).join(''), diffPcts = st.diffsData.map(d => `<td>${d.pct}%</td>`).join('');
         let diffLabels = st.diffsData.map(d => d.name), diffMyData = st.diffsData.map(d => d.pct), diffAvgData = st.diffsData.map(d => d.avgPct);
 
         let html = `
           <div class="report-page">
             <div class="report-header">
               <div class="report-logo">SG청운학원 <span style="font-size:16px; font-weight:normal; color:#666;">(${examInfo.campus}캠퍼스)</span></div>
-              <div class="report-info">
-                <div class="info-badge"><span>테스트:</span> <span>${examInfo.term} 평가</span></div>
-                <div class="info-badge"><span>학생명:</span> <span style="color:#1a3978;">${st.name}</span></div>
-                <div class="info-badge"><span>과정명:</span> <span>${examInfo.className}</span></div>
-                <div class="info-badge"><span>담임명:</span> <span>${examInfo.teacher}</span></div>
-              </div>
+              <div class="report-info"><div class="info-badge"><span>테스트:</span> <span>${examInfo.term} 평가</span></div><div class="info-badge"><span>학생명:</span> <span style="color:#1a3978;">${st.name}</span></div><div class="info-badge"><span>과정명:</span> <span>${examInfo.className}</span></div><div class="info-badge"><span>담임명:</span> <span>${examInfo.teacher}</span></div></div>
             </div>
-
             <div class="report-grid">
-              <div class="grid-col">
-                <div class="col-header bg-blue">단원별 성적</div>
-                <table class="report-table">
-                  <tr><th>단원</th>${unitCols}</tr><tr><th>기준만점</th>${unitMaxs}</tr>
-                  <tr><th>${st.name} <span style="color:#2e5b99;">▲</span></th>${unitScores}</tr>
-                  <tr><th>전체평균</th>${unitAvgs}</tr><tr><th>정답률</th>${unitPcts}</tr>
-                </table>
-                <div class="chart-container"><canvas id="chart_unit_${idx}"></canvas></div>
-              </div>
-              <div class="grid-col">
-                <div class="col-header bg-green">문항수준별 성적</div>
-                <table class="report-table">
-                  <tr><th>수준</th>${diffCols}</tr><tr><th>기준만점</th>${diffMaxs}</tr>
-                  <tr><th>${st.name} <span style="color:#6a8c3d;">▲</span></th>${diffScores}</tr>
-                  <tr><th>전체평균</th>${diffAvgs}</tr><tr><th>정답률</th>${diffPcts}</tr>
-                </table>
-                <div class="chart-container"><canvas id="chart_diff_${idx}"></canvas></div>
-              </div>
-              <div class="grid-col-right">
-                <div class="col-header bg-purple">총점</div>
-                <table class="report-table" style="height: 60px;"><tr><td style="font-size:24px; color:#68488e;">${st.totalScore}</td></tr></table>
-                <div class="col-header bg-purple" style="margin-top: -1px;">전체평균</div>
-                <table class="report-table" style="height: 60px;"><tr><td style="font-size:18px;">${examInfo.totalAvg}</td></tr></table>
-                <div class="col-header bg-purple" style="margin-top: -1px;">석차</div>
-                <table class="report-table" style="height: 60px;"><tr><td style="font-size:18px;">${st.rank} / ${st.totalCount}</td></tr></table>
-                <div class="chart-container" style="padding-top: 25px;"><canvas id="chart_doughnut_${idx}"></canvas><div class="doughnut-text">${st.topPct}%</div></div>
-                <div style="text-align:center; font-size:12px; color:#666; padding-bottom:10px;">동일과정 상위</div>
-              </div>
+              <div class="grid-col"><div class="col-header bg-blue">단원별 성적</div><table class="report-table"><tr><th>단원</th>${unitCols}</tr><tr><th>기준만점</th>${unitMaxs}</tr><tr><th>${st.name} <span style="color:#2e5b99;">▲</span></th>${unitScores}</tr><tr><th>전체평균</th>${unitAvgs}</tr><tr><th>정답률</th>${unitPcts}</tr></table><div class="chart-container"><canvas id="chart_unit_${idx}"></canvas></div></div>
+              <div class="grid-col"><div class="col-header bg-green">문항수준별 성적</div><table class="report-table"><tr><th>수준</th>${diffCols}</tr><tr><th>기준만점</th>${diffMaxs}</tr><tr><th>${st.name} <span style="color:#6a8c3d;">▲</span></th>${diffScores}</tr><tr><th>전체평균</th>${diffAvgs}</tr><tr><th>정답률</th>${diffPcts}</tr></table><div class="chart-container"><canvas id="chart_diff_${idx}"></canvas></div></div>
+              <div class="grid-col-right"><div class="col-header bg-purple">총점</div><table class="report-table" style="height: 60px;"><tr><td style="font-size:24px; color:#68488e;">${st.totalScore}</td></tr></table><div class="col-header bg-purple" style="margin-top: -1px;">전체평균</div><table class="report-table" style="height: 60px;"><tr><td style="font-size:18px;">${examInfo.totalAvg}</td></tr></table><div class="col-header bg-purple" style="margin-top: -1px;">석차</div><table class="report-table" style="height: 60px;"><tr><td style="font-size:18px;">${st.rank} / ${st.totalCount}</td></tr></table><div class="chart-container" style="padding-top: 25px;"><canvas id="chart_doughnut_${idx}"></canvas><div class="doughnut-text">${st.topPct}%</div></div><div style="text-align:center; font-size:12px; color:#666; padding-bottom:10px;">동일과정 상위</div></div>
             </div>
-            <div class="report-footer">
-              - 단원별 성적 : 출제 문항 중 각 단원별 점수를 나타냅니다.<br>
-              - 본인의 점수가 전체의 평균 점수보다 높을 경우 점수는 파란색으로, 낮을 경우 점수는 빨간색으로 표시됩니다.<br>
-              - 항목별 정답률(%)은 총 응시자들의 정답 비율입니다. (그래프의 점수 분포는 만점을 100점으로 환산하여 표기되었습니다.)
-            </div>
+            <div class="report-footer">- 단원별 성적 : 출제 문항 중 각 단원별 점수를 나타냅니다.<br>- 본인의 점수가 전체의 평균 점수보다 높을 경우 점수는 파란색으로, 낮을 경우 점수는 빨간색으로 표시됩니다.<br>- 항목별 정답률(%)은 총 응시자들의 정답 비율입니다. (그래프의 점수 분포는 만점을 100점으로 환산하여 표기되었습니다.)</div>
           </div>
         `;
         container.insertAdjacentHTML('beforeend', html);
