@@ -6,6 +6,8 @@
   <title>학원 성적표 통합 시스템</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- 🟢 차트 렌더링을 위한 Chart.js 추가 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
     
@@ -45,10 +47,10 @@
     .btn-primary:hover { background-color: #0f52a8; }
     
     .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #dee2e6; border-radius: 4px; }
-    table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; text-align: center; white-space: nowrap; }
-    th, td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 8px 4px; }
-    th { background-color: #f1f3f5; font-weight: bold; color: #333; position: sticky; top: 0; z-index: 10; border-top: none; }
-    td:last-child, th:last-child { border-right: none; }
+    table.data-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; text-align: center; white-space: nowrap; }
+    table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 8px 4px; }
+    table.data-table th { background-color: #f1f3f5; font-weight: bold; color: #333; position: sticky; top: 0; z-index: 10; border-top: none; }
+    table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
     .sticky-col { position: sticky; background-color: #fff; z-index: 5; border-right: 2px solid #dee2e6; }
     th.sticky-col { background-color: #f1f3f5; z-index: 11; }
@@ -63,10 +65,52 @@
 
     .paste-zone { border: 2px dashed #1a3978; background-color: #f4f6f9; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 20px; cursor: pointer; transition: 0.2s; }
     .paste-zone:hover { background-color: #e6f0ff; }
+
+    /* 🟢 성적표 렌더링 및 출력 전용 CSS */
+    .report-container { width: 100%; max-width: 1100px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; gap: 40px; }
+    .report-page { width: 100%; aspect-ratio: 297/210; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; padding: 30px; display: flex; flex-direction: column; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    
+    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 3px solid #1a3978; padding-bottom: 10px; }
+    .report-logo { font-size: 26px; font-weight: 900; color: #111; letter-spacing: -1px; }
+    .report-info { display: flex; gap: 15px; }
+    .info-badge { border: 2px solid #333; border-radius: 8px; padding: 8px 15px; text-align: center; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+    
+    .report-grid { display: flex; gap: 15px; flex: 1; min-height: 0; }
+    .grid-col { flex: 1; display: flex; flex-direction: column; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; }
+    .grid-col-right { flex: 0.5; display: flex; flex-direction: column; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; }
+    
+    .col-header { color: white; padding: 10px; text-align: center; font-weight: bold; font-size: 15px; letter-spacing: 1px; }
+    .bg-blue { background-color: #3b5998; }
+    .bg-green { background-color: #6a8c3d; }
+    .bg-purple { background-color: #68488e; }
+    
+    table.report-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: center; }
+    table.report-table th, table.report-table td { border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; padding: 6px 2px; }
+    table.report-table th { background-color: #f1f3f5; color: #333; }
+    table.report-table td { font-weight: bold; }
+    table.report-table td:last-child, table.report-table th:last-child { border-right: none; }
+    table.report-table tr:last-child td, table.report-table tr:last-child th { border-bottom: none; }
+    
+    .chart-container { flex: 1; padding: 15px; position: relative; display: flex; justify-content: center; align-items: center; }
+    .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; font-weight: 900; color: #68488e; }
+
+    .report-footer { margin-top: 15px; padding: 10px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; font-size: 11px; color: #555; line-height: 1.6; }
+
+    @media print {
+      body * { visibility: hidden; }
+      .app-body { padding: 0; margin: 0; }
+      #tab-report, #tab-report * { visibility: visible; }
+      #tab-report { position: absolute; left: 0; top: 0; width: 100%; padding: 0; border: none; box-shadow: none; }
+      .header-bar, .academy-header-bar, .tab-container { display: none !important; }
+      .report-container { width: 100%; max-width: none; gap: 0; }
+      .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; }
+      @page { size: A4 landscape; margin: 0; }
+    }
   </style>
 </head>
 <body>
 
+  <!-- Vercel 배포 URL 입력란 -->
   <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycbwvGxr_gp1L2e7L5D_1u8LZ0BP2K07LMtjuRsvqKEVyCnBikAEYpqztc0REuXmoNMHvtg/exec">
 
   <div class="spinner-overlay" id="globalSpinner">
@@ -104,9 +148,7 @@
       <div id="dropZone" style="border: 2px dashed #28a745; border-radius: 8px; padding: 40px 15px; background-color: #f8f9fa; cursor: pointer; transition: 0.2s; margin-bottom:20px;">
          <div style="font-size:32px; margin-bottom:10px;">📂</div>
          <div style="font-size:15px; font-weight:bold; color:#28a745; margin-bottom:8px;">엑셀 파일을 이곳에 끌어다 놓거나 클릭하세요.</div>
-         <div style="font-size:13px; color:#888; line-height: 1.4;">
-            ※ '담임명, 반명, 학생명, 학교, 학년' 열을 자동으로 추출합니다.
-         </div>
+         <div style="font-size:13px; color:#888; line-height: 1.4;">※ '담임명, 반명, 학생명, 학교, 학년' 열을 자동으로 추출합니다.</div>
          <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;">
       </div>
 
@@ -122,7 +164,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
       명단 일괄 업로드
     </button>
-    <span class="version">v.26.07.24-06</span>
+    <span class="version">v.26.07.24-07</span>
   </div>
 
   <div class="app-body">
@@ -166,7 +208,7 @@
       </div>
 
       <div class="table-wrapper" style="max-height: 500px;">
-        <table>
+        <table class="data-table">
           <thead>
             <tr>
               <th width="8%">문항번호</th>
@@ -188,15 +230,15 @@
       <div class="header-bar">
         <div class="select-group">
           <label>학기 선택</label>
-          <select id="tchTerm" style="width:140px;" onchange="filterCourses()"><option value="">선택하세요</option></select>
+          <select id="tchTerm" style="width:140px;" onchange="filterCourses('tch')"><option value="">선택하세요</option></select>
         </div>
         <div class="select-group">
           <label>과정 선택</label>
-          <select id="tchCourse" style="width:140px;" onchange="filterTeachers()"><option value="">선택하세요</option></select>
+          <select id="tchCourse" style="width:140px;" onchange="filterTeachers('tch')"><option value="">선택하세요</option></select>
         </div>
         <div class="select-group">
           <label>선생님 선택</label>
-          <select id="tchTeacher" style="width:100px;" onchange="filterClasses()"><option value="">선택</option></select>
+          <select id="tchTeacher" style="width:100px;" onchange="filterClasses('tch')"><option value="">선택</option></select>
         </div>
         <div class="select-group">
           <label>반 선택</label>
@@ -207,7 +249,7 @@
       </div>
 
       <div class="table-wrapper" style="height: 600px; display: none;" id="inputTableContainer">
-        <table>
+        <table class="data-table">
           <thead id="inputTableHeader"></thead>
           <tbody id="inputTableBody"></tbody>
         </table>
@@ -217,9 +259,37 @@
       </div>
     </div>
 
+    <!-- ========================================== -->
     <!-- 3. 성적표 출력 -->
+    <!-- ========================================== -->
     <div id="tab-report" class="tab-content">
-      <h3 style="color:#aaa; text-align:center; padding-top:100px;">성적표 출력 화면 구성 중...</h3>
+      <div class="header-bar">
+        <div class="select-group">
+          <label>학기 선택</label>
+          <select id="rptTerm" style="width:140px;" onchange="filterCourses('rpt')"><option value="">선택하세요</option></select>
+        </div>
+        <div class="select-group">
+          <label>과정 선택</label>
+          <select id="rptCourse" style="width:140px;" onchange="filterTeachers('rpt')"><option value="">선택하세요</option></select>
+        </div>
+        <div class="select-group">
+          <label>선생님 선택</label>
+          <select id="rptTeacher" style="width:100px;" onchange="filterClasses('rpt')"><option value="">선택</option></select>
+        </div>
+        <div class="select-group">
+          <label>반 선택</label>
+          <select id="rptClass" style="width:140px;"><option value="">선택</option></select>
+        </div>
+        <button class="btn-primary" style="margin-left: auto; background-color: #68488e;" onclick="generateReports()">성적표 렌더링</button>
+        <button class="btn-primary" style="background-color: #333;" onclick="window.print()">일괄 인쇄 (PDF)</button>
+      </div>
+
+      <div id="reportEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px;">
+        반을 선택하고 [성적표 렌더링]을 누르면 성적표가 생성됩니다.
+      </div>
+      
+      <!-- 성적표 렌더링 컨테이너 -->
+      <div class="report-container" id="reportContainer" style="display: none;"></div>
     </div>
 
   </div>
@@ -227,6 +297,7 @@
   <script>
     let globalMetadata = { setups: [], rosters: [] };
     let currentExamSetup = null;
+    let chartInstances = []; // 차트 객체들을 담아둘 배열 (초기화용)
 
     function showAlert(msg) { document.getElementById('modalMessage').innerHTML = msg; document.getElementById('customAlertModal').style.display = 'flex'; }
     function showLoading(status, msg = "처리 중입니다...") { document.getElementById('spinnerText').innerText = msg; document.getElementById('globalSpinner').style.display = status ? 'flex' : 'none'; }
@@ -235,9 +306,7 @@
       showLoading(false);
       if(err.message === "Failed to fetch" || err.name === "TypeError") {
         showAlert("🚫 <b>네트워크 통신 에러 (Failed to fetch)</b><br><br>1. GAS 배포 시 <b>액세스 권한을 '모든 사용자(Anyone)'</b>로 설정했는지 확인해주세요.<br><br>2. <b>backendUrl</b> 주소에 오타나 공백이 없는지 확인해주세요.");
-      } else {
-        showAlert("에러: " + err.message);
-      }
+      } else { showAlert("에러: " + err.message); }
     }
 
     function switchTab(tabId) {
@@ -245,13 +314,13 @@
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       event.target.classList.add('active');
-      if(tabId === 'tab-input') fetchMetadata(); 
+      if(tabId === 'tab-input' || tabId === 'tab-report') fetchMetadata(); 
     }
 
     window.onload = function() { renderSetupTable(); };
 
     // ==========================================
-    // 0. 엑셀 파일 스마트 업로드 (과정명 제거)
+    // 0. 엑셀 파일 스마트 업로드 
     // ==========================================
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
@@ -293,9 +362,7 @@
             }
           }
 
-          if (headerRowIdx === -1 || colMap.ban === -1 || colMap.name === -1) {
-            throw new Error("엑셀에서 필수 머릿글(반명, 학생명)을 찾을 수 없습니다.");
-          }
+          if (headerRowIdx === -1 || colMap.ban === -1 || colMap.name === -1) throw new Error("엑셀에서 필수 머릿글(반명, 학생명)을 찾을 수 없습니다.");
 
           let termName = document.getElementById('rosterYear').value + " " + document.getElementById('rosterTerm').value;
           let parsedStudents = [];
@@ -303,16 +370,12 @@
           for (let i = headerRowIdx + 1; i < jsonArr.length; i++) {
             let row = jsonArr[i];
             if (!row || row.length === 0) continue;
-            
             let ban = String(row[colMap.ban] || '').trim();
             let name = String(row[colMap.name] || '').trim();
             if (!ban || !name) continue; 
-
             let school = colMap.school !== -1 ? String(row[colMap.school] || '').trim() : '';
             let grade = colMap.grade !== -1 ? String(row[colMap.grade] || '').trim() : '';
             let teacher = colMap.teacher !== -1 ? String(row[colMap.teacher] || '').trim() : '';
-
-            // 과정명 추출 로직 제외 (학기, 선생님, 반명, 학생명, 학교, 학년)
             parsedStudents.push([termName, teacher, ban, name, school, grade]);
           }
 
@@ -322,24 +385,15 @@
           fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify(payload) })
           .then(res => res.json())
           .then(result => {
-            showLoading(false);
-            document.getElementById('fileInput').value = '';
-            if(result.success) {
-              document.getElementById('rosterUploadModal').style.display = 'none';
-              showAlert(`✔ <b>${termName} 명단 업로드 완료!</b><br>총 ${parsedStudents.length}명의 데이터가 저장되었습니다.`);
-              globalMetadata.rosters = []; 
-            } else { showAlert("· Error: " + result.error); }
+            showLoading(false); document.getElementById('fileInput').value = '';
+            if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showAlert(`✔ <b>${termName} 명단 업로드 완료!</b>`); globalMetadata.rosters = []; } 
+            else { showAlert("· Error: " + result.error); }
           }).catch(err => { document.getElementById('fileInput').value = ''; handleError(err); });
 
-        } catch (err) {
-          showLoading(false);
-          document.getElementById('fileInput').value = '';
-          showAlert("· Error: " + err.message);
-        }
+        } catch (err) { showLoading(false); document.getElementById('fileInput').value = ''; showAlert("· Error: " + err.message); }
       };
       reader.readAsArrayBuffer(file);
     }
-
 
     // ==========================================
     // 1. 시험 기본 세팅 (관리자)
@@ -372,178 +426,109 @@
       else if (score == "4") diff = "상";
       else if (score == "5") diff = "최상";
       diffInput.value = diff;
-
-      if (document.getElementById(`unit_${qNum}`).value.trim() && diff) {
-        statusCell.innerHTML = "✔"; statusCell.style.color = "#28a745"; statusCell.style.fontWeight = "bold";
-      } else {
-        statusCell.innerHTML = "-"; statusCell.style.color = "#adb5bd";
-      }
+      if (document.getElementById(`unit_${qNum}`).value.trim() && diff) { statusCell.innerHTML = "✔"; statusCell.style.color = "#28a745"; statusCell.style.fontWeight = "bold"; } 
+      else { statusCell.innerHTML = "-"; statusCell.style.color = "#adb5bd"; }
     }
 
     function checkExistingSetup() {
-      const y = document.getElementById('setupYear').value;
-      const t = document.getElementById('setupTerm').value;
-      const l = document.getElementById('setupLevel').value.trim();
-      const c = document.getElementById('setupCourse').value.trim();
+      const y = document.getElementById('setupYear').value, t = document.getElementById('setupTerm').value, l = document.getElementById('setupLevel').value.trim(), c = document.getElementById('setupCourse').value.trim();
       if (!l || !c) return;
-
       const payload = { action: 'getExamSetup', year: y, term: t, level: l, course: c };
       const url = document.getElementById('backendUrl').value.trim();
       if (url.includes('YOUR_GAS_ID_HERE')) return;
 
-      fetch(url, { method: 'POST', body: JSON.stringify(payload) })
-      .then(res => res.json())
-      .then(res => {
+      fetch(url, { method: 'POST', body: JSON.stringify(payload) }).then(res => res.json()).then(res => {
         if(res.success && res.data) {
-           document.getElementById('setupTotalCount').value = res.data.totalCount;
-           document.getElementById('setupStartNum').value = res.data.startNum;
+           document.getElementById('setupTotalCount').value = res.data.totalCount; document.getElementById('setupStartNum').value = res.data.startNum;
            renderSetupTable();
-           res.data.items.forEach(item => {
-             let u = document.getElementById(`unit_${item.num}`);
-             let s = document.getElementById(`score_${item.num}`);
-             if(u) u.value = item.unit;
-             if(s) { s.value = item.score; updateDiff(item.num); }
-           });
+           res.data.items.forEach(item => { let u = document.getElementById(`unit_${item.num}`); let s = document.getElementById(`score_${item.num}`); if(u) u.value = item.unit; if(s) { s.value = item.score; updateDiff(item.num); } });
            showAlert("기존 세팅 데이터가 자동으로 불러와졌습니다.");
-        } else {
-           renderSetupTable();
-        }
-      })
-      .catch(handleError);
+        } else { renderSetupTable(); }
+      }).catch(handleError);
     }
 
     document.getElementById('hwpPasteZone').addEventListener('click', function() { document.getElementById('pasteCatcher').focus(); this.style.backgroundColor = '#e6f0ff'; setTimeout(() => this.style.backgroundColor = '#f4f6f9', 500); });
     document.getElementById('pasteCatcher').addEventListener('paste', function(e) {
       e.preventDefault();
-      let htmlData = (e.clipboardData || window.clipboardData).getData('text/html');
-      let textData = (e.clipboardData || window.clipboardData).getData('text/plain');
-      let rows = [];
-      if(htmlData) {
-        let t = document.createElement('div'); t.innerHTML = htmlData;
-        let tbl = t.querySelector('table');
-        if(tbl) tbl.querySelectorAll('tr').forEach(tr => {
-          let r = Array.from(tr.querySelectorAll('td,th')).map(c => c.innerText.replace(/<[^>]+>/g, '').trim());
-          if(r.join('')) rows.push(r);
-        });
-      } else if(textData) {
-        textData.split(/\r?\n/).forEach(l => { let r = l.split('\t').map(c => c.trim()); if(r.join('')) rows.push(r); });
-      }
+      let htmlData = (e.clipboardData || window.clipboardData).getData('text/html'); let textData = (e.clipboardData || window.clipboardData).getData('text/plain'); let rows = [];
+      if(htmlData) { let t = document.createElement('div'); t.innerHTML = htmlData; let tbl = t.querySelector('table'); if(tbl) tbl.querySelectorAll('tr').forEach(tr => { let r = Array.from(tr.querySelectorAll('td,th')).map(c => c.innerText.replace(/<[^>]+>/g, '').trim()); if(r.join('')) rows.push(r); }); } 
+      else if(textData) { textData.split(/\r?\n/).forEach(l => { let r = l.split('\t').map(c => c.trim()); if(r.join('')) rows.push(r); }); }
       if(rows.length===0) return showAlert("표 데이터가 아닙니다.");
       
       let st = (rows[0].join('').includes('단원') || rows[0].join('').includes('난이도') || rows[0].join('').includes('배점')) ? 1 : 0;
-      let count = parseInt(document.getElementById('setupTotalCount').value);
-      let sNum = parseInt(document.getElementById('setupStartNum').value);
-      
-      let c = 0;
+      let count = parseInt(document.getElementById('setupTotalCount').value), sNum = parseInt(document.getElementById('setupStartNum').value), c = 0;
       for(let i = st; i < rows.length && c < count; i++) {
-        let u = rows[i].length >= 3 ? rows[i][1] : rows[i][0];
-        let d = rows[i].length >= 3 ? rows[i][2] : rows[i][1];
+        let u = rows[i].length >= 3 ? rows[i][1] : rows[i][0], d = rows[i].length >= 3 ? rows[i][2] : rows[i][1];
         if(u) document.getElementById(`unit_${sNum+c}`).value = u;
-        if(d) {
-          let score = d.replace(/[^0-9]/g, '');
-          if(score) { document.getElementById(`score_${sNum+c}`).value = score; updateDiff(sNum+c); }
-        }
+        if(d) { let score = d.replace(/[^0-9]/g, ''); if(score) { document.getElementById(`score_${sNum+c}`).value = score; updateDiff(sNum+c); } }
         c++;
       }
     });
 
     function saveExamSetup() {
-      const year = document.getElementById('setupYear').value;
-      const term = document.getElementById('setupTerm').value;
-      const level = document.getElementById('setupLevel').value.trim();
-      const course = document.getElementById('setupCourse').value.trim();
+      const year = document.getElementById('setupYear').value, term = document.getElementById('setupTerm').value, level = document.getElementById('setupLevel').value.trim(), course = document.getElementById('setupCourse').value.trim();
       if(!level || !course) return showAlert("과정 난이도와 과정명을 모두 입력하세요.");
-
-      const totalCount = parseInt(document.getElementById('setupTotalCount').value);
-      const startNum = parseInt(document.getElementById('setupStartNum').value);
-      const items = [];
+      const totalCount = parseInt(document.getElementById('setupTotalCount').value), startNum = parseInt(document.getElementById('setupStartNum').value), items = [];
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i;
-        items.push({ 
-          num: qNum, 
-          unit: document.getElementById(`unit_${qNum}`).value.trim(), 
-          score: parseInt(document.getElementById(`score_${qNum}`).value)||0,
-          diff: document.getElementById(`diff_${qNum}`).value
-        });
+        items.push({ num: qNum, unit: document.getElementById(`unit_${qNum}`).value.trim(), score: parseInt(document.getElementById(`score_${qNum}`).value)||0, diff: document.getElementById(`diff_${qNum}`).value });
       }
-
       const payload = { action: 'saveExamSetup', year, term, level, course, totalCount, startNum, items };
       showLoading(true, "세팅 정보를 저장 중입니다...");
-      
-      const url = document.getElementById('backendUrl').value.trim();
-      
-      fetch(url, { method: 'POST', body: JSON.stringify(payload) })
-      .then(res => res.json()).then(res => { showLoading(false); if(res.success) { showAlert("✔ <b>저장 완료</b>"); globalMetadata.setups=[]; } else { showAlert("에러: " + res.error); } })
-      .catch(handleError);
+      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify(payload) })
+      .then(res => res.json()).then(res => { showLoading(false); if(res.success) { showAlert("✔ <b>저장 완료</b>"); globalMetadata.setups=[]; } else { showAlert("에러: " + res.error); } }).catch(handleError);
     }
 
-
     // ==========================================
-    // 2. 채점 입력 (선생님) - 🟢 과정명 필터링 독립
+    // 2 & 3. 탭 간 공통 로직 (Dropdown)
     // ==========================================
     function fetchMetadata() {
       const url = document.getElementById('backendUrl').value.trim();
       if (url.includes('YOUR_GAS_ID_HERE')) return;
       showLoading(true, "시스템 데이터를 불러오는 중...");
-      
       fetch(url, { method: 'POST', body: JSON.stringify({ action: 'getDropdownData' }) })
-      .then(res => res.json())
-      .then(res => {
-        showLoading(false);
-        if(res.success) {
-          globalMetadata = res.data;
-          populateTerms();
-        } else { showAlert("에러: " + res.error); }
-      })
-      .catch(handleError);
+      .then(res => res.json()).then(res => { showLoading(false); if(res.success) { globalMetadata = res.data; populateTerms(); } else { showAlert("에러: " + res.error); } }).catch(handleError);
     }
 
     function sortTerms(terms) {
       const seasonWeight = { '봄학기': 1, '여름학기': 2, '가을학기': 3, '겨울학기': 4 };
-      return terms.sort((a, b) => {
-        let aYear = parseInt(a.split(' ')[0]), bYear = parseInt(b.split(' ')[0]);
-        if(aYear !== bYear) return aYear - bYear;
-        let aS = seasonWeight[a.split(' ')[1]] || 5, bS = seasonWeight[b.split(' ')[1]] || 5;
-        return aS - bS;
-      });
+      return terms.sort((a, b) => { let aYear = parseInt(a.split(' ')[0]), bYear = parseInt(b.split(' ')[0]); if(aYear !== bYear) return aYear - bYear; let aS = seasonWeight[a.split(' ')[1]] || 5, bS = seasonWeight[b.split(' ')[1]] || 5; return aS - bS; });
     }
 
     function populateTerms() {
-      let terms = [...new Set(globalMetadata.setups.map(s => s.fullTerm))];
-      terms = sortTerms(terms);
-      const termSel = document.getElementById('tchTerm');
-      termSel.innerHTML = '<option value="">선택하세요</option>';
-      terms.forEach(t => termSel.innerHTML += `<option value="${t}">${t}</option>`);
-      filterCourses();
+      let terms = sortTerms([...new Set(globalMetadata.setups.map(s => s.fullTerm))]);
+      const tchSel = document.getElementById('tchTerm'), rptSel = document.getElementById('rptTerm');
+      tchSel.innerHTML = '<option value="">선택하세요</option>'; rptSel.innerHTML = '<option value="">선택하세요</option>';
+      terms.forEach(t => { tchSel.innerHTML += `<option value="${t}">${t}</option>`; rptSel.innerHTML += `<option value="${t}">${t}</option>`; });
+      filterCourses('tch'); filterCourses('rpt');
     }
 
-    function filterCourses() {
-      const term = document.getElementById('tchTerm').value;
-      const crsSel = document.getElementById('tchCourse');
+    function filterCourses(prefix) {
+      const term = document.getElementById(`${prefix}Term`).value;
+      const crsSel = document.getElementById(`${prefix}Course`);
       crsSel.innerHTML = '<option value="">선택하세요</option>';
       if(term) {
         let courses = [...new Set(globalMetadata.setups.filter(s => s.fullTerm === term).map(s => s.fullCourse))];
         courses.sort().forEach(c => crsSel.innerHTML += `<option value="${c}">${c}</option>`);
       }
-      filterTeachers();
+      filterTeachers(prefix);
     }
 
-    function filterTeachers() {
-      const term = document.getElementById('tchTerm').value;
-      const tSel = document.getElementById('tchTeacher');
+    function filterTeachers(prefix) {
+      const term = document.getElementById(`${prefix}Term`).value;
+      const tSel = document.getElementById(`${prefix}Teacher`);
       tSel.innerHTML = '<option value="">선택</option>';
       if(term) {
-        // 과정명에 구애받지 않고 해당 학기의 모든 선생님을 띄웁니다.
         let teachers = [...new Set(globalMetadata.rosters.filter(r => r.fullTerm === term).map(r => r.teacher))];
         teachers.sort().forEach(t => tSel.innerHTML += `<option value="${t}">${t}</option>`);
       }
-      filterClasses();
+      filterClasses(prefix);
     }
 
-    function filterClasses() {
-      const term = document.getElementById('tchTerm').value;
-      const teacher = document.getElementById('tchTeacher').value;
-      const cSel = document.getElementById('tchClass');
+    function filterClasses(prefix) {
+      const term = document.getElementById(`${prefix}Term`).value;
+      const teacher = document.getElementById(`${prefix}Teacher`).value;
+      const cSel = document.getElementById(`${prefix}Class`);
       cSel.innerHTML = '<option value="">선택</option>';
       if(term && teacher) {
         let classes = [...new Set(globalMetadata.rosters.filter(r => r.fullTerm === term && r.teacher === teacher).map(r => r.className))];
@@ -551,88 +536,56 @@
       }
     }
 
+    // ==========================================
+    // 2. 채점 입력 (선생님) 로직
+    // ==========================================
     function loadGradesData() {
-      const term = document.getElementById('tchTerm').value;
-      const course = document.getElementById('tchCourse').value;
-      const teacher = document.getElementById('tchTeacher').value;
-      const className = document.getElementById('tchClass').value;
+      const term = document.getElementById('tchTerm').value, course = document.getElementById('tchCourse').value, teacher = document.getElementById('tchTeacher').value, className = document.getElementById('tchClass').value;
       if (!term || !course || !teacher || !className) return showAlert("모든 조건을 선택해주세요.");
-
       showLoading(true, "명단과 성적 데이터를 불러옵니다...");
-      const url = document.getElementById('backendUrl').value.trim();
-      
-      fetch(url, { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, course, teacher, className }) })
-      .then(res => res.json())
-      .then(res => {
-        showLoading(false);
-        if(res.success) renderInputTable(res.data.setupData, res.data.students, res.data.grades);
-        else showAlert("· Error: " + res.error);
-      })
-      .catch(handleError);
+      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, course, teacher, className }) })
+      .then(res => res.json()).then(res => { showLoading(false); if(res.success) renderInputTable(res.data.setupData, res.data.students, res.data.grades); else showAlert("· Error: " + res.error); }).catch(handleError);
     }
 
     function renderInputTable(setupData, students, grades) {
-      document.getElementById('inputEmptyState').style.display = 'none';
-      document.getElementById('inputTableContainer').style.display = 'block';
-      currentExamSetup = setupData; 
-
-      const thead = document.getElementById('inputTableHeader');
-      const tbody = document.getElementById('inputTableBody');
-
+      document.getElementById('inputEmptyState').style.display = 'none'; document.getElementById('inputTableContainer').style.display = 'block'; currentExamSetup = setupData; 
+      const thead = document.getElementById('inputTableHeader'), tbody = document.getElementById('inputTableBody');
       let tr1 = `<tr><th width="4%" rowspan="2">No.</th><th width="8%" rowspan="2" class="sticky-col">학생명</th><th width="6%" rowspan="2" class="sticky-col" style="left: 8%;">현재총점</th><th colspan="${setupData.totalCount}">문항별 O/X 입력 (1/2 자동 변환)</th></tr><tr>`;
       for (let i = 0; i < setupData.totalCount; i++) tr1 += `<th>${setupData.startNum + i}</th>`;
-      tr1 += `</tr>`;
-      thead.innerHTML = tr1;
-
-      tbody.innerHTML = '';
+      tr1 += `</tr>`; thead.innerHTML = tr1; tbody.innerHTML = '';
       if(students.length === 0) return tbody.innerHTML = `<tr><td colspan="${3 + setupData.totalCount}" style="padding: 20px; color: red;">명단이 없습니다.</td></tr>`;
 
       students.forEach((st, rIdx) => {
         let stGrade = grades.find(g => g.name === st.name) || { totalScore: 0, answers: {} };
-        
-        let rowHtml = `<tr>
-          <td style="background-color: #f8f9fa;">${String(rIdx + 1).padStart(2, '0')}</td>
-          <td class="sticky-col" style="font-weight: bold;">${st.name}</td>
-          <td class="sticky-col" style="left: 8%; font-weight: 900; color: #1a3978;" id="totalScore_${rIdx}">${stGrade.totalScore}</td>`;
-        
+        let rowHtml = `<tr><td style="background-color: #f8f9fa;">${String(rIdx + 1).padStart(2, '0')}</td><td class="sticky-col" style="font-weight: bold;">${st.name}</td><td class="sticky-col" style="left: 8%; font-weight: 900; color: #1a3978;" id="totalScore_${rIdx}">${stGrade.totalScore}</td>`;
         for (let cIdx = 0; cIdx < setupData.totalCount; cIdx++) {
-          let qNum = setupData.startNum + cIdx;
-          let val = stGrade.answers[qNum] || "";
+          let qNum = setupData.startNum + cIdx, val = stGrade.answers[qNum] || "";
           let colorClass = val === 'O' ? 'val-o' : (val === 'X' ? 'val-x' : '');
           rowHtml += `<td><input type="text" class="ox-input grid-nav ${colorClass}" data-row="${rIdx}" data-col="${cIdx}" maxlength="1" value="${val}" oninput="handleOxInput(event, ${rIdx})"></td>`;
         }
-        rowHtml += `</tr>`;
-        tbody.insertAdjacentHTML('beforeend', rowHtml);
+        rowHtml += `</tr>`; tbody.insertAdjacentHTML('beforeend', rowHtml);
       });
-
       attachKeyboardNavigationListeners(setupData.totalCount, students.length);
     }
 
     function handleOxInput(e, rIdx) {
       let inputEl = e.target; let val = inputEl.value.toLowerCase();
-      inputEl.classList.remove('val-o', 'val-x');
-      let isValidInput = false;
-
+      inputEl.classList.remove('val-o', 'val-x'); let isValidInput = false;
       if (['1','o','ㅇ'].includes(val)) { inputEl.value = 'O'; inputEl.classList.add('val-o'); isValidInput = true; }
       else if (['2','x','ㅂ'].includes(val)) { inputEl.value = 'X'; inputEl.classList.add('val-x'); isValidInput = true; }
       else { inputEl.value = ''; }
-
       calculateRowScore(rIdx);
-      if (isValidInput) moveToNextInput(inputEl);
+      if (isValidInput) {
+        let r = parseInt(inputEl.dataset.row), c = parseInt(inputEl.dataset.col);
+        let next = document.querySelector(`.grid-nav[data-row="${r}"][data-col="${c + 1}"]`) || document.querySelector(`.grid-nav[data-row="${r + 1}"][data-col="0"]`);
+        if(next) { next.focus(); if(next.value) next.select(); }
+      }
     }
 
     function calculateRowScore(rIdx) {
       let totalScore = 0;
-      document.querySelectorAll(`.grid-nav[data-row="${rIdx}"]`).forEach((input, cIdx) => {
-        if (input.value === 'O') totalScore += (currentExamSetup.items[cIdx].score || 0);
-      });
+      document.querySelectorAll(`.grid-nav[data-row="${rIdx}"]`).forEach((input, cIdx) => { if (input.value === 'O') totalScore += (currentExamSetup.items[cIdx].score || 0); });
       document.getElementById(`totalScore_${rIdx}`).innerText = totalScore;
-    }
-
-    function moveToNextInput(currentInput) {
-      let r = parseInt(currentInput.dataset.row), c = parseInt(currentInput.dataset.col);
-      let next = document.querySelector(`.grid-nav[data-row="${r}"][data-col="${c + 1}"]`) || document.querySelector(`.grid-nav[data-row="${r + 1}"][data-col="0"]`);
-      if(next) { next.focus(); if(next.value) next.select(); }
     }
 
     function attachKeyboardNavigationListeners(totalCols, totalRows) {
@@ -651,26 +604,174 @@
 
     function saveGrades() {
       if (!currentExamSetup) return showAlert("명단을 먼저 불러와 주세요.");
-      const term = document.getElementById('tchTerm').value;
-      const course = document.getElementById('tchCourse').value;
-      const teacher = document.getElementById('tchTeacher').value;
-      const className = document.getElementById('tchClass').value;
-      
+      const term = document.getElementById('tchTerm').value, course = document.getElementById('tchCourse').value, teacher = document.getElementById('tchTeacher').value, className = document.getElementById('tchClass').value;
       let studentsData = [];
       document.getElementById('inputTableBody').querySelectorAll('tr').forEach((tr, rIdx) => {
-        let name = tr.cells[1].innerText.trim();
-        let total = document.getElementById(`totalScore_${rIdx}`).innerText;
-        let answers = {};
+        let name = tr.cells[1].innerText.trim(), total = document.getElementById(`totalScore_${rIdx}`).innerText, answers = {};
         tr.querySelectorAll('.grid-nav').forEach((input, cIdx) => answers[currentExamSetup.startNum + cIdx] = input.value);
         studentsData.push({ name: name, totalScore: total, answers: answers });
       });
-
       showLoading(true, "성적DB에 저장 중입니다...");
-      const url = document.getElementById('backendUrl').value.trim();
+      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveStudentGrades', term, course, teacher, className, students: studentsData }) })
+      .then(res => res.json()).then(res => { showLoading(false); if(res.success) showAlert("✔ <b>저장 완료</b>"); else showAlert("에러: " + res.error); }).catch(handleError);
+    }
+
+    // ==========================================
+    // 3. 성적표 렌더링 및 출력 (Chart.js 적용)
+    // ==========================================
+    function generateReports() {
+      const term = document.getElementById('rptTerm').value, course = document.getElementById('rptCourse').value, teacher = document.getElementById('rptTeacher').value, className = document.getElementById('rptClass').value;
+      if (!term || !course || !teacher || !className) return showAlert("모든 조건을 선택해주세요.");
       
-      fetch(url, { method: 'POST', body: JSON.stringify({ action: 'saveStudentGrades', term, course, teacher, className, students: studentsData }) })
-      .then(res => res.json()).then(res => { showLoading(false); if(res.success) showAlert("✔ <b>저장 완료</b>"); else showAlert("에러: " + res.error); })
+      showLoading(true, "성적 데이터를 통계 분석 중입니다...");
+      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getReportData', term, course, teacher, className }) })
+      .then(res => res.json())
+      .then(res => {
+        showLoading(false);
+        if(res.success) {
+          document.getElementById('reportEmptyState').style.display = 'none';
+          document.getElementById('reportContainer').style.display = 'flex';
+          renderReportCards(res.data.examInfo, res.data.students);
+        } else { showAlert("· Error: " + res.error); }
+      })
       .catch(handleError);
+    }
+
+    function renderReportCards(examInfo, students) {
+      // 기존 차트 메모리 해제
+      chartInstances.forEach(chart => chart.destroy());
+      chartInstances = [];
+      
+      const container = document.getElementById('reportContainer');
+      container.innerHTML = '';
+      
+      if(students.length === 0) {
+        container.innerHTML = '<h3 style="text-align:center; color:red; padding:40px;">해당 반에 입력된 성적 데이터가 없습니다.</h3>';
+        return;
+      }
+
+      students.forEach((st, idx) => {
+        // 단원별 성적 (Blue)
+        let unitCols = st.unitsData.map(u => `<th>${u.name}</th>`).join('');
+        let unitMaxs = st.unitsData.map(u => `<td>${u.max}</td>`).join('');
+        let unitScores = st.unitsData.map(u => `<td>${u.score}</td>`).join('');
+        let unitAvgs = st.unitsData.map(u => `<td>${u.avg}</td>`).join('');
+        let unitPcts = st.unitsData.map(u => `<td>${u.pct}%</td>`).join('');
+        
+        let unitLabels = st.unitsData.map(u => u.name);
+        let unitMyData = st.unitsData.map(u => u.pct);
+        let unitAvgData = st.unitsData.map(u => u.avgPct);
+
+        // 문항수준별 성적 (Green)
+        let diffCols = st.diffsData.map(d => `<th>${d.name}</th>`).join('');
+        let diffMaxs = st.diffsData.map(d => `<td>${d.max}</td>`).join('');
+        let diffScores = st.diffsData.map(d => `<td>${d.score}</td>`).join('');
+        let diffAvgs = st.diffsData.map(d => `<td>${d.avg}</td>`).join('');
+        let diffPcts = st.diffsData.map(d => `<td>${d.pct}%</td>`).join('');
+        
+        let diffLabels = st.diffsData.map(d => d.name);
+        let diffMyData = st.diffsData.map(d => d.pct);
+        let diffAvgData = st.diffsData.map(d => d.avgPct);
+
+        let html = `
+          <div class="report-page">
+            <div class="report-header">
+              <div class="report-logo">SG청운학원</div>
+              <div class="report-info">
+                <div class="info-badge"><span>테스트:</span> <span>${examInfo.term} LT중간고사</span></div>
+                <div class="info-badge"><span>학생명:</span> <span style="color:#1a3978;">${st.name}</span></div>
+                <div class="info-badge"><span>과정명:</span> <span>${examInfo.className}</span></div>
+                <div class="info-badge"><span>담임명:</span> <span>${examInfo.teacher}</span></div>
+              </div>
+            </div>
+
+            <div class="report-grid">
+              <!-- 왼쪽: 단원별 성적 -->
+              <div class="grid-col">
+                <div class="col-header bg-blue">단원별 성적</div>
+                <table class="report-table">
+                  <tr><th>단원</th>${unitCols}</tr>
+                  <tr><th>기준만점</th>${unitMaxs}</tr>
+                  <tr><th>${st.name} <span style="color:#2e5b99;">▲</span></th>${unitScores}</tr>
+                  <tr><th>전체평균</th>${unitAvgs}</tr>
+                  <tr><th>항목별 정답률</th>${unitPcts}</tr>
+                </table>
+                <div class="chart-container"><canvas id="chart_unit_${idx}"></canvas></div>
+              </div>
+
+              <!-- 가운데: 수준별 성적 -->
+              <div class="grid-col">
+                <div class="col-header bg-green">문항수준별 성적</div>
+                <table class="report-table">
+                  <tr><th>수준</th>${diffCols}</tr>
+                  <tr><th>기준만점</th>${diffMaxs}</tr>
+                  <tr><th>${st.name} <span style="color:#6a8c3d;">▲</span></th>${diffScores}</tr>
+                  <tr><th>전체평균</th>${diffAvgs}</tr>
+                  <tr><th>항목별 정답률</th>${diffPcts}</tr>
+                </table>
+                <div class="chart-container"><canvas id="chart_diff_${idx}"></canvas></div>
+              </div>
+
+              <!-- 오른쪽: 총점 및 석차 -->
+              <div class="grid-col-right">
+                <div class="col-header bg-purple">총점</div>
+                <table class="report-table" style="height: 60px;"><tr><td style="font-size:24px; color:#68488e;">${st.totalScore}</td></tr></table>
+                <div class="col-header bg-purple" style="margin-top: -1px;">전체평균</div>
+                <table class="report-table" style="height: 60px;"><tr><td style="font-size:18px;">${examInfo.totalAvg}</td></tr></table>
+                <div class="col-header bg-purple" style="margin-top: -1px;">석차</div>
+                <table class="report-table" style="height: 60px;"><tr><td style="font-size:18px;">${st.rank} / ${st.totalCount}</td></tr></table>
+                <div class="chart-container" style="padding-top: 25px;">
+                  <canvas id="chart_doughnut_${idx}"></canvas>
+                  <div class="doughnut-text">${st.topPct}%</div>
+                </div>
+                <div style="text-align:center; font-size:12px; color:#666; padding-bottom:10px;">동일과정 상위</div>
+              </div>
+            </div>
+
+            <div class="report-footer">
+              - 단원별 성적 : 출제 문항 중 각 단원별 점수를 나타냅니다.<br>
+              - 문항수준별 성적 : 출제 문항 중 배점에 따른 난도별 점수를 나타냅니다.<br>
+              - 본인의 점수가 전체의 평균 점수보다 높을 경우 점수는 파란색으로, 낮을 경우 점수는 빨간색으로 표시됩니다.<br>
+              - 항목별 정답률(%)은 총 응시자들의 정답 비율입니다.<br>
+              - 그래프의 점수 분포는 만점을 100점으로 환산하여 표기되었습니다.
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+        
+        // 차트 렌더링 지연 실행 (DOM 완성 후)
+        setTimeout(() => {
+          // 1. 단원별 차트 (Blue)
+          const ctxUnit = document.getElementById(`chart_unit_${idx}`).getContext('2d');
+          chartInstances.push(new Chart(ctxUnit, {
+            type: 'bar',
+            data: { labels: unitLabels, datasets: [
+              { label: st.name, data: unitMyData, backgroundColor: '#3b5998', barPercentage: 0.6 },
+              { label: '전체평균', data: unitAvgData, backgroundColor: '#adb5bd', barPercentage: 0.6 }
+            ]},
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { position: 'bottom' } } }
+          }));
+
+          // 2. 수준별 차트 (Green)
+          const ctxDiff = document.getElementById(`chart_diff_${idx}`).getContext('2d');
+          chartInstances.push(new Chart(ctxDiff, {
+            type: 'bar',
+            data: { labels: diffLabels, datasets: [
+              { label: st.name, data: diffMyData, backgroundColor: '#6a8c3d', barPercentage: 0.6 },
+              { label: '전체평균', data: diffAvgData, backgroundColor: '#adb5bd', barPercentage: 0.6 }
+            ]},
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { position: 'bottom' } } }
+          }));
+
+          // 3. 석차 도넛 차트 (Purple)
+          const ctxDoughnut = document.getElementById(`chart_doughnut_${idx}`).getContext('2d');
+          chartInstances.push(new Chart(ctxDoughnut, {
+            type: 'doughnut',
+            data: { labels: ['상위 %', '나머지'], datasets: [{ data: [st.topPct, 100 - st.topPct], backgroundColor: ['#68488e', '#e9ecef'], borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+          }));
+        }, 100);
+      });
     }
   </script>
 </body>
