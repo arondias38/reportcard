@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* 1. 폰트 프리텐다드 전역 적용 */
+    /* 폰트는 프리텐다드 전역 적용 */
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
@@ -26,44 +26,35 @@
     .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; background-color: #1a3978; color: white; transition: 0.2s; }
     .modal-btn:hover { background-color: #112652; }
 
-    /* 2. 상단 제목바 높이 고정 및 완벽한 수직/수평 중앙 정렬 (상하 여백 동일) */
-    .academy-header-bar { background-color: #1a3978; color: #ffffff; height: 60px; font-size: 20px; font-weight: 900; display: flex; justify-content: center; align-items: center; position: relative; letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); min-width: max-content; }
-    .academy-header-bar .version { position: absolute; right: 25px; font-size: 11px; color: #adb5bd; font-weight: normal; }
+    /* 🟢 1. 상단 제목바 체크리스트 스타일 일치 (높이, 색상, 상하단 공백) */
+    .academy-header-bar { background-color: #1a3978; color: #ffffff; padding: 20px 30px; font-size: 22px; font-weight: 900; display: flex; justify-content: center; align-items: center; position: relative; letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); min-width: max-content; }
+    .academy-header-bar .version { position: absolute; right: 30px; font-size: 12px; color: #adb5bd; font-weight: normal; }
     .icon-btn { background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 50%; transition: 0.2s; }
     .icon-btn:hover { background-color: rgba(255,255,255,0.2); }
 
-    /* 전체 화면 넓이 억제 해제 (가로 스크롤 연동) */
-    .app-body { padding: 40px 30px; min-width: max-content; }
+    .app-body { padding: 30px 40px; min-width: max-content; }
+    .page-content { display: none; }
+    .page-content.active { display: block; }
 
-    /* 3. 탭 균등 분배 및 환경설정 탭 우측 끝 배치 */
-    .tab-container { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ced4da; padding-bottom: 0; }
-    .tab-btn { flex: 1; background-color: #e9ecef; color: #495057; border: 1px solid #ced4da; border-bottom: none; padding: 12px 10px; font-size: 16px; font-weight: bold; border-radius: 8px 8px 0 0; cursor: pointer; transition: 0.2s; text-align: center; }
-    .tab-btn:hover { background-color: #dee2e6; }
-    .tab-btn.active { background-color: #fff; color: #1a3978; border-color: #1a3978; border-bottom: 2px solid #fff; margin-bottom: -2px; z-index: 2; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); }
-
-    .tab-content { display: none; background-color: #fff; border-radius: 0 8px 8px 8px; padding: 25px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); min-height: 600px; }
-    .tab-content.active { display: block; }
-
-    /* 🟢 놓쳤던 부분: 제목표시줄(검색바) 전체를 상단에 틀고정(Sticky) */
-    .header-bar { background-color: #f8f9fa; padding: 15px 20px; border-radius: 8px; border: 1px solid #dee2e6; display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    /* 🟢 5. 체크리스트 스타일 필터 박스 및 좌측 색 띠지 */
+    .filter-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 18px 25px; border-left: 6px solid #1a3978; margin-bottom: 25px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; }
     
-    .select-group { display: flex; align-items: center; gap: 6px; }
-    .select-group label { font-weight: bold; font-size: 14px; color: #1a3978; margin-right: 4px; white-space: nowrap; }
-    
-    /* 선택박스 균등 너비 */
-    .select-group select { width: 140px; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; outline: none; box-sizing: border-box; }
-    .select-group input, .select-group textarea { padding: 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; outline: none; box-sizing: border-box; }
+    .select-group { display: flex; align-items: center; gap: 8px; }
+    .select-group label { font-weight: bold; font-size: 14px; color: #1a3978; white-space: nowrap; }
+    .select-group select { width: 140px; padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; outline: none; box-sizing: border-box; }
+    .select-group input, .select-group textarea { padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; outline: none; box-sizing: border-box; }
     .select-group select:focus, input:focus, textarea:focus { border-color: #1a3978; }
     
-    .btn-primary { padding: 0 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; background-color: #1366ce; color: white; transition: 0.2s; height: 38px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-primary { padding: 0 22px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; background-color: #1366ce; color: white; transition: 0.2s; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .btn-primary:hover { background-color: #0f52a8; }
     
-    .table-wrapper { width: 100%; border: 1px solid #dee2e6; border-radius: 4px; }
-    table.data-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; text-align: center; white-space: nowrap; }
-    table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 8px 4px; box-sizing: border-box; background-color: #fff; }
+    /* 가로 스크롤 전체 적용 및 표 틀 고정 (Sticky) */
+    .table-wrapper { width: 100%; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 100px; }
+    table.data-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13.5px; text-align: center; white-space: nowrap; background-color: #fff; }
+    table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 10px 4px; box-sizing: border-box; background-color: #fff; }
     
-    /* 🟢 놓쳤던 부분: 표 머릿글 이중 고정 (제목표시줄 높이 70px + 마진 20px = top 90px) */
-    table.data-table thead th { background-color: #f1f3f5; font-weight: bold; color: #333; position: sticky; top: 90px; border-top: none; z-index: 90; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    /* 상단 제목표시줄(문항번호) 이중 고정 */
+    table.data-table thead th { background-color: #f1f3f5; font-weight: bold; color: #333; position: sticky; top: 76px; border-top: none; z-index: 90; box-shadow: 0 2px 3px -1px rgba(0,0,0,0.1); }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
     /* 왼쪽 3열 고정 (No, 학생명, 현재총점) */
@@ -74,25 +65,36 @@
     table.data-table thead th.sticky-no, table.data-table thead th.sticky-name, table.data-table thead th.sticky-score { z-index: 95; background-color: #e9ecef; }
     table.data-table tbody td.sticky-no, table.data-table tbody td.sticky-name, table.data-table tbody td.sticky-score { background-color: #f8f9fa; }
 
-    .setup-input { width: 90%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 13.5px; box-sizing: border-box; }
+    .setup-input { width: 90%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13.5px; box-sizing: border-box; }
     .setup-input:focus { border-color: #1366ce; outline: none; }
-    .ox-input { width: 35px; text-align: center; font-weight: 900; font-size: 15px; border: 1px solid #ccc; border-radius: 3px; padding: 4px; text-transform: uppercase; background-color: transparent; }
+
+    .ox-input { width: 40px; text-align: center; font-weight: 900; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; padding: 6px; text-transform: uppercase; background-color: transparent; }
     .ox-input:focus { background-color: #e6f0ff; border-color: #1366ce; outline: none; box-shadow: 0 0 0 2px rgba(19,102,206,0.3); }
     .ox-input.val-o { color: #28a745; } 
     .ox-input.val-x { color: #dc3545; } 
-    .paste-zone { border: 2px dashed #1a3978; background-color: #f4f6f9; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 20px; cursor: pointer; transition: 0.2s; }
+
+    .paste-zone { border: 2px dashed #1a3978; background-color: #fff; padding: 30px; text-align: center; border-radius: 8px; margin-bottom: 25px; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
     .paste-zone:hover { background-color: #e6f0ff; }
 
     /* 환경설정 테이블 모달 */
     .settings-table-wrapper { max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px; }
     .settings-table { width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: center; }
-    .settings-table th { background: #e9ecef; padding: 10px; position: sticky; top: 0; z-index: 5; color: #1a3978; border-bottom: 2px solid #ced4da; }
+    .settings-table th { background: #e9ecef; padding: 12px; position: sticky; top: 0; z-index: 5; color: #1a3978; border-bottom: 2px solid #ced4da; }
     .settings-table td { padding: 0; border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
-    .set-input { width: 100%; border: none; padding: 10px; box-sizing: border-box; text-align: center; outline: none; background: transparent; }
+    .set-input { width: 100%; border: none; padding: 12px; box-sizing: border-box; text-align: center; outline: none; background: transparent; }
     .set-input:focus { background-color: #e6f0ff; }
 
+    /* 🟢 3. 플로팅 액션 버튼 (FAB) */
+    .fab-container { position: fixed; bottom: 40px; right: 40px; display: flex; flex-direction: column; gap: 15px; z-index: 1000; }
+    .fab-btn { background-color: #68488e; color: white; border: none; border-radius: 50px; width: 56px; height: 56px; display: flex; align-items: center; padding: 0 16px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.25); transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.2s; overflow: hidden; white-space: nowrap; }
+    .fab-btn.btn-print { background-color: #333; }
+    .fab-btn:hover { width: 180px; }
+    .fab-btn svg { flex-shrink: 0; margin-right: 15px; }
+    .fab-text { font-size: 16px; font-weight: bold; opacity: 0; transition: opacity 0.2s; }
+    .fab-btn:hover .fab-text { opacity: 1; transition-delay: 0.1s; }
+
     /* 성적표 출력용 CSS */
-    .report-container { width: 100%; max-width: 1100px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; gap: 40px; }
+    .report-container { width: 100%; max-width: 1100px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; gap: 40px; margin-bottom: 100px; }
     .report-page { width: 100%; aspect-ratio: 297/210; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; padding: 30px; display: flex; flex-direction: column; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 3px solid #1a3978; padding-bottom: 10px; }
     .report-logo { font-size: 26px; font-weight: 900; color: #111; letter-spacing: -1px; }
@@ -117,11 +119,10 @@
 
     @media print {
       body * { visibility: hidden; }
-      .app-body { padding: 0; margin: 0; }
-      #tab-report, #tab-report * { visibility: visible; }
-      #tab-report { position: absolute; left: 0; top: 0; width: 100%; padding: 0; border: none; box-shadow: none; }
-      .header-bar, .academy-header-bar, .tab-container { display: none !important; }
-      .report-container { width: 100%; max-width: none; gap: 0; }
+      .app-body { padding: 0; margin: 0; min-width: 0; }
+      #reportContainer, #reportContainer * { visibility: visible; }
+      #reportContainer { position: absolute; left: 0; top: 0; width: 100%; margin-bottom: 0; }
+      .academy-header-bar, .filter-card, .fab-container { display: none !important; }
       .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; }
       @page { size: A4 landscape; margin: 0; }
     }
@@ -135,7 +136,7 @@
   <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">처리 중입니다...</div></div>
   <div class="modal-overlay" id="customAlertModal"><div class="modal-box" style="width: 320px;"><div id="modalMessage" class="modal-message" style="text-align: left;"></div><button class="modal-btn" onclick="document.getElementById('customAlertModal').style.display='none'">확인</button></div></div>
 
-  <!-- 기본 환경설정 열단위 표 모달 -->
+  <!-- 환경설정 모달 -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box" style="width: 700px; padding: 25px; text-align: left;">
       <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">⚙️ 기본 환경설정</div>
@@ -144,9 +145,7 @@
       <div class="settings-table-wrapper">
         <table class="settings-table">
           <thead>
-            <tr>
-              <th width="25%">캠퍼스 목록</th><th width="25%">학기 목록</th><th width="25%">난이도 목록</th><th width="25%" style="border-right: none;">과정명 목록</th>
-            </tr>
+            <tr><th width="25%">캠퍼스 목록</th><th width="25%">학기 목록</th><th width="25%">난이도 목록</th><th width="25%" style="border-right: none;">과정명 목록</th></tr>
           </thead>
           <tbody id="settingsGridBody"></tbody>
         </table>
@@ -166,8 +165,8 @@
     <div class="modal-box" style="width: 480px; padding: 25px;">
       <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">전체 명단 일괄 업로드</div>
       <div style="display: flex; gap: 15px; margin-bottom: 20px; text-align: left;">
-         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">학기</label><select id="rosterTerm" style="width:100%; height:38px;"></select></div>
-         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">캠퍼스</label><select id="rosterCampus" style="width:100%; height:38px;"></select></div>
+         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">학기</label><select id="rosterTerm" style="width:100%; height:40px;"></select></div>
+         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">캠퍼스</label><select id="rosterCampus" style="width:100%; height:40px;"></select></div>
       </div>
       <div id="dropZone" style="border: 2px dashed #28a745; border-radius: 8px; padding: 40px 15px; background-color: #f8f9fa; cursor: pointer; transition: 0.2s; margin-bottom:20px;">
          <div style="font-size:32px; margin-bottom:10px;">📂</div>
@@ -182,91 +181,88 @@
   </div>
 
   <div class="academy-header-bar">
-    <span>SG청운학원 - 성적표 통합 시스템</span>
-    <div style="position: absolute; right: 25px; display: flex; gap: 15px; align-items: center;">
-      <button class="btn-primary" style="background-color: #28a745; height: 32px;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> 명단 업로드
+    <!-- 메인 로고 클릭 시 메인 화면(채점 입력)으로 이동 -->
+    <span style="cursor: pointer;" onclick="switchPage('page-main')">SG청운학원 - 성적표 통합 시스템</span>
+    <div style="position: absolute; right: 30px; display: flex; gap: 15px; align-items: center;">
+      <button class="btn-primary" style="background-color: #28a745; height: 36px; padding: 0 15px;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> 명단 업로드
       </button>
-      <!-- 톱니바퀴 클릭 시 관리자 탭 활성화 -->
-      <button class="icon-btn" onclick="openAdminTab()" title="시험 기본 세팅 (관리자)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <!-- 우측 상단 톱니바퀴 -> 관리자 화면 전환 -->
+      <button class="icon-btn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       </button>
     </div>
   </div>
 
+  <!-- 메인 컨테이너 -->
   <div class="app-body">
-    <!-- 탭 순서 변경 및 환경설정 버튼 우측 끝에 배치 -->
-    <div class="tab-container" id="mainTabContainer">
-      <button class="tab-btn active" onclick="switchTab('tab-input')">1. 채점 입력 (선생님)</button>
-      <button class="tab-btn" onclick="switchTab('tab-report')">2. 성적표 출력</button>
-      <button class="tab-btn" id="adminTabBtn" style="display: none;" onclick="switchTab('tab-setup')">3. 시험 기본 세팅 (관리자)</button>
-      
-      <!-- 기본 환경설정 버튼 (탭 위치 우측 끝) -->
-      <button class="tab-btn" style="flex: none; width: 160px; margin-left: auto; background-color: #f1f3f5; color: #6c757d;" onclick="openSettingsModal()">⚙️ 기본 환경설정</button>
-    </div>
 
     <!-- ========================================== -->
-    <!-- 1. 채점 입력 (선생님) -->
+    <!-- 🟢 메인 화면 (채점 입력 / 성적표 출력 통합) -->
     <!-- ========================================== -->
-    <div id="tab-input" class="tab-content active">
-      <div class="header-bar">
-        <div class="select-group"><label>학기</label><select id="tchTerm" onchange="filterCampuses('tch')"><option value="">선택</option></select></div>
-        <div class="select-group"><label>캠퍼스</label><select id="tchCampus" onchange="filterCourses('tch')"><option value="">선택</option></select></div>
-        <div class="select-group"><label>과정</label><select id="tchCourse" onchange="filterTeachers('tch')"><option value="">선택</option></select></div>
-        <div class="select-group"><label>선생님</label><select id="tchTeacher" onchange="filterClasses('tch')"><option value="">선택</option></select></div>
-        <div class="select-group"><label>반명</label><select id="tchClass"><option value="">선택</option></select></div>
+    <div id="page-main" class="page-content active">
+      
+      <!-- 공통 필터 박스 (체크리스트 디자인 적용) -->
+      <div class="filter-card">
+        <div class="select-group"><label>학기</label><select id="mainTerm" onchange="filterCampuses('main')"><option value="">선택</option></select></div>
+        <div class="select-group"><label>캠퍼스</label><select id="mainCampus" onchange="filterCourses('main')"><option value="">선택</option></select></div>
+        <div class="select-group"><label>과정</label><select id="mainCourse" onchange="filterTeachers('main')"><option value="">선택</option></select></div>
+        <div class="select-group"><label>선생님</label><select id="mainTeacher" onchange="filterClasses('main')"><option value="">선택</option></select></div>
+        <div class="select-group"><label>반명</label><select id="mainClass"><option value="">선택</option></select></div>
         
-        <!-- 명단 불러오기 좌측 이동 / 결과저장 아이콘 추가 -->
-        <button class="btn-primary" style="margin-left: 10px;" onclick="loadGradesData()">명단 불러오기</button>
+        <!-- 명단 불러오기 좌측 배치 -->
+        <button class="btn-primary" style="margin-left: 15px;" onclick="loadGradesData()">명단 불러오기</button>
+        
+        <!-- 결과 저장 아이콘 추가 -->
         <button class="btn-primary" style="margin-left: auto; background-color: #d32f2f;" onclick="saveGrades()">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 결과 저장
         </button>
       </div>
 
+      <!-- 채점 입력 테이블 -->
       <div class="table-wrapper" style="display: none;" id="inputTableContainer">
         <table class="data-table">
           <thead id="inputTableHeader"></thead>
           <tbody id="inputTableBody"></tbody>
         </table>
       </div>
-      <div id="inputEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px;">
+
+      <!-- 성적표 출력 컨테이너 -->
+      <div class="report-container" id="reportContainer" style="display: none;"></div>
+
+      <div id="inputEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff;">
         상단의 검색 조건을 모두 선택하고 [명단 불러오기]를 눌러주세요.
       </div>
+
+      <!-- 🟢 3. 플로팅 액션 버튼 (성적표 관련) -->
+      <div class="fab-container" id="reportFabs">
+        <button class="fab-btn" onclick="generateReports()" title="성적표 렌더링">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          <span class="fab-text">성적표 렌더링</span>
+        </button>
+        <button class="fab-btn btn-print" onclick="window.print()" title="일괄 인쇄 (PDF)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          <span class="fab-text">일괄 인쇄 (PDF)</span>
+        </button>
+      </div>
     </div>
 
     <!-- ========================================== -->
-    <!-- 2. 성적표 출력 -->
+    <!-- 🟢 관리자 화면 (시험 세팅) -->
     <!-- ========================================== -->
-    <div id="tab-report" class="tab-content">
-      <div class="header-bar">
-        <div class="select-group"><label>학기</label><select id="rptTerm" onchange="filterCampuses('rpt')"><option value="">선택</option></select></div>
-        <div class="select-group"><label>캠퍼스</label><select id="rptCampus" onchange="filterCourses('rpt')"><option value="">선택</option></select></div>
-        <div class="select-group"><label>과정</label><select id="rptCourse" onchange="filterTeachers('rpt')"><option value="">선택</option></select></div>
-        <div class="select-group"><label>선생님</label><select id="rptTeacher" onchange="filterClasses('rpt')"><option value="">선택</option></select></div>
-        <div class="select-group"><label>반명</label><select id="rptClass"><option value="">선택</option></select></div>
-        <button class="btn-primary" style="margin-left: auto; background-color: #68488e;" onclick="generateReports()">성적표 렌더링</button>
-        <button class="btn-primary" style="background-color: #333;" onclick="window.print()">일괄 인쇄 (PDF)</button>
-      </div>
+    <div id="page-admin" class="page-content">
+      <!-- 4. 제목 추가 -->
+      <h2 style="color: #1a3978; border-left: 6px solid #1a3978; padding-left: 12px; margin-top: 0; margin-bottom: 25px; font-size: 24px;">시험 기본 세팅 (관리자)</h2>
 
-      <div id="reportEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px;">
-        반을 선택하고 [성적표 렌더링]을 누르면 성적표가 생성됩니다.
-      </div>
-      <div class="report-container" id="reportContainer" style="display: none;"></div>
-    </div>
-
-    <!-- ========================================== -->
-    <!-- 3. 시험 기본 세팅 (관리자) -->
-    <!-- ========================================== -->
-    <div id="tab-setup" class="tab-content">
-      <div class="header-bar">
+      <div class="filter-card">
         <div class="select-group"><label>학기</label><select id="setupTerm" onchange="checkExistingSetup()"></select></div>
         <div class="select-group" style="margin-left: 10px;"><label>과정</label><select id="setupLevel" onchange="checkExistingSetup()"></select><select id="setupCourse" onchange="checkExistingSetup()"></select></div>
         
-        <div class="select-group" style="margin-left: auto; border-left: 2px solid #dee2e6; padding-left: 15px;"><label>총 문항 수</label><input type="number" id="setupTotalCount" value="45" min="1" max="100" style="width: 60px;" onchange="renderSetupTable()"></div>
-        <div class="select-group"><label>시작 번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 60px;" onchange="renderSetupTable()"></div>
+        <div class="select-group" style="margin-left: auto; border-left: 2px solid #dee2e6; padding-left: 20px;"><label>총 문항 수</label><input type="number" id="setupTotalCount" value="45" min="1" max="100" style="width: 70px;" onchange="renderSetupTable()"></div>
+        <div class="select-group"><label>시작 번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 70px;" onchange="renderSetupTable()"></div>
         
-        <!-- 시험 정보 저장 및 환경설정(모달 오픈) 버튼 -->
-        <button class="btn-primary" style="margin-left: 10px;" onclick="saveExamSetup()">
+        <!-- 시험 정보 저장 및 기본 환경설정 -->
+        <button class="btn-primary" style="margin-left: 15px;" onclick="saveExamSetup()">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 시험 정보 저장
         </button>
         <button class="btn-primary" style="margin-left: 10px; background-color: #6c757d;" onclick="openSettingsModal()">
@@ -300,28 +296,24 @@
     function showLoading(status, msg = "처리 중입니다...") { document.getElementById('spinnerText').innerText = msg; document.getElementById('globalSpinner').style.display = status ? 'flex' : 'none'; }
     function handleError(err) { showLoading(false); showAlert("🚫 에러 발생: " + err.message); }
 
-    // 관리자 탭 제어 로직
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
+    // 페이지 전환 로직 (탭 제거)
+    function switchPage(pageId) {
+      document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
       
-      const adminBtn = document.getElementById('adminTabBtn');
-      if(tabId === 'tab-setup') {
-        adminBtn.style.display = 'block';
-        adminBtn.classList.add('active');
+      // 메인 화면일 때만 FAB 버튼 표시
+      const fabs = document.getElementById('reportFabs');
+      if (pageId === 'page-main') {
+        fabs.style.display = 'flex';
       } else {
-        adminBtn.style.display = 'none';
-        document.querySelector(`button[onclick="switchTab('${tabId}')"]`).classList.add('active');
+        fabs.style.display = 'none';
       }
     }
-
-    function openAdminTab() { switchTab('tab-setup'); }
 
     window.onload = function() { fetchMetadata(); renderSetupTable(); };
 
     // ==========================================
-    // ⚙️ 환경설정 그리드 로직
+    // 환경설정 그리드 로직
     // ==========================================
     function fetchMetadata() {
       const url = document.getElementById('backendUrl').value.trim();
@@ -344,10 +336,7 @@
       tbody.innerHTML = '';
       const s = globalData.settings;
       const maxLen = Math.max(15, (s.campuses||[]).length+1, (s.terms||[]).length+1, (s.levels||[]).length+1, (s.courses||[]).length+1);
-      
-      for(let i=0; i<maxLen; i++) {
-        appendSettingsRow((s.campuses||[])[i] || '', (s.terms||[])[i] || '', (s.levels||[])[i] || '', (s.courses||[])[i] || '');
-      }
+      for(let i=0; i<maxLen; i++) appendSettingsRow((s.campuses||[])[i] || '', (s.terms||[])[i] || '', (s.levels||[])[i] || '', (s.courses||[])[i] || '');
     }
 
     function appendSettingsRow(c='', t='', l='', cr='') {
@@ -389,12 +378,14 @@
       const fillSelect = (id, arr) => { let el = document.getElementById(id); if(!el) return; el.innerHTML = ''; (arr||[]).forEach(val => el.innerHTML += `<option value="${val}">${val}</option>`); };
 
       fillSelect('setupTerm', s.terms); fillSelect('setupLevel', s.levels); fillSelect('setupCourse', s.courses); fillSelect('rosterTerm', s.terms); fillSelect('rosterCampus', s.campuses);
-      document.getElementById('tchTerm').innerHTML = '<option value="">선택</option>'; document.getElementById('rptTerm').innerHTML = '<option value="">선택</option>';
-      (s.terms||[]).forEach(t => { document.getElementById('tchTerm').innerHTML += `<option value="${t}">${t}</option>`; document.getElementById('rptTerm').innerHTML += `<option value="${t}">${t}</option>`; });
+      
+      // 메인 통합 필터 세팅
+      document.getElementById('mainTerm').innerHTML = '<option value="">선택</option>';
+      (s.terms||[]).forEach(t => document.getElementById('mainTerm').innerHTML += `<option value="${t}">${t}</option>`);
     }
 
     // ==========================================
-    // 명단 업로드 (중복 확인 포함)
+    // 명단 업로드
     // ==========================================
     const dropZone = document.getElementById('dropZone'); const fileInput = document.getElementById('fileInput');
     dropZone.addEventListener('click', () => fileInput.click());
@@ -433,7 +424,6 @@
             let school = colMap.school !== -1 ? String(row[colMap.school] || '').trim() : '', grade = colMap.grade !== -1 ? String(row[colMap.grade] || '').trim() : '', teacher = colMap.teacher !== -1 ? String(row[colMap.teacher] || '').trim() : '';
             parsedStudents.push([termName, campusName, teacher, ban, name, school, grade]);
           }
-
           if(parsedStudents.length === 0) throw new Error("추출할 수 있는 학생 데이터가 없습니다.");
 
           let isDuplicate = globalData.rosters.some(r => r.term === termName && r.campus === campusName);
@@ -446,9 +436,7 @@
             }).catch(err => { document.getElementById('fileInput').value = ''; handleError(err); });
           };
 
-          if (isDuplicate) {
-            showLoading(false);
-            setTimeout(() => { if (confirm(`[${termName}] ${campusName} 명단이 이미 등록되어 있습니다.\n기존 명단을 삭제하고 새로 업로드 하시겠습니까?`)) { executeUpload(); } else { document.getElementById('fileInput').value = ''; } }, 50); 
+          if (isDuplicate) { showLoading(false); setTimeout(() => { if (confirm(`[${termName}] ${campusName} 명단이 이미 등록되어 있습니다.\n기존 명단을 삭제하고 새로 업로드 하시겠습니까?`)) executeUpload(); else document.getElementById('fileInput').value = ''; }, 50); 
           } else { executeUpload(); }
 
         } catch (err) { showLoading(false); document.getElementById('fileInput').value = ''; showAlert("· Error: " + err.message); }
@@ -456,7 +444,7 @@
     }
 
     // ==========================================
-    // 필터링 체인 
+    // 통합 필터링 체인 (main prefix 사용)
     // ==========================================
     function filterCampuses(prefix) {
       const term = document.getElementById(`${prefix}Term`).value, sel = document.getElementById(`${prefix}Campus`); sel.innerHTML = '<option value="">선택</option>';
@@ -479,7 +467,7 @@
     }
 
     // ==========================================
-    // 3. 시험 기본 세팅
+    // 관리자: 시험 기본 세팅
     // ==========================================
     function renderSetupTable() {
       const totalCount = parseInt(document.getElementById('setupTotalCount').value) || 45, startNum = parseInt(document.getElementById('setupStartNum').value) || 1, tbody = document.getElementById('setupTableBody');
@@ -534,14 +522,22 @@
     }
 
     // ==========================================
-    // 1. 채점 입력 로직 (이중 Sticky + 부드러운 스크롤)
+    // 메인 화면 (채점 입력 및 성적표 통합 로직)
     // ==========================================
     function loadGradesData() {
-      const term = document.getElementById('tchTerm').value, campus = document.getElementById('tchCampus').value, course = document.getElementById('tchCourse').value, teacher = document.getElementById('tchTeacher').value, className = document.getElementById('tchClass').value;
+      const term = document.getElementById('mainTerm').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !campus || !course || !teacher || !className) return showAlert("모든 조건을 선택해주세요.");
+      
       showLoading(true, "명단과 성적 데이터를 불러옵니다...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, campus, course, teacher, className }) })
-      .then(res => res.json()).then(res => { showLoading(false); if(res.success) renderInputTable(res.data.setupData, res.data.students, res.data.grades); else showAlert("· Error: " + res.error); }).catch(handleError);
+      .then(res => res.json()).then(res => { 
+        showLoading(false); 
+        if(res.success) {
+          // 화면 전환: 입력 표를 띄우고 리포트를 숨김
+          document.getElementById('reportContainer').style.display = 'none';
+          renderInputTable(res.data.setupData, res.data.students, res.data.grades); 
+        } else { showAlert("· Error: " + res.error); } 
+      }).catch(handleError);
     }
 
     function renderInputTable(setupData, students, grades) {
@@ -564,13 +560,8 @@
       attachKeyboardNavigationListeners(setupData.totalCount, students.length);
     }
 
-    // 부드럽게 한 칸씩 스크롤
     function focusNextCell(nextInput) {
-      if (nextInput) {
-        nextInput.focus({ preventScroll: true }); 
-        nextInput.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-        if (nextInput.value) nextInput.select();
-      }
+      if (nextInput) { nextInput.focus({ preventScroll: true }); nextInput.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' }); if (nextInput.value) nextInput.select(); }
     }
 
     function handleOxInput(e, rIdx) {
@@ -609,7 +600,7 @@
 
     function saveGrades() {
       if (!currentExamSetup) return showAlert("명단을 먼저 불러와 주세요.");
-      const term = document.getElementById('tchTerm').value, campus = document.getElementById('tchCampus').value, course = document.getElementById('tchCourse').value, teacher = document.getElementById('tchTeacher').value, className = document.getElementById('tchClass').value;
+      const term = document.getElementById('mainTerm').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       let studentsData = [];
       document.getElementById('inputTableBody').querySelectorAll('tr').forEach((tr, rIdx) => {
         let name = tr.cells[1].innerText.trim(), total = document.getElementById(`totalScore_${rIdx}`).innerText, answers = {};
@@ -621,17 +612,20 @@
       .then(res => res.json()).then(res => { showLoading(false); if(res.success) showAlert("✔ <b>저장 완료</b>"); else showAlert("에러: " + res.error); }).catch(handleError);
     }
 
-    // ==========================================
-    // 2. 성적표 렌더링 
-    // ==========================================
+    // 🟢 성적표 렌더링
     function generateReports() {
-      const term = document.getElementById('rptTerm').value, campus = document.getElementById('rptCampus').value, course = document.getElementById('rptCourse').value, teacher = document.getElementById('rptTeacher').value, className = document.getElementById('rptClass').value;
+      const term = document.getElementById('mainTerm').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !campus || !course || !teacher || !className) return showAlert("모든 조건을 선택해주세요.");
       showLoading(true, "성적 데이터를 통계 분석 중입니다...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getReportData', term, campus, course, teacher, className }) })
       .then(res => res.json()).then(res => {
         showLoading(false);
-        if(res.success) { document.getElementById('reportEmptyState').style.display = 'none'; document.getElementById('reportContainer').style.display = 'flex'; renderReportCards(res.data.examInfo, res.data.students); } 
+        if(res.success) { 
+          document.getElementById('inputEmptyState').style.display = 'none'; 
+          document.getElementById('inputTableContainer').style.display = 'none'; 
+          document.getElementById('reportContainer').style.display = 'flex'; 
+          renderReportCards(res.data.examInfo, res.data.students); 
+        } 
         else { showAlert("· Error: " + res.error); }
       }).catch(handleError);
     }
@@ -663,8 +657,8 @@
         container.insertAdjacentHTML('beforeend', html);
         
         setTimeout(() => {
-          chartInstances.push(new Chart(document.getElementById(`chart_unit_${idx}`).getContext('2d'), { type: 'bar', data: { labels: unitLabels, datasets: [{ label: st.name, data: unitMyData, backgroundColor: '#3b5998', barPercentage: 0.6 }, { label: '전체평균', data: unitAvgData, backgroundColor: '#adb5bd', barPercentage: 0.6 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { position: 'bottom' } } } }));
-          chartInstances.push(new Chart(document.getElementById(`chart_diff_${idx}`).getContext('2d'), { type: 'bar', data: { labels: diffLabels, datasets: [{ label: st.name, data: diffMyData, backgroundColor: '#6a8c3d', barPercentage: 0.6 }, { label: '전체평균', data: diffAvgData, backgroundColor: '#adb5bd', barPercentage: 0.6 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { position: 'bottom' } } } }));
+          chartInstances.push(new Chart(document.getElementById(`chart_unit_${idx}`).getContext('2d'), { type: 'bar', data: { labels: unitLabels, datasets: [{ label: st.name, data: unitMyData, backgroundColor: '#3b5998', barPercentage: 0.6 }, { label: '전체평균', data: unitAvgData, backgroundColor: '#adb5bd', barPercentage: 0.6 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } } }));
+          chartInstances.push(new Chart(document.getElementById(`chart_diff_${idx}`).getContext('2d'), { type: 'bar', data: { labels: diffLabels, datasets: [{ label: st.name, data: diffMyData, backgroundColor: '#6a8c3d', barPercentage: 0.6 }, { label: '전체평균', data: diffAvgData, backgroundColor: '#adb5bd', barPercentage: 0.6 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } } }));
           chartInstances.push(new Chart(document.getElementById(`chart_doughnut_${idx}`).getContext('2d'), { type: 'doughnut', data: { labels: ['상위 %', '나머지'], datasets: [{ data: [st.topPct, 100 - st.topPct], backgroundColor: ['#68488e', '#e9ecef'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: false } } } }));
         }, 100);
       });
