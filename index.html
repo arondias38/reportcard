@@ -12,12 +12,12 @@
     * { box-sizing: border-box; }
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
-    /* 🟢 1. 엑셀 방식의 풀 스크린 레이아웃 (웹페이지 스크롤 차단, 내부 스크롤 허용) */
-    html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow: hidden; }
+    html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow-x: hidden; overflow-y: scroll; }
     
-    .app-container { height: 100vh; display: flex; flex-direction: column; padding: 20px 30px; }
-    .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; }
+    .app-container { width: 100%; display: flex; flex-direction: column; padding: 25px 30px; }
+    .page-content { flex: 1; display: none; flex-direction: column; }
     .page-content.active { display: flex; }
+    .page-content.scroll-mode { overflow-y: auto; overflow-x: hidden; }
 
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1366ce; border-radius: 50%; animation: spin 1s linear infinite; }
@@ -29,11 +29,9 @@
     .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; background-color: #1366ce; color: white; transition: 0.2s; }
     .modal-btn:hover { background-color: #0f52a8; }
 
-    /* 타이틀 바 영역 */
-    .top-nav-bar { flex-shrink: 0; background-color: #fff; border-radius: 50px; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 20px; position: relative; }
-    
-    /* 🟢 4. 상단 타이틀 폰트 볼드 해제 */
-    .main-title { font-size: 18px; font-weight: normal; color: #111; margin: 0; display: flex; align-items: center; letter-spacing: -0.5px; }
+    /* 네비게이션 캡슐 바 */
+    .top-nav-bar { background-color: #fff; border-radius: 50px; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 25px; position: relative; flex-shrink: 0; }
+    .main-title { font-size: 18px; font-weight: 500; color: #111; margin: 0; display: flex; align-items: center; letter-spacing: -0.5px; }
     .main-title img { height: 26px; margin-right: 10px; }
 
     /* 중앙 탭 버튼 */
@@ -46,7 +44,7 @@
     .icon-btn:hover { background-color: #e9ecef; color: #111; }
 
     /* 공통 필터 카드 */
-    .filter-card { flex-shrink: 0; height: 56px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 0 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; overflow-x: auto; }
+    .filter-card { height: 56px; flex-shrink: 0; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 0 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; position: sticky; top: 0; z-index: 200; overflow-x: auto; }
     .filter-card.admin-mode { border-left: 6px solid #495057; } 
     .filter-divider { width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px; }
     
@@ -60,38 +58,32 @@
     .btn-primary { height: 32px; padding: 0 16px; border: none; border-radius: 50px; font-weight: bold; font-size: 13px; background-color: #1366ce; color: white; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap; }
     .btn-primary:hover { background-color: #0f52a8; }
     
-    /* 🟢 표 래퍼 영역 (표 내부에서만 상/하, 좌/우 스크롤 동작) */
-    .table-wrapper { flex: 1; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 10px; position: relative; }
+    /* 표 영역 */
+    .table-wrapper { flex: 1; overflow: auto; min-height: 0; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
     table.data-table { border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; min-width: 100%; }
     table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
-    /* 🟢 표 머릿글 완벽 고정 (내부 스크롤이므로 top은 0, 28, 56, 84 고정) */
     .sticky-top-1 { position: sticky; top: 0; z-index: 80; }
     .sticky-top-2 { position: sticky; top: 28px; z-index: 80; }
     .sticky-top-3 { position: sticky; top: 56px; z-index: 80; }
     .sticky-top-4 { position: sticky; top: 84px; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
-    .admin-sticky-top { position: sticky; top: 0; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
     
-    /* 좌측 열 완벽 고정 및 배경 비침 방지 */
     .sticky-col-1 { position: sticky; left: 0; min-width: 60px; max-width: 60px; z-index: 60; }
     .sticky-col-2 { position: sticky; left: 60px; min-width: 140px; max-width: 140px; z-index: 60; }
     .sticky-col-3 { position: sticky; left: 200px; min-width: 60px; max-width: 60px; z-index: 60; border-right: 1px solid #ced4da !important; box-shadow: 2px 0 4px rgba(0,0,0,0.04); }
     .sticky-col-all { position: sticky; left: 0; z-index: 60; border-right: 1px solid #ced4da !important; box-shadow: 2px 0 4px rgba(0,0,0,0.04); }
     
-    /* 🟢 헤더 십자 교차 구역 Z-index 최상위 설정 (가로 스크롤 시 뒷면 글씨 안보임 보장) */
     table.data-table thead th { font-weight: bold; color: #333; }
-    table.data-table thead th.sticky-top-1, table.data-table thead th.sticky-top-2, table.data-table thead th.sticky-top-3, table.data-table thead th.sticky-top-4, table.data-table thead th.admin-sticky-top { z-index: 90; }
-    table.data-table thead th.sticky-col-1, table.data-table thead th.sticky-col-2, table.data-table thead th.sticky-col-3, table.data-table thead th.sticky-col-all { z-index: 100; }
+    table.data-table thead th.sticky-top-1, table.data-table thead th.sticky-top-2, table.data-table thead th.sticky-top-3, table.data-table thead th.sticky-top-4 { z-index: 90; }
+    table.data-table thead th.sticky-col-1, table.data-table thead th.sticky-col-2, table.data-table thead th.sticky-col-3, table.data-table thead th.sticky-col-all { z-index: 95; }
     
-    /* 🟢 5. 정확한 색상 분리 매핑 (진한 회색 vs 옅은 회색) */
-    .bg-gray { background-color: #e9ecef !important; color: #333; }
-    .bg-light { background-color: #f8f9fa !important; color: #333; }
-    .bg-white { background-color: #ffffff !important; }
+    /* 표 색상 세분화 */
+    .bg-gray { background-color: #e9ecef !important; }
+    .bg-light { background-color: #f8f9fa !important; }
     
     .student-name-cell { min-width: 60px; max-width: 60px; overflow: hidden; text-overflow: clip; letter-spacing: -0.5px; }
 
-    /* OX 입력 칸 */
     .ox-input { width: 100%; height: 100%; border: none; text-align: center; font-weight: 900; font-size: 14px; padding: 0; background-color: transparent; outline: none; cursor: pointer; color: #dee2e6; }
     .ox-input:focus { background-color: #e6f0ff; color: #333; }
     .ox-input:disabled { background-color: transparent; color: #ccc; cursor: default; }
@@ -101,7 +93,7 @@
     .setup-input { width: 90%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
     .setup-input:focus { border-color: #1366ce; outline: none; }
 
-    .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+    .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
     .paste-zone:hover { background-color: #e9ecef; }
 
     /* 환경설정 테이블 모달 */
@@ -346,7 +338,7 @@
       <div class="table-wrapper">
         <table class="data-table" style="text-align: left;">
           <thead>
-            <tr><th class="admin-sticky-top bg-gray" width="8%" style="text-align: center;">문항번호</th><th class="admin-sticky-top bg-gray" width="42%" style="text-align: center;">출제 단원명</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">배점 (난이도 자동)</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">난이도 (확인용)</th><th class="admin-sticky-top bg-gray" width="10%" style="text-align: center;">상태</th></tr>
+            <tr><th class="sticky-top-1 bg-gray" width="8%" style="text-align: center;">문항번호</th><th class="sticky-top-1 bg-gray" width="42%" style="text-align: center;">출제 단원명</th><th class="sticky-top-1 bg-gray" width="20%" style="text-align: center;">배점 (난이도 자동)</th><th class="sticky-top-1 bg-gray" width="20%" style="text-align: center;">난이도 (확인용)</th><th class="sticky-top-1 bg-gray" width="10%" style="text-align: center;">상태</th></tr>
           </thead>
           <tbody id="setupTableBody"></tbody>
         </table>
@@ -580,7 +572,7 @@
       tbody.innerHTML = '';
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i;
-        tbody.innerHTML += `<tr><td class="bg-gray" style="text-align:center; font-weight:bold;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" oninput="updateDiff(${qNum})" placeholder="2,3,4,5"></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:transparent; text-align:center; border:none; padding:0;"></td><td id="status_${qNum}" style="color:#adb5bd; text-align:center;">-</td></tr>`;
+        tbody.innerHTML += `<tr><td style="text-align:center; font-weight:bold;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" oninput="updateDiff(${qNum})" placeholder="2,3,4,5"></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:transparent; text-align:center; border:none; padding:0;"></td><td id="status_${qNum}" style="color:#adb5bd; text-align:center;">-</td></tr>`;
       }
     }
     function updateDiff(qNum) {
@@ -626,7 +618,7 @@
     }
 
     // ==========================================
-    // 🟢 채점 입력 로직
+    // 🟢 채점 입력 로직 (정밀하게 분리된 bg-gray / bg-light 색상 적용)
     // ==========================================
     function loadGradesData() {
       const term = document.getElementById('mainTerm').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
@@ -661,9 +653,9 @@
       const thead = document.getElementById('inputTableHeader');
       const tbody = document.getElementById('inputTableBody');
       
-      // 🟢 2. 색상 분리 매핑 로직 (No. 총점. 등수 등 좌측 머릿글 = bg-gray, 학생명/값 = bg-light)
+      // 🟢 2. 색상 분리 매핑 로직 (No. 총점(라벨) 등수(라벨) 문항번호(라벨) 출제단원명(라벨) 배점(라벨) = bg-gray, 학생명/데이터 = bg-light)
       let htmlThead = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>`;
-      parsedStudents.forEach((st, sIdx) => { htmlThead += `<th class="sticky-top-1 bg-light" style="color:#555;">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}</th>`; });
+      parsedStudents.forEach((st, sIdx) => { htmlThead += `<th class="sticky-top-1 bg-gray" style="color:#555;">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}</th>`; });
       
       htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-2 bg-gray" style="text-align:center; letter-spacing:1px;">총점</th>`;
       parsedStudents.forEach((st, sIdx) => { 
@@ -758,7 +750,7 @@
       }
     }
 
-    // 🟢 4. 팝업 확인 후 스크롤을 맨 위로 즉시 복귀
+    // 🟢 4. 팝업 확인 후 스크롤을 맨 위로 확실히 이동
     function confirmNextStudent() {
       document.getElementById('nextStudentModal').style.display = 'none';
       if (pendingNextStudentIdx !== -1) {
