@@ -12,11 +12,12 @@
     * { box-sizing: border-box; }
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
-    html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow: hidden; }
+    html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow-x: hidden; overflow-y: scroll; }
     
-    .app-container { height: 100vh; display: flex; flex-direction: column; padding: 20px 30px; }
+    .app-container { width: 100%; display: flex; flex-direction: column; padding: 25px 30px; }
     .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; }
     .page-content.active { display: flex; }
+    .page-content.scroll-mode { overflow-y: auto; overflow-x: hidden; }
 
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1366ce; border-radius: 50%; animation: spin 1s linear infinite; }
@@ -28,9 +29,9 @@
     .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; background-color: #1366ce; color: white; transition: 0.2s; }
     .modal-btn:hover { background-color: #0f52a8; }
 
-    /* 타이틀 바 영역 */
-    .top-nav-bar { flex-shrink: 0; background-color: #fff; border-radius: 50px; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 20px; position: relative; }
-    .main-title { font-size: 18px; font-weight: normal; color: #111; margin: 0; display: flex; align-items: center; letter-spacing: -0.5px; }
+    /* 네비게이션 캡슐 바 */
+    .top-nav-bar { background-color: #fff; border-radius: 50px; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 25px; position: relative; flex-shrink: 0; }
+    .main-title { font-size: 18px; font-weight: 500; color: #111; margin: 0; display: flex; align-items: center; letter-spacing: -0.5px; }
     .main-title img { height: 26px; margin-right: 10px; }
 
     /* 중앙 탭 버튼 */
@@ -42,8 +43,8 @@
     .icon-btn { background-color: #fff; border: 1px solid #dee2e6; color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; margin-left: 10px; }
     .icon-btn:hover { background-color: #e9ecef; color: #111; }
 
-    /* 🟢 공통 필터 카드 ('선택' 옵션 제거 완료) */
-    .filter-card { flex-shrink: 0; height: 56px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 0 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; overflow-x: auto; }
+    /* 공통 필터 카드 */
+    .filter-card { height: 56px; flex-shrink: 0; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 0 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; position: sticky; top: 0; z-index: 200; overflow-x: auto; }
     .filter-card.admin-mode { border-left: 6px solid #495057; } 
     .filter-divider { width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px; }
     
@@ -57,8 +58,8 @@
     .btn-primary { height: 32px; padding: 0 16px; border: none; border-radius: 50px; font-weight: bold; font-size: 13px; background-color: #1366ce; color: white; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap; }
     .btn-primary:hover { background-color: #0f52a8; }
     
-    /* 표 래퍼 영역 */
-    .table-wrapper { flex: 1; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 10px; position: relative; }
+    /* 표 영역 */
+    .table-wrapper { flex: 1; overflow: auto; min-height: 0; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
     table.data-table { border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; min-width: 100%; }
     table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
@@ -76,9 +77,9 @@
     
     table.data-table thead th { font-weight: bold; color: #333; }
     table.data-table thead th.sticky-top-1, table.data-table thead th.sticky-top-2, table.data-table thead th.sticky-top-3, table.data-table thead th.sticky-top-4, table.data-table thead th.admin-sticky-top { z-index: 90; }
-    table.data-table thead th.sticky-col-1, table.data-table thead th.sticky-col-2, table.data-table thead th.sticky-col-3, table.data-table thead th.sticky-col-all { z-index: 100; }
+    table.data-table thead th.sticky-col-1, table.data-table thead th.sticky-col-2, table.data-table thead th.sticky-col-3, table.data-table thead th.sticky-col-all { z-index: 95; }
     
-    /* 표 색상 클래스 */
+    /* 표 색상 세분화 */
     .bg-gray { background-color: #e9ecef !important; color: #333; }
     .bg-light { background-color: #f8f9fa !important; color: #333; }
     .bg-white { background-color: #ffffff !important; }
@@ -95,7 +96,7 @@
     .setup-input { width: 90%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
     .setup-input:focus { border-color: #1366ce; outline: none; }
 
-    .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+    .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
     .paste-zone:hover { background-color: #e9ecef; }
 
     /* 환경설정 테이블 모달 */
@@ -156,9 +157,9 @@
   <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycbwvGxr_gp1L2e7L5D_1u8LZ0BP2K07LMtjuRsvqKEVyCnBikAEYpqztc0REuXmoNMHvtg/exec">
 
   <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">처리 중입니다...</div></div>
+  
   <div class="modal-overlay" id="customAlertModal"><div class="modal-box" style="width: 320px;"><div id="modalMessage" class="modal-message" style="text-align: center;"></div><button class="modal-btn" onclick="document.getElementById('customAlertModal').style.display='none'">확인</button></div></div>
 
-  <!-- 🟢 2. 2버튼짜리 확인 팝업 (저장 시 부분 빈칸 처리용) -->
   <div class="modal-overlay" id="customConfirmModal">
     <div class="modal-box" style="width: 380px; padding: 25px;">
       <div id="confirmMessage" class="modal-message" style="text-align: center; font-size: 15px; margin-bottom: 25px; font-weight:bold;"></div>
@@ -179,11 +180,10 @@
     </div>
   </div>
 
-  <!-- 환경설정 모달 -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box" style="width: 700px; padding: 25px; text-align: left;">
       <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">환경설정 (필수)</div>
-      <p style="font-size: 13px; color: #666; margin-bottom: 15px;">항목을 차례대로 입력해 주세요. (마지막 줄에 입력하면 자동으로 새 줄이 추가됩니다.)</p>
+      <p style="font-size: 13px; color: #666; margin-bottom: 15px;">항목을 차례대로 입력해 주세요. (마지막 줄에 입력하면 <b>자동으로 새 줄이 추가</b>됩니다.)</p>
       <div class="settings-table-wrapper">
         <table class="settings-table">
           <thead><tr><th width="25%" style="color:#495057;">캠퍼스 목록</th><th width="25%" style="color:#495057;">학기 목록</th><th width="25%" style="color:#495057;">난이도 목록</th><th width="25%" style="color:#495057; border-right: none;">과정명 목록</th></tr></thead>
@@ -197,7 +197,6 @@
     </div>
   </div>
 
-  <!-- 학생명단 업로드 모달 -->
   <div class="modal-overlay" id="rosterUploadModal">
     <div class="modal-box" style="width: 480px; padding: 25px;">
       <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">학생명단 일괄 업로드</div>
@@ -245,7 +244,6 @@
     <!-- ========================================== -->
     <div id="page-main" class="page-content active">
       
-      <!-- 🟢 3. 필터 카드 (선택 옵션 제거 완료) -->
       <div class="filter-card" id="mainFilterCard">
         <div class="select-group"><label>학기</label><select id="mainTerm" onchange="filterCampuses('main')"></select></div>
         <div class="select-group"><label>캠퍼스</label><select id="mainCampus" onchange="filterCourses('main')"></select></div>
@@ -365,8 +363,7 @@
     let currentStudentsList = [];
     let pendingNextStudentIdx = -1;
     let currentGlobalOtherScores = []; 
-    let lastSelectedCampus = ""; // 🟢 3. 탭 이동 복구용
-
+    let lastSelectedCampus = ""; 
     let confirmCallback = null;
     let cancelCallback = null;
 
@@ -396,7 +393,6 @@
     function showLoading(status, msg = "처리 중입니다...") { document.getElementById('spinnerText').innerText = msg; document.getElementById('globalSpinner').style.display = status ? 'flex' : 'none'; }
     function handleError(err) { showLoading(false); showAlert("🚫 에러 발생: " + err.message); }
 
-    // 🟢 2. 2버튼 커스텀 확인창
     function showConfirmModal(msg, onConfirm, onCancel) {
       document.getElementById('confirmMessage').innerHTML = msg;
       document.getElementById('customConfirmModal').style.display = 'flex';
@@ -409,7 +405,6 @@
       else if (!isConfirmed && cancelCallback) cancelCallback();
     }
 
-    // 🟢 3. 탭 스위칭 (캠퍼스 상태 기억)
     function switchNav(navId) {
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`button[onclick="switchNav('${navId}')"]`).classList.add('active');
@@ -429,7 +424,7 @@
         document.getElementById('mainTeacherGroup').style.display = 'none';
         document.getElementById('mainClassGroup').style.display = 'none';
         if (!mainCampus.querySelector('option[value="전체"]')) {
-           lastSelectedCampus = mainCampus.value; // 저장
+           lastSelectedCampus = mainCampus.value; 
            mainCampus.insertAdjacentHTML('afterbegin', '<option value="전체">전체 (All)</option>');
            mainCampus.value = "전체";
         }
@@ -439,8 +434,8 @@
         let optAll = mainCampus.querySelector('option[value="전체"]');
         if(optAll) {
             optAll.remove();
-            mainCampus.value = lastSelectedCampus || mainCampus.options[0].value; // 복구
-            filterCourses('main'); // 연쇄 필터 실행
+            mainCampus.value = lastSelectedCampus || (mainCampus.options[0] ? mainCampus.options[0].value : "");
+            filterCourses('main');
         }
       }
     }
@@ -470,7 +465,7 @@
     window.onload = function() { fetchMetadata(); renderSetupTable(); };
 
     // ==========================================
-    // 환경설정 (선택 옵션 완전 제거 연동)
+    // 환경설정 및 업로드 공통 로직
     // ==========================================
     function fetchMetadata() {
       const url = document.getElementById('backendUrl').value.trim();
@@ -491,13 +486,29 @@
     }
     function appendSettingsRow(c='', t='', l='', cr='') {
       const tbody = document.getElementById('settingsGridBody'); const tr = document.createElement('tr');
-      tr.innerHTML = `<td><input type="text" class="set-input set-campus" value="${c}" oninput="checkSettingsLastRow(this)"></td><td><input type="text" class="set-input set-term" value="${t}" oninput="checkSettingsLastRow(this)"></td><td><input type="text" class="set-input set-level" value="${l}" oninput="checkSettingsLastRow(this)"></td><td style="border-right: none;"><input type="text" class="set-input set-course" value="${cr}" oninput="checkSettingsLastRow(this)"></td>`;
+      tr.innerHTML = `<td><input type="text" class="set-input set-campus" value="${c}" onkeydown="handleSettingsKeydown(event, this, 0)"></td><td><input type="text" class="set-input set-term" value="${t}" onkeydown="handleSettingsKeydown(event, this, 1)"></td><td><input type="text" class="set-input set-level" value="${l}" onkeydown="handleSettingsKeydown(event, this, 2)"></td><td style="border-right: none;"><input type="text" class="set-input set-course" value="${cr}" onkeydown="handleSettingsKeydown(event, this, 3)"></td>`;
       tbody.appendChild(tr);
     }
-    function checkSettingsLastRow(input) {
-      const tbody = document.getElementById('settingsGridBody'); const tr = input.closest('tr');
-      if (tr === tbody.lastElementChild && input.value.trim() !== '') { appendSettingsRow(); tbody.parentElement.parentElement.scrollTop = tbody.parentElement.parentElement.scrollHeight; }
+    
+    // 환경설정 입력표 방향키 연동 로직
+    function handleSettingsKeydown(e, input, colIdx) {
+      const tr = input.closest('tr'); const tbody = tr.parentElement; const rows = Array.from(tbody.children); const rowIdx = rows.indexOf(tr);
+      let nextInput = null;
+
+      if (e.key === "Enter" || e.key === "ArrowDown") {
+        e.preventDefault();
+        if (rowIdx < rows.length - 1) { nextInput = rows[rowIdx + 1].querySelectorAll('.set-input')[colIdx]; } 
+        else if (input.value.trim() !== '') { appendSettingsRow(); nextInput = rows[rowIdx + 1].querySelectorAll('.set-input')[colIdx]; tbody.parentElement.parentElement.scrollTop = tbody.parentElement.parentElement.scrollHeight; }
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault(); if (rowIdx > 0) nextInput = rows[rowIdx - 1].querySelectorAll('.set-input')[colIdx];
+      } else if (e.key === "ArrowRight" && input.selectionStart === input.value.length) {
+        e.preventDefault(); if (colIdx < 3) nextInput = tr.querySelectorAll('.set-input')[colIdx + 1];
+      } else if (e.key === "ArrowLeft" && input.selectionEnd === 0) {
+        e.preventDefault(); if (colIdx > 0) nextInput = tr.querySelectorAll('.set-input')[colIdx - 1];
+      }
+      if (nextInput) nextInput.focus();
     }
+
     function saveSettings() {
       const extract = (className) => Array.from(document.querySelectorAll(className)).map(i => i.value.trim()).filter(v => v);
       const payload = { action: 'saveSettings', campuses: extract('.set-campus'), terms: extract('.set-term'), levels: extract('.set-level'), courses: extract('.set-course') };
@@ -507,15 +518,14 @@
         if(res.success) { document.getElementById('settingsModal').style.display = 'none'; showAlert("✔ 설정 저장 완료!"); fetchMetadata(); } else { showLoading(false); showAlert("에러: " + res.error); }
       }).catch(handleError);
     }
+
     function populateSettingsAndDropdowns() {
       const s = globalData.settings;
       const fillSelect = (id, arr) => { let el = document.getElementById(id); if(!el) return; el.innerHTML = ''; (arr||[]).forEach(val => el.innerHTML += `<option value="${val}">${val}</option>`); };
       fillSelect('setupTerm', s.terms); fillSelect('setupLevel', s.levels); fillSelect('setupCourse', s.courses); fillSelect('rosterTerm', s.terms); fillSelect('rosterCampus', s.campuses);
-      
-      let mainTerm = document.getElementById('mainTerm');
-      mainTerm.innerHTML = '';
+      let mainTerm = document.getElementById('mainTerm'); mainTerm.innerHTML = '';
       (s.terms||[]).forEach(t => mainTerm.innerHTML += `<option value="${t}">${t}</option>`);
-      if (s.terms && s.terms.length > 0) filterCampuses('main'); // 강제 체인 시작
+      if (s.terms && s.terms.length > 0) filterCampuses('main');
     }
 
     const dropZone = document.getElementById('dropZone'); const fileInput = document.getElementById('fileInput');
@@ -574,7 +584,7 @@
     }
 
     // ==========================================
-    // 🟢 통합 필터링 체인 ('선택' 옵션 제거)
+    // 통합 필터링 체인 
     // ==========================================
     function filterCampuses(prefix) {
       const term = document.getElementById(`${prefix}Term`)?.value;
@@ -587,6 +597,7 @@
         campuses.forEach(c => optionsHtml += `<option value="${c}">${c}</option>`); 
       }
       sel.innerHTML = optionsHtml;
+      if (optionsHtml && !keepAll) sel.value = sel.options[0].value;
       filterCourses(prefix);
     }
     function filterCourses(prefix) {
@@ -598,6 +609,7 @@
         let courses = [...new Set(globalData.setups.filter(s => s.term === term).map(s => s.course))].sort(); 
         courses.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`); 
       }
+      if (sel.options.length > 0) sel.value = sel.options[0].value;
       filterTeachers(prefix);
     }
     function filterTeachers(prefix) {
@@ -610,6 +622,7 @@
         let teachers = [...new Set(globalData.rosters.filter(r => r.term === term && r.campus === campus).map(r => r.teacher))].sort(); 
         teachers.forEach(t => sel.innerHTML += `<option value="${t}">${t}</option>`); 
       }
+      if (sel.options.length > 0) sel.value = sel.options[0].value;
       filterClasses(prefix);
     }
     function filterClasses(prefix) {
@@ -623,6 +636,7 @@
         let classes = [...new Set(globalData.rosters.filter(r => r.term === term && r.campus === campus && r.teacher === teacher).map(r => r.className))].sort(); 
         classes.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`); 
       }
+      if (sel.options.length > 0) sel.value = sel.options[0].value;
     }
 
     // ==========================================
@@ -644,11 +658,15 @@
     }
     function checkExistingSetup() {
       const t = document.getElementById('setupTerm').value, l = document.getElementById('setupLevel').value, cr = document.getElementById('setupCourse').value; if (!t || !l || !cr) return;
+      
+      showLoading(true, "기존 세팅 불러오는 중...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getExamSetup', term: t, level: l, course: cr }) }).then(res => res.json()).then(res => {
-        if(res.success && res.data) { document.getElementById('setupTotalCount').value = res.data.totalCount; document.getElementById('setupStartNum').value = res.data.startNum; renderSetupTable();
-           res.data.items.forEach(item => { let u = document.getElementById(`unit_${item.num}`), s = document.getElementById(`score_${item.num}`); if(u) u.value = item.unit; if(s) { s.value = item.score; updateDiff(item.num); } }); showAlert("기존 세팅 데이터가 자동으로 불러와졌습니다.");
+        showLoading(false);
+        if(res.success && res.data) { 
+           document.getElementById('setupTotalCount').value = res.data.totalCount; document.getElementById('setupStartNum').value = res.data.startNum; renderSetupTable();
+           res.data.items.forEach(item => { let u = document.getElementById(`unit_${item.num}`), s = document.getElementById(`score_${item.num}`); if(u) u.value = item.unit; if(s) { s.value = item.score; updateDiff(item.num); } }); 
         } else { renderSetupTable(); }
-      }).catch(handleError);
+      }).catch(err => { showLoading(false); handleError(err); });
     }
 
     document.getElementById('hwpPasteZone').addEventListener('click', function() { document.getElementById('pasteCatcher').focus(); this.style.backgroundColor = '#e9ecef'; setTimeout(() => this.style.backgroundColor = '#fff', 500); });
@@ -670,16 +688,24 @@
       const term = document.getElementById('setupTerm').value, level = document.getElementById('setupLevel').value, course = document.getElementById('setupCourse').value;
       if(!term || !level || !course) return showAlert("항목을 선택하세요.");
       const totalCount = parseInt(document.getElementById('setupTotalCount').value), startNum = parseInt(document.getElementById('setupStartNum').value), items = [];
+      
+      // 누락 여부 검증
       for (let i = 0; i < totalCount; i++) {
-        let qNum = startNum + i; items.push({ num: qNum, unit: document.getElementById(`unit_${qNum}`).value.trim(), score: parseInt(document.getElementById(`score_${qNum}`).value)||0, diff: document.getElementById(`diff_${qNum}`).value });
+        let qNum = startNum + i; 
+        let unitVal = document.getElementById(`unit_${qNum}`).value.trim();
+        let scoreVal = document.getElementById(`score_${qNum}`).value.trim();
+        if(!unitVal || !scoreVal) return showAlert(`[${qNum}번] 문항의 단원명 또는 배점이 누락되었습니다.\n입력을 완료해 주세요.`);
+        
+        items.push({ num: qNum, unit: unitVal, score: parseInt(scoreVal)||0, diff: document.getElementById(`diff_${qNum}`).value });
       }
+      
       showLoading(true, "저장 중...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveExamSetup', term, level, course, totalCount, startNum, items }) })
       .then(res => res.json()).then(res => { showLoading(false); if(res.success) { showAlert("✔ 저장 완료"); fetchMetadata(); } else { showAlert("에러: " + res.error); } }).catch(handleError);
     }
 
     // ==========================================
-    // 🟢 채점 입력 로직
+    // 🟢 채점 입력 로직 (배경색 정밀 적용)
     // ==========================================
     function loadGradesData() {
       const term = document.getElementById('mainTerm').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
@@ -714,10 +740,12 @@
       const thead = document.getElementById('inputTableHeader');
       const tbody = document.getElementById('inputTableBody');
       
-      // 🟢 1. 미응시자 처리를 위한 hasData 판별 및 배경색 정밀 매핑 (bg-gray, bg-light)
+      // 🟢 2. 색상 완벽 매핑 
+      // No. (bg-gray) | 학생번호 (bg-gray)
       let htmlThead = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>`;
       parsedStudents.forEach((st, sIdx) => { htmlThead += `<th class="sticky-top-1 bg-gray" style="color:#555;">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}</th>`; });
       
+      // 총점 (bg-gray) | 총점 데이터 (bg-light)
       htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-2 bg-gray" style="text-align:center; letter-spacing:1px;">총점</th>`;
       parsedStudents.forEach((st, sIdx) => { 
         if (st.isEmpty) htmlThead += `<th class="sticky-top-2 bg-light" style="color:#adb5bd;">-</th>`; 
@@ -728,12 +756,14 @@
         }
       });
       
+      // 등수 (bg-gray) | 등수 데이터 (bg-light)
       htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-3 bg-gray" style="text-align:center; letter-spacing:1px;">등수</th>`;
       parsedStudents.forEach((st, sIdx) => { 
         if (st.isEmpty) htmlThead += `<th class="sticky-top-3 bg-light" style="color:#adb5bd;">-</th>`; 
         else htmlThead += `<th class="sticky-top-3 bg-light" style="color:#dc3545;" id="rank_${sIdx}">-</th>`; 
       });
       
+      // 문항,단원,배점 (bg-gray) | 학생명 (bg-light)
       htmlThead += `</tr><tr>
           <th class="sticky-col-1 sticky-top-4 bg-gray">문항번호</th>
           <th class="sticky-col-2 sticky-top-4 bg-gray">출제 단원명</th>
@@ -745,6 +775,7 @@
       htmlThead += `</tr>`;
       thead.innerHTML = htmlThead;
 
+      // 문항번호 (bg-gray) | 출제단원명 데이터 (bg-light) | 배점 데이터 (bg-light)
       let htmlTbody = '';
       if(currentStudentsCount === 0 && rawStudents.length === 0) {
         htmlTbody = `<tr><td colspan="3" style="padding: 30px; color: red;">명단이 없습니다.</td></tr>`;
@@ -786,7 +817,6 @@
       }
     }
 
-    // 🟢 1. O/X 입력 및 미응시자 실시간 제어
     function handleOxInput(e, qIdx, sIdx) {
       let inputEl = e.target; let val = inputEl.value.toLowerCase();
       inputEl.classList.remove('val-o', 'val-x'); let isValidInput = false;
@@ -813,6 +843,7 @@
       }
     }
 
+    // 🟢 4. 팝업 확인 후 스크롤을 맨 위로 즉시 복귀
     function confirmNextStudent() {
       document.getElementById('nextStudentModal').style.display = 'none';
       if (pendingNextStudentIdx !== -1) {
@@ -822,7 +853,6 @@
       }
     }
 
-    // 🟢 1. 빈칸(미응시자) 계산 로직
     function calculateStudentScore(sIdx) {
       let totalScore = 0;
       let inputCount = 0;
@@ -841,7 +871,6 @@
       }
     }
 
-    // 🟢 1. 미응시자 등수 제외 로직
     function updateAllRanks() {
       if (currentStudentsCount === 0) return;
       let liveScores = [];
@@ -850,7 +879,7 @@
         if (el.dataset.valid === 'true') {
            liveScores.push({ sIdx: i, score: parseInt(el.innerText) || 0 });
         } else {
-           document.getElementById(`rank_${i}`).innerText = '-'; // 미응시자
+           document.getElementById(`rank_${i}`).innerText = '-'; 
         }
       }
       
@@ -889,7 +918,6 @@
       });
     }
 
-    // 🟢 2. 부분 미입력자 검색 및 확인 팝업 트리거
     function saveGrades() {
       if (!currentExamSetup) return showAlert("명단을 먼저 불러와 주세요.");
       
@@ -898,7 +926,7 @@
 
       for (let sIdx = 0; sIdx < currentStudentsCount; sIdx++) {
          let totalEl = document.getElementById(`totalScore_${sIdx}`);
-         if (totalEl.dataset.valid !== 'true') continue; // 완전 미응시자는 검사 패스
+         if (totalEl.dataset.valid !== 'true') continue; 
 
          let missingInputsInRow = [];
          document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => {
@@ -913,25 +941,21 @@
 
       if (hasPartialMissing) {
           showConfirmModal("성적 입력이 완료되지 않은 학생이 있습니다.<br>입력되지 않은 문항은 X(오답)로 입력됩니다.", function() {
-              fillMissingWithXAndSave(); // YES
+              fillMissingWithXAndSave(); 
           }, function() {
-              focusNextCell(firstMissingInput); // NO
+              focusNextCell(firstMissingInput); 
           });
           return;
       }
-      executeSaveGrades(); // 문제 없으면 바로 저장
+      executeSaveGrades(); 
     }
 
-    // 빈칸 X로 채우고 저장 재진행
     function fillMissingWithXAndSave() {
        for (let sIdx = 0; sIdx < currentStudentsCount; sIdx++) {
            let totalEl = document.getElementById(`totalScore_${sIdx}`);
            if (totalEl.dataset.valid === 'true') {
                document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => {
-                   if (!input.value) {
-                       input.value = 'X';
-                       input.classList.add('val-x');
-                   }
+                   if (!input.value) { input.value = 'X'; input.classList.add('val-x'); }
                });
                calculateStudentScore(sIdx);
            }
@@ -940,7 +964,6 @@
        executeSaveGrades();
     }
 
-    // 실제 백엔드 Fetch
     function executeSaveGrades() {
       const term = document.getElementById('mainTerm').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       
