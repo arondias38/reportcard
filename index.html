@@ -64,11 +64,11 @@
     table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
-    /* 🟢 표 머릿글 이중 고정 (필터카드 높이 56px 고려한 완벽한 오프셋 수치 적용) */
-    .sticky-top-1 { position: sticky; top: 56px; z-index: 80; }
-    .sticky-top-2 { position: sticky; top: 84px; z-index: 80; }
-    .sticky-top-3 { position: sticky; top: 112px; z-index: 80; }
-    .sticky-top-4 { position: sticky; top: 140px; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
+    /* 🟢 1. 표 머릿글 이중 고정 원복 (테이블 내부 스크롤 기준 top: 0 부터) */
+    .sticky-top-1 { position: sticky; top: 0px; z-index: 80; }
+    .sticky-top-2 { position: sticky; top: 28px; z-index: 80; }
+    .sticky-top-3 { position: sticky; top: 56px; z-index: 80; }
+    .sticky-top-4 { position: sticky; top: 84px; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
     
     /* 좌측 열 틀고정 */
     .sticky-col-1 { position: sticky; left: 0; min-width: 60px; max-width: 60px; z-index: 60; }
@@ -80,8 +80,9 @@
     table.data-table thead th.sticky-top-1, table.data-table thead th.sticky-top-2, table.data-table thead th.sticky-top-3, table.data-table thead th.sticky-top-4 { z-index: 90; }
     table.data-table thead th.sticky-col-1, table.data-table thead th.sticky-col-2, table.data-table thead th.sticky-col-3, table.data-table thead th.sticky-col-all { z-index: 95; }
     
-    /* 🟢 모든 머릿글 색상 진한 회색으로 완벽 통일 */
+    /* 표 색상 클래스 */
     .bg-gray { background-color: #e9ecef !important; }
+    .bg-light { background-color: #f8f9fa !important; }
     
     .student-name-cell { min-width: 60px; max-width: 60px; overflow: hidden; text-overflow: clip; letter-spacing: -0.5px; }
 
@@ -616,7 +617,7 @@
     }
 
     // ==========================================
-    // 🟢 1. 채점 입력 로직 (머릿글 배경색 bg-gray 통일)
+    // 🟢 1 & 2. 채점 입력 (머릿글 배경색 통일 및 이중 틀고정 복구 반영)
     // ==========================================
     function loadGradesData() {
       const term = document.getElementById('mainTerm').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
@@ -651,25 +652,23 @@
       const thead = document.getElementById('inputTableHeader');
       const tbody = document.getElementById('inputTableBody');
       
-      // 🟢 1. 모든 고정 머릿글 셀을 bg-gray(진한 회색)로 완벽하게 통일
-      let htmlThead = `
-        <tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>
-      `;
-      parsedStudents.forEach((st, sIdx) => { htmlThead += `<th class="sticky-top-1 bg-gray">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}</th>`; });
+      // 🟢 1. 지정해주신 좌측 머릿글(No., 총점, 등수, 문항번호, 출제 단원명, 배점)만 bg-gray 유지, 우측(학생명/번호)은 bg-light 적용
+      let htmlThead = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>`;
+      parsedStudents.forEach((st, sIdx) => { htmlThead += `<th class="sticky-top-1 bg-light">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}</th>`; });
       
       htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-2 bg-gray" style="text-align:center; letter-spacing:1px;">총점</th>`;
       parsedStudents.forEach((st, sIdx) => { 
-        if (st.isEmpty) htmlThead += `<th class="sticky-top-2 bg-gray" style="color:#adb5bd;">-</th>`; 
+        if (st.isEmpty) htmlThead += `<th class="sticky-top-2 bg-light" style="color:#adb5bd;">-</th>`; 
         else {
           let stGrade = grades.find(g => g.name === st.name) || { totalScore: 0 };
-          htmlThead += `<th class="sticky-top-2 bg-gray" style="color:#1366ce; font-size:14px;" id="totalScore_${sIdx}">${stGrade.totalScore}</th>`; 
+          htmlThead += `<th class="sticky-top-2 bg-light" style="color:#1366ce; font-size:14px;" id="totalScore_${sIdx}">${stGrade.totalScore}</th>`; 
         }
       });
       
       htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-3 bg-gray" style="text-align:center; letter-spacing:1px;">등수</th>`;
       parsedStudents.forEach((st, sIdx) => { 
-        if (st.isEmpty) htmlThead += `<th class="sticky-top-3 bg-gray" style="color:#adb5bd;">-</th>`; 
-        else htmlThead += `<th class="sticky-top-3 bg-gray" style="color:#dc3545;" id="rank_${sIdx}">-</th>`; 
+        if (st.isEmpty) htmlThead += `<th class="sticky-top-3 bg-light" style="color:#adb5bd;">-</th>`; 
+        else htmlThead += `<th class="sticky-top-3 bg-light" style="color:#dc3545;" id="rank_${sIdx}">-</th>`; 
       });
       
       htmlThead += `</tr><tr>
@@ -678,7 +677,7 @@
           <th class="sticky-col-3 sticky-top-4 bg-gray">배점</th>
       `;
       parsedStudents.forEach((st, sIdx) => { 
-        htmlThead += `<th class="sticky-top-4 bg-gray student-name-cell" style="${st.isEmpty ? 'color:#adb5bd;' : 'font-weight:bold;'}">${st.name}</th>`; 
+        htmlThead += `<th class="sticky-top-4 bg-light student-name-cell" style="${st.isEmpty ? 'color:#adb5bd;' : 'font-weight:bold;'}">${st.name}</th>`; 
       });
       htmlThead += `</tr>`;
       thead.innerHTML = htmlThead;
