@@ -8,13 +8,17 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* 폰트는 프리텐다드 전역 적용 */
+    /* 폰트 전역 적용 */
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+    * { box-sizing: border-box; }
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
-    /* 스크롤 시 화면 흔들림 방지를 위해 브라우저 세로 스크롤 상시 유지 */
-    body { margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow-y: scroll; overflow-x: hidden; }
-    
+    /* 🟢 1. 전체 화면을 꽉 채우는 Flex 레이아웃 (페이지 전체 스크롤 효과 완벽 구현) */
+    html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow: hidden; }
+    .app-container { height: 100vh; display: flex; flex-direction: column; padding: 15px 25px 25px 25px; }
+    .page-content { flex: 1; display: none; flex-direction: column; overflow: hidden; }
+    .page-content.active { display: flex; }
+
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1366ce; border-radius: 50%; animation: spin 1s linear infinite; }
     .spinner-text { margin-top: 15px; font-weight: bold; color: #1366ce; font-size: 15px; }
@@ -26,87 +30,93 @@
     .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; background-color: #1366ce; color: white; transition: 0.2s; }
     .modal-btn:hover { background-color: #0f52a8; }
 
-    /* 상단 제목 바 */
-    .header-wrapper { padding: 15px 30px; background-color: #f4f6f9; width: 100%; box-sizing: border-box; }
-    .academy-header-bar { background-color: #1366ce; color: #ffffff; height: 48px; border-radius: 8px; font-size: 17px; font-weight: 600; display: flex; justify-content: center; align-items: center; position: relative; letter-spacing: 0.5px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    .icon-btn { background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 50%; transition: 0.2s; margin-left: 10px; }
-    .icon-btn:hover { background-color: rgba(255,255,255,0.2); }
-
-    .app-body { padding: 5px 30px 30px 30px; box-sizing: border-box; width: 100%; }
-    .page-content { display: none; }
-    .page-content.active { display: block; }
-
-    /* 필터 박스 및 셀렉트 아이콘 커스텀 */
-    .filter-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 12px 20px; border-left: 6px solid #1366ce; margin-bottom: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; position: sticky; top: 0; z-index: 200; }
+    /* 🟢 2. 필터 카드 (메인 제목 통합) */
+    .filter-card { flex-shrink: 0; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 12px 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; z-index: 200; }
+    .filter-card.admin-mode { border-left: 6px solid #495057; } /* 관리자 모드 진한 회색 */
     .filter-divider { width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px; }
+    
+    .main-title { font-size: 16px; font-weight: 900; color: #111; margin-right: 10px; letter-spacing: -0.5px; }
+
     .select-group { display: flex; align-items: center; gap: 6px; }
     .select-group label { font-weight: bold; font-size: 13px; color: #1366ce; white-space: nowrap; }
+    .admin-mode .select-group label { color: #495057; }
     
     .select-group select { 
-      width: 150px; height: 32px; padding: 4px 34px 4px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; box-sizing: border-box;
+      width: 145px; height: 32px; padding: 4px 34px 4px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none;
       appearance: none; -webkit-appearance: none;
-      background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231366ce'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
       background-repeat: no-repeat; background-position: right 10px center; background-size: 18px;
     }
-    .select-group input, .select-group textarea { height: 32px; padding: 4px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; box-sizing: border-box; }
-    .select-group select:focus, input:focus, textarea:focus { border-color: #1366ce; }
+    .select-group input, .select-group textarea { height: 32px; padding: 4px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; }
+    .select-group select:focus, input:focus { border-color: #1366ce; }
     
     .btn-primary { height: 32px; padding: 0 16px; border: none; border-radius: 50px; font-weight: bold; font-size: 13px; background-color: #1366ce; color: white; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .btn-primary:hover { background-color: #0f52a8; }
+    .icon-btn { background: none; border: none; color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 50%; transition: 0.2s; }
+    .icon-btn:hover { background-color: #e9ecef; }
     
-    /* 🟢 1 & 5. 표 레이아웃 가로/세로 전환 및 높이 압축 (높이 축소 및 이중 틀고정) */
-    .table-wrapper { width: 100%; max-height: calc(100vh - 200px); overflow: auto; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; }
-    table.data-table { border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; }
-    table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; box-sizing: border-box; background-color: #fff; padding: 4px 6px; height: 32px; vertical-align: middle; }
+    /* 🟢 5. 테이블 전체 래퍼 (이 영역이 스크롤을 담당하여 창 전체가 스크롤되는 느낌 구현) */
+    .table-wrapper { flex: 1; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    table.data-table { border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; min-width: 100%; }
+    
+    /* 셀 패딩과 높이 대폭 축소 */
+    table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
-    /* 헤더(Thead) 행 고정 (높이 축소에 맞게 top 위치 재조정) */
-    .sticky-top-1 { position: sticky; top: 0; z-index: 10; height: 32px; }
-    .sticky-top-2 { position: sticky; top: 32px; z-index: 10; height: 32px; }
-    .sticky-top-3 { position: sticky; top: 64px; z-index: 10; height: 32px; }
-    /* 4번째 행 하단에 진한 선을 그어 헤더와 본문 구분 */
-    .sticky-top-4 { position: sticky; top: 96px; z-index: 10; height: 32px; box-shadow: inset 0 -2px 0 #ced4da; } 
+    /* 🟢 표 머릿글(상단 4행) 이중 틀고정 및 연한 그림자 효과 */
+    .sticky-top-1 { position: sticky; top: 0; z-index: 10; }
+    .sticky-top-2 { position: sticky; top: 28px; z-index: 10; }
+    .sticky-top-3 { position: sticky; top: 56px; z-index: 10; }
+    .sticky-top-4 { position: sticky; top: 84px; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
     
-    /* 좌측 열 고정 */
-    .sticky-col-1 { position: sticky; left: 0; min-width: 60px; z-index: 5; background-color: #f8f9fa; }
-    .sticky-col-2 { position: sticky; left: 60px; min-width: 140px; z-index: 5; background-color: #f8f9fa; }
-    .sticky-col-3 { position: sticky; left: 200px; min-width: 60px; z-index: 5; background-color: #f8f9fa; border-right: 2px solid #ced4da !important; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.15); }
-    /* 병합된 헤더 (No, 총점, 등수)를 위한 전용 클래스 */
-    .sticky-col-all { position: sticky; left: 0; z-index: 5; background-color: #f8f9fa; border-right: 2px solid #ced4da !important; box-shadow: 2px 0 5px -2px rgba(0,0,0,0.15); }
+    /* 좌측 3열 틀고정 */
+    .sticky-col-1 { position: sticky; left: 0; min-width: 45px; z-index: 5; background-color: #f8f9fa; }
+    .sticky-col-2 { position: sticky; left: 45px; min-width: 130px; z-index: 5; background-color: #f8f9fa; }
+    .sticky-col-3 { position: sticky; left: 175px; min-width: 55px; z-index: 5; background-color: #f8f9fa; border-right: 1px solid #ced4da !important; box-shadow: 2px 0 4px rgba(0,0,0,0.04); }
+    .sticky-col-all { position: sticky; left: 0; z-index: 5; background-color: #f8f9fa; border-right: 1px solid #ced4da !important; box-shadow: 2px 0 4px rgba(0,0,0,0.04); }
     
-    /* 헤더 행과 좌측 열이 겹치는 십자 구역 Z-index 최상위 설정 */
+    /* 헤더 십자 교차 구역 Z-index 최상위 */
     table.data-table thead th { background-color: #f1f3f5; font-weight: bold; color: #333; }
     table.data-table thead th.sticky-top-1, table.data-table thead th.sticky-top-2, table.data-table thead th.sticky-top-3, table.data-table thead th.sticky-top-4 { z-index: 90; }
-    table.data-table thead th.sticky-col-1, table.data-table thead th.sticky-col-2, table.data-table thead th.sticky-col-3, table.data-table thead th.sticky-col-all { z-index: 95; background-color: #e9ecef; }
+    table.data-table thead th.sticky-col-1, table.data-table thead th.sticky-col-2, table.data-table thead th.sticky-col-3, table.data-table thead th.sticky-col-all { z-index: 95; }
     
-    /* 🟢 6. OX 입력 칸 디자인 제거 (셀에 직접 입력하는 느낌 부여) */
-    .setup-input { width: 90%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; box-sizing: border-box; }
-    .setup-input:focus { border-color: #1366ce; outline: none; }
-    .ox-input { width: 100%; height: 100%; border: none; text-align: center; font-weight: 900; font-size: 14px; padding: 0; background-color: transparent; outline: none; border-radius: 0; cursor: pointer; box-sizing: border-box; }
-    .ox-input:focus { background-color: #e6f0ff; }
+    /* No. 행 및 고정 열 색상 일치화 */
+    .bg-darker { background-color: #e9ecef !important; }
+    table.data-table thead th.bg-darker { background-color: #e9ecef !important; }
+    
+    /* 🟢 1. 학생명 너비 고정 (4글자) */
+    .student-name-cell { min-width: 60px; max-width: 60px; overflow: hidden; text-overflow: clip; letter-spacing: -0.5px; }
+
+    /* 🟢 6. OX 입력 칸을 테두리 없는 투명 셀 텍스트처럼 구현 */
+    .ox-input { width: 100%; height: 100%; border: none; text-align: center; font-weight: 900; font-size: 14px; padding: 0; background-color: transparent; outline: none; cursor: pointer; color: #dee2e6; }
+    .ox-input:focus { background-color: #e6f0ff; color: #333; }
     .ox-input:disabled { background-color: transparent; color: #ccc; cursor: default; }
     .ox-input.val-o { color: #28a745; } 
     .ox-input.val-x { color: #dc3545; } 
 
-    .paste-zone { border: 2px dashed #1366ce; background-color: #fff; padding: 25px; text-align: center; border-radius: 8px; margin-bottom: 20px; cursor: pointer; transition: 0.2s; }
-    .paste-zone:hover { background-color: #e6f0ff; }
+    /* 관리자 세팅용 일반 인풋 */
+    .setup-input { width: 90%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+    .setup-input:focus { border-color: #1366ce; outline: none; }
+
+    .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+    .paste-zone:hover { background-color: #e9ecef; }
+
+    /* 플로팅 액션 버튼 */
+    .fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: row-reverse; gap: 12px; z-index: 1000; }
+    .fab-btn { background-color: #68488e; color: white; border: none; border-radius: 50px; width: 44px; height: 44px; display: flex; align-items: center; padding: 0 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.25); transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.2s; overflow: hidden; white-space: nowrap; }
+    .fab-btn.btn-print { background-color: #333; }
+    .fab-btn:hover { width: 145px; }
+    .fab-btn svg { flex-shrink: 0; margin-right: 12px; width: 20px; height: 20px; }
+    .fab-text { font-size: 13px; font-weight: bold; opacity: 0; transition: opacity 0.2s; }
+    .fab-btn:hover .fab-text { opacity: 1; transition-delay: 0.1s; }
 
     /* 환경설정 테이블 모달 */
     .settings-table-wrapper { max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px; }
     .settings-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: center; }
     .settings-table th { background: #e9ecef; padding: 10px; position: sticky; top: 0; z-index: 5; color: #1366ce; border-bottom: 2px solid #ced4da; }
     .settings-table td { padding: 0; border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
-    .set-input { width: 100%; border: none; padding: 10px; box-sizing: border-box; text-align: center; outline: none; background: transparent; }
+    .set-input { width: 100%; border: none; padding: 8px; box-sizing: border-box; text-align: center; outline: none; background: transparent; }
     .set-input:focus { background-color: #e6f0ff; }
-
-    /* 플로팅 액션 버튼 (가로 정렬, 사이즈 축소) */
-    .fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: row-reverse; gap: 12px; z-index: 1000; }
-    .fab-btn { background-color: #68488e; color: white; border: none; border-radius: 50px; width: 44px; height: 44px; display: flex; align-items: center; padding: 0 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.2s; overflow: hidden; white-space: nowrap; }
-    .fab-btn.btn-print { background-color: #333; }
-    .fab-btn:hover { width: 140px; }
-    .fab-btn svg { flex-shrink: 0; margin-right: 10px; width: 20px; height: 20px; }
-    .fab-text { font-size: 13px; font-weight: bold; opacity: 0; transition: opacity 0.2s; }
-    .fab-btn:hover .fab-text { opacity: 1; transition-delay: 0.1s; }
 
     /* 성적표 출력용 CSS */
     .report-container { width: 100%; max-width: 1100px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; gap: 40px; margin-bottom: 100px; }
@@ -134,10 +144,10 @@
 
     @media print {
       body * { visibility: hidden; }
-      .app-body { padding: 0; margin: 0; min-width: 0; }
+      .app-container { padding: 0; margin: 0; }
       #reportContainer, #reportContainer * { visibility: visible; }
       #reportContainer { position: absolute; left: 0; top: 0; width: 100%; margin-bottom: 0; }
-      .header-wrapper, .filter-card, .fab-container { display: none !important; }
+      .filter-card, .fab-container { display: none !important; }
       .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; }
       @page { size: A4 landscape; margin: 0; }
     }
@@ -149,16 +159,27 @@
   <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycbwvGxr_gp1L2e7L5D_1u8LZ0BP2K07LMtjuRsvqKEVyCnBikAEYpqztc0REuXmoNMHvtg/exec">
 
   <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">처리 중입니다...</div></div>
-  <div class="modal-overlay" id="customAlertModal"><div class="modal-box" style="width: 320px;"><div id="modalMessage" class="modal-message" style="text-align: left;"></div><button class="modal-btn" onclick="document.getElementById('customAlertModal').style.display='none'">확인</button></div></div>
+  <div class="modal-overlay" id="customAlertModal"><div class="modal-box" style="width: 320px;"><div id="modalMessage" class="modal-message" style="text-align: center;"></div><button class="modal-btn" onclick="document.getElementById('customAlertModal').style.display='none'">확인</button></div></div>
 
-  <!-- 환경설정 모달 (필수) -->
+  <!-- 🟢 2. 다음 학생 입력 안내 팝업 -->
+  <div class="modal-overlay" id="nextStudentModal">
+    <div class="modal-box" style="width: 340px; padding: 30px 20px;">
+      <div style="font-size: 32px; margin-bottom: 10px;">👤</div>
+      <div style="font-size: 16px; font-weight: bold; color: #333; margin-bottom: 25px;">
+        <span id="nextStudentName" style="color: #1366ce; font-size: 18px;"></span> 학생의<br>채점을 이어서 진행합니다.
+      </div>
+      <button class="modal-btn" onclick="confirmNextStudent()">확인 (Enter)</button>
+    </div>
+  </div>
+
+  <!-- 환경설정 모달 -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box" style="width: 700px; padding: 25px; text-align: left;">
       <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">환경설정 (필수)</div>
       <p style="font-size: 13px; color: #666; margin-bottom: 15px;">항목을 차례대로 입력해 주세요. (마지막 줄에 입력하면 <b>자동으로 새 줄이 추가</b>됩니다.)</p>
       <div class="settings-table-wrapper">
         <table class="settings-table">
-          <thead><tr><th width="25%">캠퍼스 목록</th><th width="25%">학기 목록</th><th width="25%">난이도 목록</th><th width="25%" style="border-right: none;">과정명 목록</th></tr></thead>
+          <thead><tr><th width="25%" style="color:#495057;">캠퍼스 목록</th><th width="25%" style="color:#495057;">학기 목록</th><th width="25%" style="color:#495057;">난이도 목록</th><th width="25%" style="color:#495057; border-right: none;">과정명 목록</th></tr></thead>
           <tbody id="settingsGridBody"></tbody>
         </table>
       </div>
@@ -189,44 +210,39 @@
     </div>
   </div>
 
-  <!-- 메인 헤더 바 -->
-  <div class="header-wrapper">
-    <div class="academy-header-bar" id="mainHeaderBar">
-      <span id="mainHeaderTitle" style="cursor: pointer;" onclick="switchPage('page-main')">SG청운학원 - 성적표 통합 시스템</span>
-      <div style="position: absolute; right: 20px; display: flex; align-items: center;">
-        <button class="icon-btn" id="headerAdminBtn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        </button>
-        <button class="icon-btn" id="headerMainBtn" style="display: none;" onclick="switchPage('page-main')" title="채점 입력으로 돌아가기">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 메인 컨테이너 -->
-  <div class="app-body">
+  <div class="app-container">
 
     <!-- ========================================== -->
     <!-- 🟢 메인 화면 (채점 입력 / 성적표 통합) -->
     <!-- ========================================== -->
     <div id="page-main" class="page-content active">
       
+      <!-- 🟢 2. 제목을 필터 카드 좌측으로 이동 & 플렉스 정렬 -->
       <div class="filter-card" id="mainFilterCard">
+        <span class="main-title">SG청운학원 - 성적표 통합 시스템</span>
+        <div class="filter-divider"></div>
+        
         <div class="select-group"><label>학기</label><select id="mainTerm" onchange="filterCampuses('main')"><option value="">선택</option></select></div>
         <div class="select-group"><label>캠퍼스</label><select id="mainCampus" onchange="filterCourses('main')"><option value="">선택</option></select></div>
         <div class="select-group"><label>과정</label><select id="mainCourse" onchange="filterTeachers('main')"><option value="">선택</option></select></div>
         <div class="select-group"><label>선생님</label><select id="mainTeacher" onchange="filterClasses('main')"><option value="">선택</option></select></div>
         <div class="select-group"><label>반명</label><select id="mainClass"><option value="">선택</option></select></div>
         
-        <button class="btn-primary" style="margin-left: 15px;" onclick="loadGradesData()">명단 불러오기</button>
+        <button class="btn-primary" style="margin-left: 10px;" onclick="loadGradesData()">명단 불러오기</button>
         
-        <button class="btn-primary" style="margin-left: auto; background-color: #d32f2f;" onclick="saveGrades()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 결과 저장
-        </button>
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+          <button class="btn-primary" style="background-color: #d32f2f;" onclick="saveGrades()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 결과 저장
+          </button>
+          <div class="filter-divider"></div>
+          <!-- 🟢 4. 관리자 페이지로 이동 아이콘 톱니바퀴 -->
+          <button class="icon-btn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </button>
+        </div>
       </div>
 
-      <!-- 채점 입력 테이블 -->
+      <!-- 채점 입력 테이블 영역 -->
       <div class="table-wrapper" style="display: none;" id="inputTableContainer">
         <table class="data-table">
           <thead id="inputTableHeader"></thead>
@@ -237,7 +253,7 @@
       <!-- 성적표 출력 컨테이너 -->
       <div class="report-container" id="reportContainer" style="display: none;"></div>
 
-      <div id="inputEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff;">
+      <div id="inputEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
         상단의 검색 조건을 모두 선택하고 [명단 불러오기]를 눌러주세요.
       </div>
 
@@ -258,36 +274,48 @@
     <!-- 🟢 관리자 화면 (시험 세팅 & 환경설정) -->
     <!-- ========================================== -->
     <div id="page-admin" class="page-content">
-      <div class="filter-card">
-        <div class="select-group"><label>학기</label><select id="setupTerm" onchange="checkExistingSetup()"></select></div>
+      
+      <!-- 🟢 4, 5, 6. 타이틀 바꿈, 바 색상 짙은 회색, 버튼 재배열 -->
+      <div class="filter-card admin-mode">
+        <span class="main-title" style="color: #495057;">SG청운학원 - 시험 기본 세팅 (관리자)</span>
         <div class="filter-divider"></div>
-        <div class="select-group"><label>과정</label><select id="setupLevel" onchange="checkExistingSetup()"></select><select id="setupCourse" onchange="checkExistingSetup()"></select></div>
-        <div class="filter-divider"></div>
-        <div class="select-group"><label>총 문항 수</label><input type="number" id="setupTotalCount" value="45" min="1" max="100" style="width: 60px;" onchange="renderSetupTable()"></div>
-        <div class="select-group"><label>시작 번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 60px;" onchange="renderSetupTable()"></div>
         
-        <button class="btn-primary" style="margin-left: 10px;" onclick="saveExamSetup()">
+        <div class="select-group"><label>학기</label><select id="setupTerm" onchange="checkExistingSetup()"></select></div>
+        <div class="select-group"><label>과정</label><select id="setupLevel" onchange="checkExistingSetup()"></select><select id="setupCourse" onchange="checkExistingSetup()"></select></div>
+        
+        <div class="filter-divider"></div>
+        <div class="select-group"><label>총 문항 수</label><input type="number" id="setupTotalCount" value="45" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
+        <div class="select-group"><label>시작 번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
+        
+        <button class="btn-primary" style="margin-left: 5px; background-color: #495057;" onclick="saveExamSetup()">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 시험 정보 저장
         </button>
 
-        <button class="btn-primary" style="margin-left: auto; background-color: #28a745;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">
-          학생명단 업로드
-        </button>
-        <button class="btn-primary" style="margin-left: 10px; background-color: #6c757d;" onclick="openSettingsModal()">
-          환경설정 (필수)
-        </button>
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+          <button class="btn-primary" style="background-color: #28a745;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">
+            학생명단 업로드
+          </button>
+          <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">
+            환경설정 (필수)
+          </button>
+          <div class="filter-divider"></div>
+          <!-- 🟢 4. 메인(채점) 창으로 되돌아가기 화살표 아이콘 -->
+          <button class="icon-btn" onclick="switchPage('page-main')" title="채점 입력으로 돌아가기">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+        </div>
       </div>
 
       <div class="paste-zone" id="hwpPasteZone">
-        <h4 style="margin-top: 0; color: #1366ce; margin-bottom: 8px;">📄 엑셀/한글 출제표 복사-붙여넣기 영역</h4>
-        <p style="color: #666; margin-bottom: 0; font-size: 14px;">답지 표(단원명, 배점)를 복사한 후 이곳을 클릭하고 <b>Ctrl + V</b>를 누르세요. 자동으로 매핑됩니다.</p>
+        <h4 style="margin-top: 0; color: #495057; margin-bottom: 8px;">📄 엑셀/한글 출제표 복사-붙여넣기 영역</h4>
+        <p style="color: #666; margin-bottom: 0; font-size: 13px;">답지 표(단원명, 배점)를 복사한 후 이곳을 클릭하고 <b>Ctrl + V</b>를 누르세요. 자동으로 매핑됩니다.</p>
         <input type="text" id="pasteCatcher" style="opacity: 0; position: absolute; pointer-events: none;">
       </div>
 
       <div class="table-wrapper">
         <table class="data-table" style="text-align: left;">
           <thead>
-            <tr><th width="8%" style="text-align: center;">문항번호</th><th width="42%">출제 단원명</th><th width="20%">배점 (난이도 자동)</th><th width="20%">난이도 (확인용)</th><th width="10%" style="text-align: center;">상태</th></tr>
+            <tr><th class="sticky-top-1 bg-darker" width="8%" style="text-align: center;">문항번호</th><th class="sticky-top-1 bg-darker" width="42%">출제 단원명</th><th class="sticky-top-1 bg-darker" width="20%">배점 (난이도 자동)</th><th class="sticky-top-1 bg-darker" width="20%">난이도 (확인용)</th><th class="sticky-top-1 bg-darker" width="10%" style="text-align: center;">상태</th></tr>
           </thead>
           <tbody id="setupTableBody"></tbody>
         </table>
@@ -301,12 +329,22 @@
     let chartInstances = []; 
     let currentStudentsCount = 0; 
     let currentStudentsList = [];
+    let pendingNextStudentIdx = -1; // 다음 학생 팝업 대기 상태
 
-    // 🟢 엔터 키 알림 팝업창 닫기 (입력 모달들 제외)
+    // 🟢 알림 및 다음 학생 팝업 엔터 컨트롤
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
+        const nextModal = document.getElementById('nextStudentModal');
         const alertModal = document.getElementById('customAlertModal');
-        if (alertModal && alertModal.style.display === 'flex') {
+        const settingsModal = document.getElementById('settingsModal');
+
+        // 환경설정 모달이 켜져있으면 엔터 무시
+        if (settingsModal && settingsModal.style.display === 'flex') return;
+
+        if (nextModal && nextModal.style.display === 'flex') {
+          e.preventDefault();
+          confirmNextStudent();
+        } else if (alertModal && alertModal.style.display === 'flex') {
           e.preventDefault();
           alertModal.style.display = 'none';
         }
@@ -317,30 +355,10 @@
     function showLoading(status, msg = "처리 중입니다...") { document.getElementById('spinnerText').innerText = msg; document.getElementById('globalSpinner').style.display = status ? 'flex' : 'none'; }
     function handleError(err) { showLoading(false); showAlert("🚫 에러 발생: " + err.message); }
 
-    // 페이지 전환 및 헤더 아이콘/색상 스위칭
+    // 페이지 전환 로직
     function switchPage(pageId) {
       document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
       document.getElementById(pageId).classList.add('active');
-      
-      const fabs = document.getElementById('reportFabs');
-      const adminBtn = document.getElementById('headerAdminBtn');
-      const mainBtn = document.getElementById('headerMainBtn');
-      const headerTitle = document.getElementById('mainHeaderTitle');
-      const headerBar = document.getElementById('mainHeaderBar');
-
-      if (pageId === 'page-main') {
-        fabs.style.display = 'flex';
-        adminBtn.style.display = 'flex';
-        mainBtn.style.display = 'none';
-        headerTitle.innerText = "SG청운학원 - 성적표 통합 시스템";
-        headerBar.style.backgroundColor = "#1366ce";
-      } else {
-        fabs.style.display = 'none';
-        adminBtn.style.display = 'none';
-        mainBtn.style.display = 'flex';
-        headerTitle.innerText = "SG청운학원 - 시험 기본 세팅 (관리자)";
-        headerBar.style.backgroundColor = "#495057"; 
-      }
     }
 
     window.onload = function() { fetchMetadata(); renderSetupTable(); };
@@ -376,10 +394,10 @@
       const tbody = document.getElementById('settingsGridBody');
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><input type="text" class="set-input set-campus" value="${c}" oninput="checkSettingsLastRow(this)" placeholder="..."></td>
-        <td><input type="text" class="set-input set-term" value="${t}" oninput="checkSettingsLastRow(this)" placeholder="..."></td>
-        <td><input type="text" class="set-input set-level" value="${l}" oninput="checkSettingsLastRow(this)" placeholder="..."></td>
-        <td style="border-right: none;"><input type="text" class="set-input set-course" value="${cr}" oninput="checkSettingsLastRow(this)" placeholder="..."></td>
+        <td><input type="text" class="set-input set-campus" value="${c}" oninput="checkSettingsLastRow(this)"></td>
+        <td><input type="text" class="set-input set-term" value="${t}" oninput="checkSettingsLastRow(this)"></td>
+        <td><input type="text" class="set-input set-level" value="${l}" oninput="checkSettingsLastRow(this)"></td>
+        <td style="border-right: none;"><input type="text" class="set-input set-course" value="${cr}" oninput="checkSettingsLastRow(this)"></td>
       `;
       tbody.appendChild(tr);
     }
@@ -401,7 +419,7 @@
       showLoading(true, "환경설정을 저장 중입니다...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify(payload) })
       .then(res => res.json()).then(res => {
-        if(res.success) { document.getElementById('settingsModal').style.display = 'none'; showAlert("✔ <b>설정 저장 완료!</b>"); fetchMetadata(); } 
+        if(res.success) { document.getElementById('settingsModal').style.display = 'none'; showAlert("✔ 설정 저장 완료!"); fetchMetadata(); } 
         else { showLoading(false); showAlert("에러: " + res.error); }
       }).catch(handleError);
     }
@@ -409,7 +427,6 @@
     function populateSettingsAndDropdowns() {
       const s = globalData.settings;
       const fillSelect = (id, arr) => { let el = document.getElementById(id); if(!el) return; el.innerHTML = ''; (arr||[]).forEach(val => el.innerHTML += `<option value="${val}">${val}</option>`); };
-
       fillSelect('setupTerm', s.terms); fillSelect('setupLevel', s.levels); fillSelect('setupCourse', s.courses); fillSelect('rosterTerm', s.terms); fillSelect('rosterCampus', s.campuses);
       
       document.getElementById('mainTerm').innerHTML = '<option value="">선택</option>';
@@ -417,7 +434,7 @@
     }
 
     // ==========================================
-    // 명단 업로드 (괄호 안 텍스트 삭제 반영)
+    // 명단 업로드 (괄호 안 텍스트 삭제)
     // ==========================================
     const dropZone = document.getElementById('dropZone'); const fileInput = document.getElementById('fileInput');
     dropZone.addEventListener('click', () => fileInput.click());
@@ -452,7 +469,7 @@
           for (let i = headerRowIdx + 1; i < jsonArr.length; i++) {
             let row = jsonArr[i]; if (!row || row.length === 0) continue;
             let ban = String(row[colMap.ban] || '').trim();
-            // 🟢 4. 학생명 괄호 파싱 로직 적용
+            // 🟢 3. 학생명 괄호 파싱 로직 적용
             let name = String(row[colMap.name] || '').replace(/\([^)]*\)/g, '').trim(); 
             if (!ban || !name) continue; 
             let school = colMap.school !== -1 ? String(row[colMap.school] || '').trim() : '', grade = colMap.grade !== -1 ? String(row[colMap.grade] || '').trim() : '', teacher = colMap.teacher !== -1 ? String(row[colMap.teacher] || '').trim() : '';
@@ -466,7 +483,7 @@
             fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'uploadRoster', term: termName, campus: campusName, students: parsedStudents }) })
             .then(res => res.json()).then(result => {
               showLoading(false); document.getElementById('fileInput').value = '';
-              if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showAlert(`✔ <b>학생명단 업로드 완료!</b>`); fetchMetadata(); } else { showAlert("· Error: " + result.error); }
+              if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showAlert(`✔ 학생명단 업로드 완료!`); fetchMetadata(); } else { showAlert("· Error: " + result.error); }
             }).catch(err => { document.getElementById('fileInput').value = ''; handleError(err); });
           };
 
@@ -508,7 +525,7 @@
       tbody.innerHTML = '';
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i;
-        tbody.innerHTML += `<tr><td style="text-align:center;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" oninput="updateDiff(${qNum})" placeholder="2,3,4,5"></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:#f1f3f5; text-align:center; border:none; padding:0;"></td><td id="status_${qNum}" style="color:#adb5bd; text-align:center;">-</td></tr>`;
+        tbody.innerHTML += `<tr><td style="text-align:center;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" oninput="updateDiff(${qNum})" placeholder="2,3,4,5"></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:transparent; text-align:center; border:none;"></td><td id="status_${qNum}" style="color:#adb5bd; text-align:center;">-</td></tr>`;
       }
     }
 
@@ -528,7 +545,7 @@
       }).catch(handleError);
     }
 
-    document.getElementById('hwpPasteZone').addEventListener('click', function() { document.getElementById('pasteCatcher').focus(); this.style.backgroundColor = '#e6f0ff'; setTimeout(() => this.style.backgroundColor = '#fff', 500); });
+    document.getElementById('hwpPasteZone').addEventListener('click', function() { document.getElementById('pasteCatcher').focus(); this.style.backgroundColor = '#e9ecef'; setTimeout(() => this.style.backgroundColor = '#fff', 500); });
     document.getElementById('pasteCatcher').addEventListener('paste', function(e) {
       e.preventDefault(); let htmlData = (e.clipboardData || window.clipboardData).getData('text/html'), textData = (e.clipboardData || window.clipboardData).getData('text/plain'), rows = [];
       if(htmlData) { let t = document.createElement('div'); t.innerHTML = htmlData; let tbl = t.querySelector('table'); if(tbl) tbl.querySelectorAll('tr').forEach(tr => { let r = Array.from(tr.querySelectorAll('td,th')).map(c => c.innerText.replace(/<[^>]+>/g, '').trim()); if(r.join('')) rows.push(r); }); } 
@@ -552,17 +569,17 @@
       }
       showLoading(true, "시험 정보를 저장 중입니다...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveExamSetup', term, level, course, totalCount, startNum, items }) })
-      .then(res => res.json()).then(res => { showLoading(false); if(res.success) { showAlert("✔ <b>저장 완료</b>"); fetchMetadata(); } else { showAlert("에러: " + res.error); } }).catch(handleError);
+      .then(res => res.json()).then(res => { showLoading(false); if(res.success) { showAlert("✔ 저장 완료"); fetchMetadata(); } else { showAlert("에러: " + res.error); } }).catch(handleError);
     }
 
     // ==========================================
-    // 🟢 2 & 5. 메인 화면 (가로 채점 입력 및 성적표 통합 로직)
+    // 메인 화면 (가로 채점 입력 및 성적표 통합 로직)
     // ==========================================
     function loadGradesData() {
       const term = document.getElementById('mainTerm').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
-      if (!term || !campus || !course || !teacher || !className) return showAlert("모든 조건을 선택해주세요.");
+      if (!term || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
       
-      showLoading(true, "명단과 성적 데이터를 불러옵니다...");
+      showLoading(true, "데이터를 불러옵니다...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, campus, course, teacher, className }) })
       .then(res => res.json()).then(res => { 
         showLoading(false); 
@@ -579,8 +596,9 @@
       document.getElementById('inputTableContainer').style.display = 'block'; 
       currentExamSetup = setupData; 
       
-      // 괄호 제거 및 최소 너비 유지를 위한 패딩 로직 (기본 25칸)
       let parsedStudents = rawStudents.map(st => ({ ...st, name: st.name.replace(/\([^)]*\)/g, '').trim(), isEmpty: false }));
+      
+      // 🟢 2. 최소 너비 유지를 위한 25칸 패딩 로직
       const minCols = 25; 
       while(parsedStudents.length < minCols) parsedStudents.push({ name: '-', isEmpty: true });
       
@@ -590,16 +608,13 @@
       const thead = document.getElementById('inputTableHeader');
       const tbody = document.getElementById('inputTableBody');
       
-      // 🟢 행의 머릿글 이중 고정 및 완벽한 배치 (No, 총점, 등수, 문항/단원/배점)
+      // 🟢 5. 행 머릿글 이중 고정 및 완벽한 재배치
       let htmlThead = `
-        <tr>
-          <th colspan="3" class="sticky-col-all sticky-top-1" style="text-align:center; letter-spacing:1px;">No.</th>
+        <tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-darker">No.</th>
       `;
-      parsedStudents.forEach((st, sIdx) => { htmlThead += `<th class="sticky-top-1" style="min-width:45px;">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}</th>`; });
+      parsedStudents.forEach((st, sIdx) => { htmlThead += `<th class="sticky-top-1 bg-darker">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}</th>`; });
       
-      htmlThead += `</tr><tr>
-          <th colspan="3" class="sticky-col-all sticky-top-2" style="text-align:center; letter-spacing:1px;">총점</th>
-      `;
+      htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-2">총점</th>`;
       parsedStudents.forEach((st, sIdx) => { 
         if (st.isEmpty) htmlThead += `<th class="sticky-top-2" style="color:#ccc;">-</th>`; 
         else {
@@ -608,24 +623,25 @@
         }
       });
       
-      htmlThead += `</tr><tr>
-          <th colspan="3" class="sticky-col-all sticky-top-3" style="text-align:center; letter-spacing:1px;">등수</th>
-      `;
+      htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-3">등수</th>`;
       parsedStudents.forEach((st, sIdx) => { 
         if (st.isEmpty) htmlThead += `<th class="sticky-top-3" style="color:#ccc;">-</th>`; 
         else htmlThead += `<th class="sticky-top-3" style="color:#dc3545;" id="rank_${sIdx}">-</th>`; 
       });
       
+      // 배점 헤더 복구 및 학생명 칸 배치
       htmlThead += `</tr><tr>
           <th class="sticky-col-1 sticky-top-4">문항번호</th>
           <th class="sticky-col-2 sticky-top-4">출제 단원명</th>
           <th class="sticky-col-3 sticky-top-4">배점</th>
       `;
-      parsedStudents.forEach((st, sIdx) => { htmlThead += `<th class="sticky-top-4" style="${st.isEmpty ? 'color:#ccc;' : 'font-weight:bold;'}">${st.name}</th>`; });
+      parsedStudents.forEach((st, sIdx) => { 
+        htmlThead += `<th class="sticky-top-4 student-name-cell" style="${st.isEmpty ? 'color:#ccc;' : 'font-weight:bold;'}">${st.name}</th>`; 
+      });
       htmlThead += `</tr>`;
       thead.innerHTML = htmlThead;
 
-      // 문항 바디 부분 생성
+      // 🟢 문항 본문
       let htmlTbody = '';
       if(currentStudentsCount === 0 && rawStudents.length === 0) {
         htmlTbody = `<tr><td colspan="3" style="padding: 30px; color: red;">명단이 없습니다.</td></tr>`;
@@ -636,7 +652,7 @@
           let scoreVal = setupData.items[qIdx].score || "";
           
           htmlTbody += `<tr>
-            <td class="sticky-col-1">${qNum}</td>
+            <td class="sticky-col-1 bg-darker">${qNum}</td>
             <td class="sticky-col-2" style="text-align:left; padding-left:10px; max-width: 140px; overflow: hidden; text-overflow: ellipsis;" title="${unitName}">${unitName}</td>
             <td class="sticky-col-3" style="color:#6c757d; font-weight:bold;">${scoreVal}</td>`;
             
@@ -660,9 +676,14 @@
     }
 
     function focusNextCell(nextInput) {
-      if (nextInput) { nextInput.focus({ preventScroll: true }); nextInput.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' }); if (nextInput.value) nextInput.select(); }
+      if (nextInput) { 
+        nextInput.focus({ preventScroll: true }); 
+        nextInput.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); 
+        if (nextInput.value) nextInput.select(); 
+      }
     }
 
+    // 🟢 2. 자동 이동 및 '다음 학생' 팝업 트리거
     function handleOxInput(e, qIdx, sIdx) {
       let inputEl = e.target; let val = inputEl.value.toLowerCase();
       inputEl.classList.remove('val-o', 'val-x'); let isValidInput = false;
@@ -674,9 +695,28 @@
       updateAllRanks();
 
       if (isValidInput) {
-        // 엔터 시 기본 아래(다음 문항)로 이동
-        let next = document.querySelector(`.grid-nav[data-q="${qIdx + 1}"][data-s="${sIdx}"]`) || document.querySelector(`.grid-nav[data-q="0"][data-s="${sIdx + 1}"]`);
-        focusNextCell(next);
+        // 마지막 문항일 경우 팝업 트리거
+        if (qIdx === currentExamSetup.totalCount - 1) {
+          if (sIdx < currentStudentsCount - 1) {
+            pendingNextStudentIdx = sIdx + 1;
+            document.getElementById('nextStudentName').innerText = currentStudentsList[pendingNextStudentIdx].name;
+            document.getElementById('nextStudentModal').style.display = 'flex';
+          } else {
+            showAlert("모든 학생의 채점이 완료되었습니다.");
+          }
+        } else {
+          let next = document.querySelector(`.grid-nav[data-q="${qIdx + 1}"][data-s="${sIdx}"]`);
+          focusNextCell(next);
+        }
+      }
+    }
+
+    // 🟢 팝업 확인 후 다음 학생 1번 칸으로 이동
+    function confirmNextStudent() {
+      document.getElementById('nextStudentModal').style.display = 'none';
+      if (pendingNextStudentIdx !== -1) {
+        let nextInput = document.querySelector(`.grid-nav[data-q="0"][data-s="${pendingNextStudentIdx}"]`);
+        focusNextCell(nextInput);
       }
     }
 
@@ -712,7 +752,20 @@
           else if (e.key === "ArrowLeft") next = document.querySelector(`.grid-nav[data-q="${q}"][data-s="${s - 1}"]`);
           else if (e.key === "ArrowDown") next = document.querySelector(`.grid-nav[data-q="${q + 1}"][data-s="${s}"]`);
           else if (e.key === "ArrowUp") next = document.querySelector(`.grid-nav[data-q="${q - 1}"][data-s="${s}"]`);
-          else if (e.key === "Enter") { e.preventDefault(); next = document.querySelector(`.grid-nav[data-q="${q + 1}"][data-s="${s}"]`) || document.querySelector(`.grid-nav[data-q="0"][data-s="${s + 1}"]`); }
+          else if (e.key === "Enter") { 
+            e.preventDefault(); 
+            // 마지막 행에서 엔터 시 다음 열(학생)의 첫 문항으로 넘어가게 설계됨
+            if (q === currentExamSetup.totalCount - 1) {
+              if (s < currentStudentsCount - 1) {
+                 pendingNextStudentIdx = s + 1;
+                 document.getElementById('nextStudentName').innerText = currentStudentsList[pendingNextStudentIdx].name;
+                 document.getElementById('nextStudentModal').style.display = 'flex';
+                 return;
+              }
+            } else {
+              next = document.querySelector(`.grid-nav[data-q="${q + 1}"][data-s="${s}"]`);
+            }
+          }
           if (next) { e.preventDefault(); focusNextCell(next); }
         };
       });
@@ -734,12 +787,12 @@
          studentsData.push({ name: name, totalScore: total, answers: answers });
       }
 
-      showLoading(true, "성적DB에 저장 중입니다...");
+      showLoading(true, "저장 중입니다...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveStudentGrades', term, campus, course, teacher, className, students: studentsData }) })
-      .then(res => res.json()).then(res => { showLoading(false); if(res.success) showAlert("✔ <b>저장 완료</b>"); else showAlert("에러: " + res.error); }).catch(handleError);
+      .then(res => res.json()).then(res => { showLoading(false); if(res.success) showAlert("✔ 저장 완료"); else showAlert("에러: " + res.error); }).catch(handleError);
     }
 
-    // 🟢 3. 인쇄 전 렌더링 확인 로직 추가
+    // 🟢 3. 렌더링 확인 로직 (안 되어있으면 알림 팝업)
     function executePrint() {
       const reportContainer = document.getElementById('reportContainer');
       if (!reportContainer || reportContainer.innerHTML.trim() === '' || reportContainer.style.display === 'none') {
@@ -753,7 +806,7 @@
     function generateReports() {
       const term = document.getElementById('mainTerm').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !campus || !course || !teacher || !className) return showAlert("상단의 검색 조건을 모두 선택해주세요.");
-      showLoading(true, "성적 데이터를 통계 분석 중입니다...");
+      showLoading(true, "데이터 분석 중...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getReportData', term, campus, course, teacher, className }) })
       .then(res => res.json()).then(res => {
         showLoading(false);
@@ -762,14 +815,13 @@
           document.getElementById('inputTableContainer').style.display = 'none'; 
           document.getElementById('reportContainer').style.display = 'flex'; 
           renderReportCards(res.data.examInfo, res.data.students); 
-        } 
-        else { showAlert("· Error: " + res.error); }
+        } else { showAlert("· Error: " + res.error); }
       }).catch(handleError);
     }
 
     function renderReportCards(examInfo, students) {
       chartInstances.forEach(chart => chart.destroy()); chartInstances = []; const container = document.getElementById('reportContainer'); container.innerHTML = '';
-      if(students.length === 0) { container.innerHTML = '<h3 style="text-align:center; color:red; padding:40px;">해당 반에 입력된 성적 데이터가 없습니다.</h3>'; return; }
+      if(students.length === 0) { container.innerHTML = '<h3 style="text-align:center; color:red; padding:40px;">입력된 성적 데이터가 없습니다.</h3>'; return; }
 
       students.forEach((st, idx) => {
         let unitCols = st.unitsData.map(u => `<th>${u.name}</th>`).join(''), unitMaxs = st.unitsData.map(u => `<td>${u.max}</td>`).join(''), unitScores = st.unitsData.map(u => `<td>${u.score}</td>`).join(''), unitAvgs = st.unitsData.map(u => `<td>${u.avg}</td>`).join(''), unitPcts = st.unitsData.map(u => `<td>${u.pct}%</td>`).join('');
