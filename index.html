@@ -12,12 +12,13 @@
     * { box-sizing: border-box; }
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
-    html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow-x: hidden; overflow-y: scroll; }
+    /* 🟢 1. 단일 스크롤 레이아웃: Body 스크롤 차단, 컨테이너를 100vh로 꽉 채움 */
+    html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow: hidden; }
+    .app-container { height: 100vh; display: flex; flex-direction: column; padding: 20px 25px; }
     
-    .app-container { width: 100%; display: flex; flex-direction: column; padding: 25px 30px; }
-    .page-content { flex: 1; display: none; flex-direction: column; }
+    /* 각 페이지 컨텐츠 영역 (Admin 포함) */
+    .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; overflow: hidden; }
     .page-content.active { display: flex; }
-    .page-content.scroll-mode { overflow-y: auto; overflow-x: hidden; }
 
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1366ce; border-radius: 50%; animation: spin 1s linear infinite; }
@@ -29,9 +30,9 @@
     .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; background-color: #1366ce; color: white; transition: 0.2s; }
     .modal-btn:hover { background-color: #0f52a8; }
 
-    /* 네비게이션 캡슐 바 */
-    .top-nav-bar { background-color: #fff; border-radius: 50px; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 25px; position: relative; flex-shrink: 0; }
-    .main-title { font-size: 18px; font-weight: 500; color: #111; margin: 0; display: flex; align-items: center; letter-spacing: -0.5px; }
+    /* 최상단 네비게이션 캡슐 바 (항상 고정) */
+    .top-nav-bar { flex-shrink: 0; background-color: #fff; border-radius: 50px; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 20px; position: relative; }
+    .main-title { font-size: 18px; font-weight: normal; color: #111; margin: 0; display: flex; align-items: center; letter-spacing: -0.5px; }
     .main-title img { height: 26px; margin-right: 10px; }
 
     /* 중앙 탭 버튼 */
@@ -43,17 +44,16 @@
     .icon-btn { background-color: #fff; border: 1px solid #dee2e6; color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; margin-left: 10px; }
     .icon-btn:hover { background-color: #e9ecef; color: #111; }
 
-    /* 🟢 공통 필터 카드 - 선택 안 된 select 폰트 색상을 옅은 회색으로 변경 */
-    .filter-card { height: 56px; flex-shrink: 0; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 0 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; position: sticky; top: 0; z-index: 200; overflow-x: auto; }
+    /* 필터 카드 (항상 고정) */
+    .filter-card { flex-shrink: 0; height: 56px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 0 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; overflow-x: auto; }
     .filter-card.admin-mode { border-left: 6px solid #495057; } 
     .filter-divider { width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px; }
     
     .select-group { display: flex; align-items: center; gap: 6px; }
     .select-group label { font-weight: bold; font-size: 13px; color: #1366ce; white-space: nowrap; }
     .admin-mode .select-group label { color: #495057; }
-    
     .select-group select { width: 150px; height: 30px; padding: 4px 34px 4px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; background-size: 18px; color: #333; }
-    .select-group select:invalid { color: #adb5bd; } /* 선택되지 않았을 때(Placeholder 상태) 색상 */
+    .select-group select:invalid { color: #adb5bd; } 
     .select-group select option { color: #333; }
     
     .select-group input, .select-group textarea { height: 30px; padding: 4px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; }
@@ -62,12 +62,18 @@
     .btn-primary { height: 32px; padding: 0 16px; border: none; border-radius: 50px; font-weight: bold; font-size: 13px; background-color: #1366ce; color: white; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap; }
     .btn-primary:hover { background-color: #0f52a8; }
     
-    /* 표 영역 */
-    .table-wrapper { flex: 1; overflow: auto; min-height: 0; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    /* 🟢 뷰 컨테이너 분리 */
+    #view_input { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+    #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
+    #view_data { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
+
+    /* 🟢 표 래퍼 영역 (유일한 스크롤 발생 영역) */
+    .table-wrapper { flex: 1; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     table.data-table { border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; min-width: 100%; }
-    table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; }
+    table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; box-sizing: border-box; }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
+    /* 🟢 틀 고정 (표 내부 스크롤 기준이므로 top은 무조건 0부터 시작) */
     .sticky-top-1 { position: sticky; top: 0; z-index: 80; }
     .sticky-top-2 { position: sticky; top: 28px; z-index: 80; }
     .sticky-top-3 { position: sticky; top: 56px; z-index: 80; }
@@ -98,7 +104,7 @@
     .setup-input { width: 90%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
     .setup-input:focus { border-color: #1366ce; outline: none; }
 
-    .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+    .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
     .paste-zone:hover { background-color: #e9ecef; }
 
     .settings-table-wrapper { max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px; }
@@ -108,44 +114,48 @@
     .set-input { width: 100%; border: none; padding: 8px; box-sizing: border-box; text-align: center; outline: none; background: transparent; }
     .set-input:focus { background-color: #e6f0ff; }
 
-    #view_data { overflow-y: auto; padding-bottom: 50px; }
+    /* 데이터 대시보드 카드 */
     .dash-grid { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
     .dash-card { flex: 1; min-width: 250px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); padding: 20px; display: flex; flex-direction: column; }
     .dash-title { font-size: 14px; color: #6c757d; font-weight: bold; margin-bottom: 10px; }
     .dash-value { font-size: 32px; font-weight: 900; color: #1366ce; }
     .dash-chart { width: 100%; height: 250px; position: relative; }
 
-    #view_report { overflow-y: auto; padding-bottom: 50px; }
-    .report-container { width: 100%; max-width: 1100px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; gap: 40px; margin-bottom: 100px; }
-    .report-page { width: 100%; aspect-ratio: 297/210; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; padding: 30px; display: flex; flex-direction: column; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 3px solid #1366ce; padding-bottom: 10px; }
-    .report-logo { font-size: 24px; font-weight: 900; color: #111; letter-spacing: -1px; }
-    .report-info { display: flex; gap: 15px; }
-    .info-badge { border: 2px solid #333; border-radius: 8px; padding: 6px 12px; text-align: center; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+    /* 🟢 성적표 출력용 CSS (렌더링 최적화) */
+    .report-container { width: 100%; max-width: 1100px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; gap: 40px; margin-bottom: 50px; }
+    .report-page { width: 100%; aspect-ratio: 297/210; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; padding: 25px 30px; display: flex; flex-direction: column; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 3px solid #1366ce; padding-bottom: 10px; flex-shrink: 0; }
+    .report-logo { font-size: 22px; font-weight: 900; color: #111; letter-spacing: -1px; }
+    .report-info { display: flex; gap: 10px; }
+    .info-badge { border: 2px solid #333; border-radius: 8px; padding: 6px 12px; text-align: center; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+    
     .report-grid { display: flex; gap: 15px; flex: 1; min-height: 0; }
     .grid-col { flex: 1; display: flex; flex-direction: column; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; }
+    .grid-col-right { flex: 0.28; display: flex; flex-direction: column; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; }
+    .col-header { color: white; padding: 6px; text-align: center; font-weight: bold; font-size: 14px; letter-spacing: 1px; flex-shrink: 0; }
     
-    /* 🟢 3. 총점 영역 너비 축소 */
-    .grid-col-right { flex: 0.35; display: flex; flex-direction: column; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; }
-    
-    .col-header { color: white; padding: 8px; text-align: center; font-weight: bold; font-size: 14px; letter-spacing: 1px; }
     .bg-blue { background-color: #3b5998; }
     .bg-green { background-color: #6a8c3d; }
     .bg-purple { background-color: #68488e; }
-    table.report-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; table-layout: fixed; } /* 🟢 단원 너비 동일하게 통일 */
-    table.report-table th, table.report-table td { border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; padding: 5px 2px; }
-    table.report-table th { background-color: #f1f3f5; color: #333; }
+    
+    /* 🟢 렌더링 테이블 줄바꿈 & 너비 통일 로직 */
+    table.report-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; table-layout: fixed; }
+    table.report-table th, table.report-table td { border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; padding: 2px; height: 26px; white-space: normal; word-break: keep-all; line-height: 1.2; vertical-align: middle; }
+    table.report-table th:first-child, table.report-table td:first-child { width: 55px; min-width: 55px; max-width: 55px; background-color: #f1f3f5; font-weight: bold; color: #333; }
+    table.report-table th { background-color: #f9f9f9; color: #333; }
     table.report-table td { font-weight: bold; }
     table.report-table td:last-child, table.report-table th:last-child { border-right: none; }
     table.report-table tr:last-child td, table.report-table tr:last-child th { border-bottom: none; }
-    .chart-container { flex: 1; padding: 15px; position: relative; display: flex; justify-content: center; align-items: center; }
-    .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 22px; font-weight: 900; color: #68488e; }
-    .report-footer { margin-top: 15px; padding: 10px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; font-size: 11px; color: #555; line-height: 1.5; }
+    
+    .chart-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; min-height: 0; padding-top: 5px; }
+    .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 20px; font-weight: 900; color: #68488e; }
+    .report-footer { margin-top: 10px; padding: 10px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; font-size: 11px; color: #555; line-height: 1.4; flex-shrink: 0; }
 
     @media print {
       body * { visibility: hidden; }
-      .app-container { padding: 0; margin: 0; min-width: 0; height: auto; overflow: visible; display: block; }
-      #view_report { display: block !important; overflow: visible !important; }
+      html, body { overflow: visible !important; height: auto !important; }
+      .app-container { padding: 0 !important; margin: 0 !important; height: auto !important; overflow: visible !important; display: block !important; }
+      .page-content, #view_report { display: block !important; overflow: visible !important; }
       #reportContainer, #reportContainer * { visibility: visible; }
       #reportContainer { position: absolute; left: 0; top: 0; width: 100%; margin-bottom: 0; }
       .top-nav-bar, .filter-card { display: none !important; }
@@ -162,7 +172,6 @@
   
   <div class="modal-overlay" id="customAlertModal">
     <div class="modal-box" style="width: 320px;">
-      <!-- 🟢 1. 알림창 문구 상/하 여백 추가 -->
       <div id="modalMessage" class="modal-message" style="text-align: center; margin: 25px 0;"></div>
       <button class="modal-btn" onclick="document.getElementById('customAlertModal').style.display='none'">확인</button>
     </div>
@@ -188,11 +197,10 @@
     </div>
   </div>
 
-  <!-- 환경설정 모달 -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box" style="width: 700px; padding: 25px; text-align: left;">
       <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">환경설정 (필수)</div>
-      <p style="font-size: 13px; color: #666; margin-bottom: 15px;">항목을 차례대로 입력해 주세요. (마지막 줄에 입력하면 자동으로 새 줄이 추가됩니다.)</p>
+      <p style="font-size: 13px; color: #666; margin-bottom: 15px;">항목을 차례대로 입력해 주세요. (마지막 줄에 입력하면 <b>자동으로 새 줄이 추가</b>됩니다.)</p>
       <div class="settings-table-wrapper">
         <table class="settings-table">
           <thead><tr><th width="25%" style="color:#495057;">캠퍼스 목록</th><th width="25%" style="color:#495057;">학기 목록</th><th width="25%" style="color:#495057;">난이도 목록</th><th width="25%" style="color:#495057; border-right: none;">과정명 목록</th></tr></thead>
@@ -248,13 +256,9 @@
       </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 메인 화면 (채점/성적표/데이터 통합 뷰) -->
-    <!-- ========================================== -->
     <div id="page-main" class="page-content active">
       
       <div class="filter-card" id="mainFilterCard">
-        <!-- 🟢 2. 플레이스홀더(선택하세요) 적용 및 Required -->
         <div class="select-group"><label>학기</label><select id="mainTerm" required onchange="filterCampuses('main')"></select></div>
         <div class="select-group"><label>캠퍼스</label><select id="mainCampus" required onchange="filterCourses('main')"></select></div>
         <div class="select-group"><label>과정</label><select id="mainCourse" required onchange="filterTeachers('main')"></select></div>
@@ -276,7 +280,8 @@
         </div>
       </div>
 
-      <div id="view_input" style="display: flex; flex-direction: column; flex: 1; min-height: 0;">
+      <div id="view_input">
+        <!-- 🟢 오직 이 영역만 스크롤됨 -->
         <div class="table-wrapper" style="display: none;" id="inputTableContainer">
           <table class="data-table">
             <thead id="inputTableHeader"></thead>
@@ -288,14 +293,14 @@
         </div>
       </div>
 
-      <div id="view_report" style="display: none; flex-direction: column; flex: 1;">
+      <div id="view_report" style="display: none;">
         <div class="report-container" id="reportContainer" style="display: none;"></div>
         <div id="reportEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
           반을 확인하고 [성적표 렌더링]을 누르면 성적표가 생성됩니다.
         </div>
       </div>
 
-      <div id="view_data" style="display: none; flex-direction: column; flex: 1;">
+      <div id="view_data" style="display: none;">
         <div id="dashEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
           과정을 확인하고 [데이터 조회]를 누르면 동일 학기/과정의 통합 데이터를 확인합니다.
         </div>
@@ -415,7 +420,6 @@
       else if (!isConfirmed && cancelCallback) cancelCallback();
     }
 
-    // 🟢 2. 탭 이동 시 캠퍼스 상태 저장 및 복구 로직
     function switchNav(navId) {
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`button[onclick="switchNav('${navId}')"]`).classList.add('active');
@@ -438,7 +442,7 @@
            lastSelectedCampus = mainCampus.value; 
            mainCampus.insertAdjacentHTML('afterbegin', '<option value="전체" style="color:#333;">전체 (All)</option>');
            mainCampus.value = "전체";
-           filterCourses('main'); // 연쇄 필터 트리거
+           filterCourses('main'); 
         }
       } else {
         document.getElementById('mainTeacherGroup').style.display = 'flex';
@@ -447,7 +451,7 @@
         if(optAll) {
             optAll.remove();
             mainCampus.value = lastSelectedCampus || "";
-            filterCourses('main'); // 연쇄 필터 트리거 (하위 복원용)
+            filterCourses('main'); 
         }
       }
     }
@@ -476,9 +480,6 @@
 
     window.onload = function() { fetchMetadata(); renderSetupTable(); };
 
-    // ==========================================
-    // 환경설정 및 업로드 공통 로직
-    // ==========================================
     function fetchMetadata(silent = false) {
       const url = document.getElementById('backendUrl').value.trim();
       if (url.includes('YOUR_GAS_ID_HERE')) return;
@@ -519,7 +520,6 @@
       if (nextInput) nextInput.focus();
     }
 
-    // 🟢 1. 저장 스피너 로직 최적화 
     function saveSettings() {
       const extract = (className) => Array.from(document.querySelectorAll(className)).map(i => i.value.trim()).filter(v => v);
       const payload = { action: 'saveSettings', campuses: extract('.set-campus'), terms: extract('.set-term'), levels: extract('.set-level'), courses: extract('.set-course') };
@@ -529,14 +529,13 @@
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify(payload) }).then(res => res.json()).then(res => {
         if(res.success) { 
            document.getElementById('settingsModal').style.display = 'none'; 
-           fetchMetadata(true); // 조용히 백그라운드 데이터 갱신
+           fetchMetadata(true); 
            showLoading(false); 
            showAlert("✔ 설정 저장 완료!"); 
         } else { showLoading(false); showAlert("에러: " + res.error); }
       }).catch(handleError);
     }
 
-    // 🟢 2. 선택하세요 (Placeholder) 기능 적용 연쇄 필터링
     function populateSettingsAndDropdowns() {
       const s = globalData.settings;
       const fillSelect = (id, arr, placeholder) => { 
@@ -612,9 +611,6 @@
       }; reader.readAsArrayBuffer(file);
     }
 
-    // ==========================================
-    // 통합 필터링 체인 (상위 항목 변경 시 하위 항목 초기화)
-    // ==========================================
     function filterCampuses(prefix) {
       const term = document.getElementById(`${prefix}Term`)?.value;
       const sel = document.getElementById(`${prefix}Campus`);
@@ -627,8 +623,6 @@
         campuses.forEach(c => optionsHtml += `<option value="${c}" style="color:#333;">${c}</option>`); 
       }
       sel.innerHTML = optionsHtml;
-      
-      // 복원 로직 (이전 탭 값 유지)
       if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
       else sel.value = keepAll ? "전체" : "";
       filterCourses(prefix);
@@ -681,9 +675,6 @@
       else sel.value = "";
     }
 
-    // ==========================================
-    // 관리자: 시험 기본 세팅 
-    // ==========================================
     function renderSetupTable() {
       const totalCount = parseInt(document.getElementById('setupTotalCount').value) || 45, startNum = parseInt(document.getElementById('setupStartNum').value) || 1, tbody = document.getElementById('setupTableBody');
       tbody.innerHTML = '';
@@ -730,7 +721,6 @@
       if(!term || !level || !course) return showAlert("항목을 선택하세요.");
       const totalCount = parseInt(document.getElementById('setupTotalCount').value), startNum = parseInt(document.getElementById('setupStartNum').value), items = [];
       
-      // 누락 여부 검증
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i; 
         let unitVal = document.getElementById(`unit_${qNum}`).value.trim();
@@ -745,9 +735,6 @@
       .then(res => res.json()).then(res => { showLoading(false); if(res.success) { showAlert("✔ 저장 완료"); fetchMetadata(true); } else { showAlert("에러: " + res.error); } }).catch(handleError);
     }
 
-    // ==========================================
-    // 채점 입력 로직 (배경색 bg-gray/bg-light 정밀 분리)
-    // ==========================================
     function loadGradesData() {
       const term = document.getElementById('mainTerm').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
@@ -952,7 +939,6 @@
       });
     }
 
-    // 🟢 2. 부분 미입력자 검색 및 확인 팝업 트리거
     function saveGrades() {
       if (!currentExamSetup) return showAlert("명단을 먼저 불러와 주세요.");
       
@@ -1025,7 +1011,7 @@
     }
 
     // ==========================================
-    // 🟢 3. 성적표 렌더링 로직 (통합 정답률, 학생 점수 옆에 등락 화살표 표시)
+    // 성적표 출력 (렌더링 뷰 정밀 수정 완료)
     // ==========================================
     function executePrint() {
       const reportContainer = document.getElementById('reportContainer');
@@ -1056,8 +1042,8 @@
       if(students.length === 0) { container.innerHTML = '<h3 style="text-align:center; color:red; padding:40px;">데이터가 없습니다.</h3>'; return; }
 
       students.forEach((st, idx) => {
-        // 단원별 테이블
-        let unitCols = st.unitsData.map(u => `<th style="width:${100/st.unitsData.length}%;">${u.name}</th>`).join('');
+        // 단원별
+        let unitCols = st.unitsData.map(u => `<th>${u.name}</th>`).join('');
         let unitMaxs = st.unitsData.map(u => `<td>${u.max}</td>`).join('');
         let unitScores = st.unitsData.map(u => {
             let diffIcon = '', color = '#333';
@@ -1065,10 +1051,10 @@
             return `<td style="color:${color}; font-weight:bold;">${u.score} <span style="font-size:10px;">${diffIcon}</span></td>`;
         }).join('');
         let unitAvgs = st.unitsData.map(u => `<td>${u.avg}</td>`).join('');
-        let unitPcts = st.unitsData.map(u => `<td>${u.avgPct}%</td>`).join('');
+        let unitPcts = st.unitsData.map(u => `<td>${u.avgPct}%</td>`).join(''); // 통합 정답률
 
-        // 수준(단원)별 테이블
-        let diffCols = st.diffsData.map(d => `<th style="width:${100/st.diffsData.length}%;">${d.name}</th>`).join('');
+        // 수준(단원)별
+        let diffCols = st.diffsData.map(d => `<th>${d.name}</th>`).join('');
         let diffMaxs = st.diffsData.map(d => `<td>${d.max}</td>`).join('');
         let diffScores = st.diffsData.map(d => {
             let diffIcon = '', color = '#333';
@@ -1090,7 +1076,7 @@
             <div class="report-grid">
               <div class="grid-col"><div class="col-header bg-blue">단원별 성적</div><table class="report-table"><tr><th>단원</th>${unitCols}</tr><tr><th>기준만점</th>${unitMaxs}</tr><tr><th>${st.name}</th>${unitScores}</tr><tr><th>전체평균</th>${unitAvgs}</tr><tr><th>정답률</th>${unitPcts}</tr></table><div class="chart-container"><canvas id="chart_unit_${idx}"></canvas></div></div>
               <div class="grid-col"><div class="col-header bg-green">문항수준별 성적</div><table class="report-table"><tr><th>단원</th>${diffCols}</tr><tr><th>기준만점</th>${diffMaxs}</tr><tr><th>${st.name}</th>${diffScores}</tr><tr><th>전체평균</th>${diffAvgs}</tr><tr><th>정답률</th>${diffPcts}</tr></table><div class="chart-container"><canvas id="chart_diff_${idx}"></canvas></div></div>
-              <div class="grid-col-right"><div class="col-header bg-purple">총점</div><table class="report-table" style="height: 60px;"><tr><td style="font-size:24px; color:#68488e;">${st.totalScore}</td></tr></table><div class="col-header bg-purple" style="margin-top: -1px;">통합평균</div><table class="report-table" style="height: 60px;"><tr><td style="font-size:18px;">${examInfo.totalAvg}</td></tr></table><div class="col-header bg-purple" style="margin-top: -1px;">통합석차</div><table class="report-table" style="height: 60px;"><tr><td style="font-size:18px;">${st.rank} / ${st.totalCount}</td></tr></table><div class="chart-container" style="padding-top: 25px;"><canvas id="chart_doughnut_${idx}"></canvas><div class="doughnut-text">${st.topPct}%</div></div><div style="text-align:center; font-size:12px; color:#666; padding-bottom:10px;">동일과정 상위</div></div>
+              <div class="grid-col-right"><div class="col-header bg-purple">총점</div><table class="report-table" style="height: 40px;"><tr><td style="font-size:22px; color:#68488e;">${st.totalScore}</td></tr></table><div class="col-header bg-purple" style="margin-top: -1px;">통합평균</div><table class="report-table" style="height: 40px;"><tr><td style="font-size:16px;">${examInfo.totalAvg}</td></tr></table><div class="col-header bg-purple" style="margin-top: -1px;">통합석차</div><table class="report-table" style="height: 40px;"><tr><td style="font-size:16px;">${st.rank} / ${st.totalCount}</td></tr></table><div class="chart-container" style="padding-top: 15px; height: 120px;"><canvas id="chart_doughnut_${idx}"></canvas><div class="doughnut-text" style="font-size:18px;">${st.topPct}%</div></div><div style="text-align:center; font-size:12px; color:#666; padding-bottom:10px;">동일과정 상위</div></div>
             </div>
             <div class="report-footer">- 단원별 성적 : 출제 문항 중 각 단원별 점수를 나타냅니다.<br>- 본인의 점수가 전체의 평균 점수보다 높을 경우 점수는 파란색(▲)으로, 낮을 경우 빨간색(▼)으로 표시됩니다.<br>- 항목별 정답률(%)은 총 응시자들의 정답 비율입니다. (그래프의 점수 분포는 만점을 100점으로 환산하여 표기되었습니다.)</div>
           </div>
@@ -1098,8 +1084,10 @@
         container.insertAdjacentHTML('beforeend', html);
         
         setTimeout(() => {
-          chartInstances.push(new Chart(document.getElementById(`chart_unit_${idx}`).getContext('2d'), { type: 'bar', data: { labels: unitLabels, datasets: [{ label: st.name, data: unitMyData, backgroundColor: '#3b5998', barPercentage: 0.6 }, { label: '전체평균', data: unitAvgData, backgroundColor: '#adb5bd', barPercentage: 0.6 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } } }));
-          chartInstances.push(new Chart(document.getElementById(`chart_diff_${idx}`).getContext('2d'), { type: 'bar', data: { labels: diffLabels, datasets: [{ label: st.name, data: diffMyData, backgroundColor: '#6a8c3d', barPercentage: 0.6 }, { label: '전체평균', data: diffAvgData, backgroundColor: '#adb5bd', barPercentage: 0.6 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } } }));
+          let chartOpts = { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 0, left: 0, right: 0 } }, scales: { x: { ticks: { display: false }, grid: { display: false } }, y: { beginAtZero: true, max: 100, ticks: { stepSize: 20 }, afterFit: function(scale) { scale.width = 55; } } }, plugins: { legend: { display: false } } };
+          
+          chartInstances.push(new Chart(document.getElementById(`chart_unit_${idx}`).getContext('2d'), { type: 'bar', data: { labels: unitLabels, datasets: [{ label: st.name, data: unitMyData, backgroundColor: '#3b5998', barPercentage: 0.6 }, { label: '전체평균', data: unitAvgData, backgroundColor: '#adb5bd', barPercentage: 0.6 }]}, options: chartOpts }));
+          chartInstances.push(new Chart(document.getElementById(`chart_diff_${idx}`).getContext('2d'), { type: 'bar', data: { labels: diffLabels, datasets: [{ label: st.name, data: diffMyData, backgroundColor: '#6a8c3d', barPercentage: 0.6 }, { label: '전체평균', data: diffAvgData, backgroundColor: '#adb5bd', barPercentage: 0.6 }]}, options: chartOpts }));
           chartInstances.push(new Chart(document.getElementById(`chart_doughnut_${idx}`).getContext('2d'), { type: 'doughnut', data: { labels: ['상위 %', '나머지'], datasets: [{ data: [st.topPct, 100 - st.topPct], backgroundColor: ['#68488e', '#e9ecef'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: false } } } }));
         }, 100);
       });
