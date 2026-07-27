@@ -8,15 +8,18 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* 폰트 전역 적용 */
+    /* 폰트는 프리텐다드 전역 적용 */
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
     * { box-sizing: border-box; }
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
-    /* 🟢 1. 전체 화면을 꽉 채우는 Flex 레이아웃 (페이지 전체 스크롤 효과 완벽 구현) */
-    html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow: hidden; }
-    .app-container { height: 100vh; display: flex; flex-direction: column; padding: 15px 25px 25px 25px; }
-    .page-content { flex: 1; display: none; flex-direction: column; overflow: hidden; }
+    /* 🟢 1. 페이지 전체 스크롤을 위한 body 속성 설정 */
+    html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; }
+    body { overflow: auto; } /* Body가 가로/세로 전체 스크롤을 담당합니다 */
+    
+    /* 화면 전체 컨테이너 (최소 너비를 설정하여 가로 스크롤 유도) */
+    .app-container { min-height: 100vh; display: flex; flex-direction: column; padding: 25px 30px; min-width: max-content; }
+    .page-content { flex: 1; display: none; flex-direction: column; }
     .page-content.active { display: flex; }
 
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
@@ -30,13 +33,17 @@
     .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; background-color: #1366ce; color: white; transition: 0.2s; }
     .modal-btn:hover { background-color: #0f52a8; }
 
-    /* 🟢 2. 필터 카드 (메인 제목 통합) */
-    .filter-card { flex-shrink: 0; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 12px 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; z-index: 200; }
-    .filter-card.admin-mode { border-left: 6px solid #495057; } /* 관리자 모드 진한 회색 */
+    /* 🟢 3. 별도 타이틀 바 디자인 */
+    .title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 0 5px; }
+    .main-title { font-size: 22px; font-weight: 900; color: #111; margin: 0; letter-spacing: -0.5px; }
+    .icon-btn { background-color: #fff; border: 1px solid #dee2e6; color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; }
+    .icon-btn:hover { background-color: #e9ecef; color: #111; }
+
+    /* 필터 카드 */
+    .filter-card { flex-shrink: 0; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 12px 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; z-index: 200; }
+    .filter-card.admin-mode { border-left: 6px solid #495057; } 
     .filter-divider { width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px; }
     
-    .main-title { font-size: 16px; font-weight: 900; color: #111; margin-right: 10px; letter-spacing: -0.5px; }
-
     .select-group { display: flex; align-items: center; gap: 6px; }
     .select-group label { font-weight: bold; font-size: 13px; color: #1366ce; white-space: nowrap; }
     .admin-mode .select-group label { color: #495057; }
@@ -52,56 +59,59 @@
     
     .btn-primary { height: 32px; padding: 0 16px; border: none; border-radius: 50px; font-weight: bold; font-size: 13px; background-color: #1366ce; color: white; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .btn-primary:hover { background-color: #0f52a8; }
-    .icon-btn { background: none; border: none; color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 50%; transition: 0.2s; }
-    .icon-btn:hover { background-color: #e9ecef; }
     
-    /* 🟢 5. 테이블 전체 래퍼 (이 영역이 스크롤을 담당하여 창 전체가 스크롤되는 느낌 구현) */
-    .table-wrapper { flex: 1; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    /* 🟢 1. 테이블 래퍼 (표에 한정되었던 스크롤 속성 overflow 제거) */
+    .table-wrapper { width: 100%; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     table.data-table { border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; min-width: 100%; }
     
-    /* 셀 패딩과 높이 대폭 축소 */
+    /* 셀 패딩과 높이 최적화 */
     table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
-    /* 🟢 표 머릿글(상단 4행) 이중 틀고정 및 연한 그림자 효과 */
+    /* 🟢 표 머릿글 이중 틀고정 및 연한 그림자 효과 (페이지 스크롤에 맞춰 top: 0 부터 시작) */
     .sticky-top-1 { position: sticky; top: 0; z-index: 10; }
     .sticky-top-2 { position: sticky; top: 28px; z-index: 10; }
     .sticky-top-3 { position: sticky; top: 56px; z-index: 10; }
     .sticky-top-4 { position: sticky; top: 84px; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
     
-    /* 좌측 3열 틀고정 */
-    .sticky-col-1 { position: sticky; left: 0; min-width: 45px; z-index: 5; background-color: #f8f9fa; }
-    .sticky-col-2 { position: sticky; left: 45px; min-width: 130px; z-index: 5; background-color: #f8f9fa; }
-    .sticky-col-3 { position: sticky; left: 175px; min-width: 55px; z-index: 5; background-color: #f8f9fa; border-right: 1px solid #ced4da !important; box-shadow: 2px 0 4px rgba(0,0,0,0.04); }
-    .sticky-col-all { position: sticky; left: 0; z-index: 5; background-color: #f8f9fa; border-right: 1px solid #ced4da !important; box-shadow: 2px 0 4px rgba(0,0,0,0.04); }
+    /* 🟢 좌측 열 틀고정 (app-container의 padding-left가 30px 이므로, left 오프셋도 30px 부터 시작해야 어긋나지 않습니다) */
+    .sticky-col-1 { position: sticky; left: 30px; min-width: 60px; z-index: 5; background-color: #f8f9fa; }
+    .sticky-col-2 { position: sticky; left: 90px; min-width: 140px; z-index: 5; background-color: #f8f9fa; }
+    .sticky-col-3 { position: sticky; left: 230px; min-width: 60px; z-index: 5; background-color: #f8f9fa; border-right: 1px solid #ced4da !important; box-shadow: 2px 0 4px rgba(0,0,0,0.04); }
+    .sticky-col-all { position: sticky; left: 30px; z-index: 5; background-color: #f8f9fa; border-right: 1px solid #ced4da !important; box-shadow: 2px 0 4px rgba(0,0,0,0.04); }
     
     /* 헤더 십자 교차 구역 Z-index 최상위 */
     table.data-table thead th { background-color: #f1f3f5; font-weight: bold; color: #333; }
     table.data-table thead th.sticky-top-1, table.data-table thead th.sticky-top-2, table.data-table thead th.sticky-top-3, table.data-table thead th.sticky-top-4 { z-index: 90; }
     table.data-table thead th.sticky-col-1, table.data-table thead th.sticky-col-2, table.data-table thead th.sticky-col-3, table.data-table thead th.sticky-col-all { z-index: 95; }
     
-    /* No. 행 및 고정 열 색상 일치화 */
-    .bg-darker { background-color: #e9ecef !important; }
-    table.data-table thead th.bg-darker { background-color: #e9ecef !important; }
+    /* 🟢 2. No. 행 및 지정된 고정 열 색상 일치화 (진한 회색 적용) */
+    .bg-gray { background-color: #e9ecef !important; }
+    table.data-table thead th.bg-gray { background-color: #e9ecef !important; }
     
-    /* 🟢 1. 학생명 너비 고정 (4글자) */
     .student-name-cell { min-width: 60px; max-width: 60px; overflow: hidden; text-overflow: clip; letter-spacing: -0.5px; }
 
-    /* 🟢 6. OX 입력 칸을 테두리 없는 투명 셀 텍스트처럼 구현 */
+    /* OX 입력 칸 디자인 제거 */
     .ox-input { width: 100%; height: 100%; border: none; text-align: center; font-weight: 900; font-size: 14px; padding: 0; background-color: transparent; outline: none; cursor: pointer; color: #dee2e6; }
     .ox-input:focus { background-color: #e6f0ff; color: #333; }
     .ox-input:disabled { background-color: transparent; color: #ccc; cursor: default; }
     .ox-input.val-o { color: #28a745; } 
     .ox-input.val-x { color: #dc3545; } 
 
-    /* 관리자 세팅용 일반 인풋 */
-    .setup-input { width: 90%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+    .setup-input { width: 90%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; box-sizing: border-box; }
     .setup-input:focus { border-color: #1366ce; outline: none; }
 
     .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
     .paste-zone:hover { background-color: #e9ecef; }
 
-    /* 플로팅 액션 버튼 */
+    /* 환경설정 모달 및 버튼 */
+    .settings-table-wrapper { max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px; }
+    .settings-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: center; }
+    .settings-table th { background: #e9ecef; padding: 10px; position: sticky; top: 0; z-index: 5; color: #1366ce; border-bottom: 2px solid #ced4da; }
+    .settings-table td { padding: 0; border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
+    .set-input { width: 100%; border: none; padding: 8px; box-sizing: border-box; text-align: center; outline: none; background: transparent; }
+    .set-input:focus { background-color: #e6f0ff; }
+
     .fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: row-reverse; gap: 12px; z-index: 1000; }
     .fab-btn { background-color: #68488e; color: white; border: none; border-radius: 50px; width: 44px; height: 44px; display: flex; align-items: center; padding: 0 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.25); transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.2s; overflow: hidden; white-space: nowrap; }
     .fab-btn.btn-print { background-color: #333; }
@@ -109,14 +119,6 @@
     .fab-btn svg { flex-shrink: 0; margin-right: 12px; width: 20px; height: 20px; }
     .fab-text { font-size: 13px; font-weight: bold; opacity: 0; transition: opacity 0.2s; }
     .fab-btn:hover .fab-text { opacity: 1; transition-delay: 0.1s; }
-
-    /* 환경설정 테이블 모달 */
-    .settings-table-wrapper { max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px; }
-    .settings-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: center; }
-    .settings-table th { background: #e9ecef; padding: 10px; position: sticky; top: 0; z-index: 5; color: #1366ce; border-bottom: 2px solid #ced4da; }
-    .settings-table td { padding: 0; border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
-    .set-input { width: 100%; border: none; padding: 8px; box-sizing: border-box; text-align: center; outline: none; background: transparent; }
-    .set-input:focus { background-color: #e6f0ff; }
 
     /* 성적표 출력용 CSS */
     .report-container { width: 100%; max-width: 1100px; margin: 0 auto; background: #fff; display: flex; flex-direction: column; gap: 40px; margin-bottom: 100px; }
@@ -144,10 +146,10 @@
 
     @media print {
       body * { visibility: hidden; }
-      .app-container { padding: 0; margin: 0; }
+      .app-container { padding: 0; margin: 0; min-width: 0; }
       #reportContainer, #reportContainer * { visibility: visible; }
       #reportContainer { position: absolute; left: 0; top: 0; width: 100%; margin-bottom: 0; }
-      .filter-card, .fab-container { display: none !important; }
+      .title-row, .filter-card, .fab-container { display: none !important; }
       .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; }
       @page { size: A4 landscape; margin: 0; }
     }
@@ -161,7 +163,7 @@
   <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">처리 중입니다...</div></div>
   <div class="modal-overlay" id="customAlertModal"><div class="modal-box" style="width: 320px;"><div id="modalMessage" class="modal-message" style="text-align: center;"></div><button class="modal-btn" onclick="document.getElementById('customAlertModal').style.display='none'">확인</button></div></div>
 
-  <!-- 🟢 2. 다음 학생 입력 안내 팝업 -->
+  <!-- 다음 학생 입력 안내 팝업 -->
   <div class="modal-overlay" id="nextStudentModal">
     <div class="modal-box" style="width: 340px; padding: 30px 20px;">
       <div style="font-size: 32px; margin-bottom: 10px;">👤</div>
@@ -217,32 +219,33 @@
     <!-- ========================================== -->
     <div id="page-main" class="page-content active">
       
-      <!-- 🟢 2. 제목을 필터 카드 좌측으로 이동 & 플렉스 정렬 -->
+      <!-- 🟢 3. 별도로 분리된 좌측 상단 타이틀 영역 -->
+      <div class="title-row">
+        <h2 class="main-title">SG청운학원 - 성적표 통합 시스템</h2>
+        <!-- 관리자 화면 진입 톱니바퀴 아이콘 -->
+        <button class="icon-btn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+      </div>
+      
+      <!-- 필터 및 제어 박스 -->
       <div class="filter-card" id="mainFilterCard">
-        <span class="main-title">SG청운학원 - 성적표 통합 시스템</span>
-        <div class="filter-divider"></div>
-        
         <div class="select-group"><label>학기</label><select id="mainTerm" onchange="filterCampuses('main')"><option value="">선택</option></select></div>
         <div class="select-group"><label>캠퍼스</label><select id="mainCampus" onchange="filterCourses('main')"><option value="">선택</option></select></div>
         <div class="select-group"><label>과정</label><select id="mainCourse" onchange="filterTeachers('main')"><option value="">선택</option></select></div>
         <div class="select-group"><label>선생님</label><select id="mainTeacher" onchange="filterClasses('main')"><option value="">선택</option></select></div>
         <div class="select-group"><label>반명</label><select id="mainClass"><option value="">선택</option></select></div>
         
-        <button class="btn-primary" style="margin-left: 10px;" onclick="loadGradesData()">명단 불러오기</button>
+        <button class="btn-primary" style="margin-left: 15px;" onclick="loadGradesData()">명단 불러오기</button>
         
         <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
           <button class="btn-primary" style="background-color: #d32f2f;" onclick="saveGrades()">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 결과 저장
           </button>
-          <div class="filter-divider"></div>
-          <!-- 🟢 4. 관리자 페이지로 이동 아이콘 톱니바퀴 -->
-          <button class="icon-btn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-          </button>
         </div>
       </div>
 
-      <!-- 채점 입력 테이블 영역 -->
+      <!-- 🟢 1. 채점 입력 테이블 (오버플로우 제거, 전체 스크롤 활용) -->
       <div class="table-wrapper" style="display: none;" id="inputTableContainer">
         <table class="data-table">
           <thead id="inputTableHeader"></thead>
@@ -275,14 +278,19 @@
     <!-- ========================================== -->
     <div id="page-admin" class="page-content">
       
-      <!-- 🟢 4, 5, 6. 타이틀 바꿈, 바 색상 짙은 회색, 버튼 재배열 -->
+      <!-- 🟢 3. 별도 타이틀 바 디자인 적용 (진한 회색 컨셉) -->
+      <div class="title-row">
+        <h2 class="main-title" style="color: #495057;">SG청운학원 - 시험 기본 세팅 (관리자)</h2>
+        <!-- 뒤로가기 화살표 아이콘 -->
+        <button class="icon-btn" onclick="switchPage('page-main')" title="채점 입력으로 돌아가기">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+      </div>
+
       <div class="filter-card admin-mode">
-        <span class="main-title" style="color: #495057;">SG청운학원 - 시험 기본 세팅 (관리자)</span>
-        <div class="filter-divider"></div>
-        
         <div class="select-group"><label>학기</label><select id="setupTerm" onchange="checkExistingSetup()"></select></div>
+        <div class="filter-divider"></div>
         <div class="select-group"><label>과정</label><select id="setupLevel" onchange="checkExistingSetup()"></select><select id="setupCourse" onchange="checkExistingSetup()"></select></div>
-        
         <div class="filter-divider"></div>
         <div class="select-group"><label>총 문항 수</label><input type="number" id="setupTotalCount" value="45" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
         <div class="select-group"><label>시작 번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
@@ -298,11 +306,6 @@
           <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">
             환경설정 (필수)
           </button>
-          <div class="filter-divider"></div>
-          <!-- 🟢 4. 메인(채점) 창으로 되돌아가기 화살표 아이콘 -->
-          <button class="icon-btn" onclick="switchPage('page-main')" title="채점 입력으로 돌아가기">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
         </div>
       </div>
 
@@ -315,7 +318,8 @@
       <div class="table-wrapper">
         <table class="data-table" style="text-align: left;">
           <thead>
-            <tr><th class="sticky-top-1 bg-darker" width="8%" style="text-align: center;">문항번호</th><th class="sticky-top-1 bg-darker" width="42%">출제 단원명</th><th class="sticky-top-1 bg-darker" width="20%">배점 (난이도 자동)</th><th class="sticky-top-1 bg-darker" width="20%">난이도 (확인용)</th><th class="sticky-top-1 bg-darker" width="10%" style="text-align: center;">상태</th></tr>
+            <!-- 🟢 2. 표 헤더 배경색 진한회색으로 일치화 -->
+            <tr><th class="sticky-top-1 bg-gray" width="8%" style="text-align: center;">문항번호</th><th class="sticky-top-1 bg-gray" width="42%">출제 단원명</th><th class="sticky-top-1 bg-gray" width="20%">배점 (난이도 자동)</th><th class="sticky-top-1 bg-gray" width="20%">난이도 (확인용)</th><th class="sticky-top-1 bg-gray" width="10%" style="text-align: center;">상태</th></tr>
           </thead>
           <tbody id="setupTableBody"></tbody>
         </table>
@@ -329,16 +333,15 @@
     let chartInstances = []; 
     let currentStudentsCount = 0; 
     let currentStudentsList = [];
-    let pendingNextStudentIdx = -1; // 다음 학생 팝업 대기 상태
+    let pendingNextStudentIdx = -1;
 
-    // 🟢 알림 및 다음 학생 팝업 엔터 컨트롤
+    // 🟢 알림 팝업 엔터 확인 로직
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
         const nextModal = document.getElementById('nextStudentModal');
         const alertModal = document.getElementById('customAlertModal');
         const settingsModal = document.getElementById('settingsModal');
 
-        // 환경설정 모달이 켜져있으면 엔터 무시
         if (settingsModal && settingsModal.style.display === 'flex') return;
 
         if (nextModal && nextModal.style.display === 'flex') {
@@ -355,10 +358,17 @@
     function showLoading(status, msg = "처리 중입니다...") { document.getElementById('spinnerText').innerText = msg; document.getElementById('globalSpinner').style.display = status ? 'flex' : 'none'; }
     function handleError(err) { showLoading(false); showAlert("🚫 에러 발생: " + err.message); }
 
-    // 페이지 전환 로직
+    // 페이지 전환
     function switchPage(pageId) {
       document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
       document.getElementById(pageId).classList.add('active');
+      
+      const fabs = document.getElementById('reportFabs');
+      if (pageId === 'page-main') {
+        fabs.style.display = 'flex';
+      } else {
+        fabs.style.display = 'none';
+      }
     }
 
     window.onload = function() { fetchMetadata(); renderSetupTable(); };
@@ -434,7 +444,7 @@
     }
 
     // ==========================================
-    // 명단 업로드 (괄호 안 텍스트 삭제)
+    // 명단 업로드
     // ==========================================
     const dropZone = document.getElementById('dropZone'); const fileInput = document.getElementById('fileInput');
     dropZone.addEventListener('click', () => fileInput.click());
@@ -469,7 +479,6 @@
           for (let i = headerRowIdx + 1; i < jsonArr.length; i++) {
             let row = jsonArr[i]; if (!row || row.length === 0) continue;
             let ban = String(row[colMap.ban] || '').trim();
-            // 🟢 3. 학생명 괄호 파싱 로직 적용
             let name = String(row[colMap.name] || '').replace(/\([^)]*\)/g, '').trim(); 
             if (!ban || !name) continue; 
             let school = colMap.school !== -1 ? String(row[colMap.school] || '').trim() : '', grade = colMap.grade !== -1 ? String(row[colMap.grade] || '').trim() : '', teacher = colMap.teacher !== -1 ? String(row[colMap.teacher] || '').trim() : '';
@@ -525,7 +534,7 @@
       tbody.innerHTML = '';
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i;
-        tbody.innerHTML += `<tr><td style="text-align:center;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" oninput="updateDiff(${qNum})" placeholder="2,3,4,5"></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:transparent; text-align:center; border:none;"></td><td id="status_${qNum}" style="color:#adb5bd; text-align:center;">-</td></tr>`;
+        tbody.innerHTML += `<tr><td style="text-align:center;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" oninput="updateDiff(${qNum})" placeholder="2,3,4,5"></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:transparent; text-align:center; border:none; padding:0;"></td><td id="status_${qNum}" style="color:#adb5bd; text-align:center;">-</td></tr>`;
       }
     }
 
@@ -596,9 +605,8 @@
       document.getElementById('inputTableContainer').style.display = 'block'; 
       currentExamSetup = setupData; 
       
+      // 괄호 제거 및 최소 너비 유지를 위한 패딩 로직 (기본 25칸)
       let parsedStudents = rawStudents.map(st => ({ ...st, name: st.name.replace(/\([^)]*\)/g, '').trim(), isEmpty: false }));
-      
-      // 🟢 2. 최소 너비 유지를 위한 25칸 패딩 로직
       const minCols = 25; 
       while(parsedStudents.length < minCols) parsedStudents.push({ name: '-', isEmpty: true });
       
@@ -608,13 +616,13 @@
       const thead = document.getElementById('inputTableHeader');
       const tbody = document.getElementById('inputTableBody');
       
-      // 🟢 5. 행 머릿글 이중 고정 및 완벽한 재배치
+      // 🟢 2. 행 머릿글 이중 고정 및 배경색 일치화 (No, 총점, 등수, 문항/단원/배점)
       let htmlThead = `
-        <tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-darker">No.</th>
+        <tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray">No.</th>
       `;
-      parsedStudents.forEach((st, sIdx) => { htmlThead += `<th class="sticky-top-1 bg-darker">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}</th>`; });
+      parsedStudents.forEach((st, sIdx) => { htmlThead += `<th class="sticky-top-1 bg-gray">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}</th>`; });
       
-      htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-2">총점</th>`;
+      htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-2 bg-gray">총점</th>`;
       parsedStudents.forEach((st, sIdx) => { 
         if (st.isEmpty) htmlThead += `<th class="sticky-top-2" style="color:#ccc;">-</th>`; 
         else {
@@ -623,17 +631,16 @@
         }
       });
       
-      htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-3">등수</th>`;
+      htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-3 bg-gray">등수</th>`;
       parsedStudents.forEach((st, sIdx) => { 
         if (st.isEmpty) htmlThead += `<th class="sticky-top-3" style="color:#ccc;">-</th>`; 
         else htmlThead += `<th class="sticky-top-3" style="color:#dc3545;" id="rank_${sIdx}">-</th>`; 
       });
       
-      // 배점 헤더 복구 및 학생명 칸 배치
       htmlThead += `</tr><tr>
-          <th class="sticky-col-1 sticky-top-4">문항번호</th>
-          <th class="sticky-col-2 sticky-top-4">출제 단원명</th>
-          <th class="sticky-col-3 sticky-top-4">배점</th>
+          <th class="sticky-col-1 sticky-top-4 bg-gray">문항번호</th>
+          <th class="sticky-col-2 sticky-top-4 bg-gray">출제 단원명</th>
+          <th class="sticky-col-3 sticky-top-4 bg-gray">배점</th>
       `;
       parsedStudents.forEach((st, sIdx) => { 
         htmlThead += `<th class="sticky-top-4 student-name-cell" style="${st.isEmpty ? 'color:#ccc;' : 'font-weight:bold;'}">${st.name}</th>`; 
@@ -641,7 +648,7 @@
       htmlThead += `</tr>`;
       thead.innerHTML = htmlThead;
 
-      // 🟢 문항 본문
+      // 본문 렌더링
       let htmlTbody = '';
       if(currentStudentsCount === 0 && rawStudents.length === 0) {
         htmlTbody = `<tr><td colspan="3" style="padding: 30px; color: red;">명단이 없습니다.</td></tr>`;
@@ -652,7 +659,7 @@
           let scoreVal = setupData.items[qIdx].score || "";
           
           htmlTbody += `<tr>
-            <td class="sticky-col-1 bg-darker">${qNum}</td>
+            <td class="sticky-col-1 bg-gray" style="font-weight:bold;">${qNum}</td>
             <td class="sticky-col-2" style="text-align:left; padding-left:10px; max-width: 140px; overflow: hidden; text-overflow: ellipsis;" title="${unitName}">${unitName}</td>
             <td class="sticky-col-3" style="color:#6c757d; font-weight:bold;">${scoreVal}</td>`;
             
@@ -683,7 +690,6 @@
       }
     }
 
-    // 🟢 2. 자동 이동 및 '다음 학생' 팝업 트리거
     function handleOxInput(e, qIdx, sIdx) {
       let inputEl = e.target; let val = inputEl.value.toLowerCase();
       inputEl.classList.remove('val-o', 'val-x'); let isValidInput = false;
@@ -695,7 +701,6 @@
       updateAllRanks();
 
       if (isValidInput) {
-        // 마지막 문항일 경우 팝업 트리거
         if (qIdx === currentExamSetup.totalCount - 1) {
           if (sIdx < currentStudentsCount - 1) {
             pendingNextStudentIdx = sIdx + 1;
@@ -711,7 +716,6 @@
       }
     }
 
-    // 🟢 팝업 확인 후 다음 학생 1번 칸으로 이동
     function confirmNextStudent() {
       document.getElementById('nextStudentModal').style.display = 'none';
       if (pendingNextStudentIdx !== -1) {
@@ -754,7 +758,6 @@
           else if (e.key === "ArrowUp") next = document.querySelector(`.grid-nav[data-q="${q - 1}"][data-s="${s}"]`);
           else if (e.key === "Enter") { 
             e.preventDefault(); 
-            // 마지막 행에서 엔터 시 다음 열(학생)의 첫 문항으로 넘어가게 설계됨
             if (q === currentExamSetup.totalCount - 1) {
               if (s < currentStudentsCount - 1) {
                  pendingNextStudentIdx = s + 1;
@@ -792,7 +795,6 @@
       .then(res => res.json()).then(res => { showLoading(false); if(res.success) showAlert("✔ 저장 완료"); else showAlert("에러: " + res.error); }).catch(handleError);
     }
 
-    // 🟢 3. 렌더링 확인 로직 (안 되어있으면 알림 팝업)
     function executePrint() {
       const reportContainer = document.getElementById('reportContainer');
       if (!reportContainer || reportContainer.innerHTML.trim() === '' || reportContainer.style.display === 'none') {
@@ -802,7 +804,6 @@
       window.print();
     }
 
-    // 성적표 렌더링
     function generateReports() {
       const term = document.getElementById('mainTerm').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !campus || !course || !teacher || !className) return showAlert("상단의 검색 조건을 모두 선택해주세요.");
