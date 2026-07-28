@@ -131,6 +131,9 @@
     .report-info { display: flex; gap: 10px; align-items: center; justify-content: flex-end; }
     .info-badge { display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 15px; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; }
     .combined-badge { align-items: flex-start; text-align: left; }
+    /* 너비 고정 클래스 추가 */
+    .info-badge.small-badge { min-width: 110px; width: 110px; max-width: 110px; padding: 10px; }
+    
     .info-badge span { font-size: 11px; color: #64748b; font-weight: 600; }
     .info-badge strong { font-size: 13px; color: #0f172a; font-weight: 800; }
     .badge-divider { width: 1px; background-color: #e2e8f0; margin: 0 5px; flex-shrink: 0; height: 35px; }
@@ -145,23 +148,30 @@
     .card-title::before { content: ''; display: block; width: 4px; height: 16px; background: #3b82f6; border-radius: 2px; }
     .card-title-green::before { background: #10b981 !important; }
     
-    table.willow-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; table-layout: fixed; border: 2px solid #94a3b8; }
-    table.willow-table th, table.willow-table td { padding: 6px 2px; height: 36px; white-space: normal; word-break: keep-all; line-height: 1.3; vertical-align: middle; border: 1px solid #cbd5e1; }
-    table.willow-table th:first-child, table.willow-table td:first-child { width: 55px; min-width: 55px; max-width: 55px; font-weight: 700; text-align: center; }
+    /* 표 테두리 세팅 수정 (좌우 겉 테두리 삭제) */
+    table.willow-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; table-layout: fixed; border-top: 2px solid; border-bottom: 2px solid; border-left: none; border-right: none; }
+    table.willow-table th, table.willow-table td { padding: 6px 2px; height: 36px; white-space: normal; word-break: keep-all; line-height: 1.3; vertical-align: middle; border: 1px solid; }
+    table.willow-table th:first-child, table.willow-table td:first-child { width: 55px; min-width: 55px; max-width: 55px; font-weight: 700; text-align: center; border-left: none; }
+    table.willow-table th:last-child, table.willow-table td:last-child { border-right: none; }
     table.willow-table th { font-weight: 700; }
     
-    /* 표 헤더 및 기준만점(subhead) 색상 구분 클래스 지정 */
-    table.willow-table.bg-head-blue th, table.willow-table.bg-head-blue tr.bg-subhead td, table.willow-table.bg-head-blue tr.bg-subhead th { background-color: #eff6ff !important; color: #1e3a8a; border-color: #bfdbfe; }
-    table.willow-table.bg-head-green th, table.willow-table.bg-head-green tr.bg-subhead td, table.willow-table.bg-head-green tr.bg-subhead th { background-color: #ecfdf5 !important; color: #065f46; border-color: #a7f3d0; }
+    /* 표 헤더 및 내부 라인 색상 (파란계열/연두계열) */
+    table.bg-head-blue { border-top-color: #60a5fa; border-bottom-color: #60a5fa; }
+    table.bg-head-blue th, table.bg-head-blue td { border-color: #bfdbfe; }
+    table.bg-head-blue th, table.bg-head-blue tr.bg-subhead td, table.bg-head-blue tr.bg-subhead th { background-color: #eff6ff !important; color: #1e3a8a; }
+    
+    table.bg-head-green { border-top-color: #34d399; border-bottom-color: #34d399; }
+    table.bg-head-green th, table.bg-head-green td { border-color: #a7f3d0; }
+    table.bg-head-green th, table.bg-head-green tr.bg-subhead td, table.bg-head-green tr.bg-subhead th { background-color: #ecfdf5 !important; color: #065f46; }
     
     .chart-container-report { position: relative; display: flex; justify-content: center; align-items: center; padding-top: 15px; }
     
-    /* 우측 요약정보 KPI 카드 정렬 및 사이즈 변경 */
-    .kpi-card-white { background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    /* 우측 요약정보 KPI 카드 레이아웃 수평(row) 변경으로 높이 절약 */
+    .kpi-card-white { background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 12px 15px; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; text-align: left; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .kpi-card-white .kpi-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .kpi-card-white .kpi-info { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+    .kpi-card-white .kpi-info { display: flex; flex-direction: column; justify-content: center; gap: 2px; align-items: flex-start; }
     .kpi-card-white .kpi-label { font-size: 13px !important; color: #64748b !important; font-weight: 700 !important; }
-    /* 점수 폰트 크기 및 색상 통일 (요청사항 반영) */
+    /* 점수 폰트 크기 및 색상 통일 (#64748b) */
     .kpi-card-white .kpi-val { font-size: 16px !important; font-weight: 800 !important; color: #64748b !important; line-height: 1 !important; }
     
     .doughnut-card { flex: 1; display: flex; flex-direction: column; background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); align-items: center; justify-content: center; padding: 15px; position: relative; }
@@ -1150,30 +1160,49 @@
       let maxTotalScore = students[0].unitsData.reduce((sum, u) => sum + u.max, 0);
 
       students.forEach((st, idx) => {
-        let unitCols = st.unitsData.map(u => `<th style="width:${100/st.unitsData.length}%;">${u.name}</th>`).join('');
-        let unitMaxs = st.unitsData.map(u => `<td>${u.max}</td>`).join('');
-        let unitScores = st.unitsData.map(u => {
-            let color = '#111827';
-            if (u.score > u.avg) { color = '#3b82f6'; } else if (u.score < u.avg) { color = '#ef4444'; }
-            // 화살표 아이콘 제거 및 색상으로만 구분
-            return `<td style="color:${color}; font-weight:800; text-align:center;">${u.score}</td>`;
+        
+        // --- 단원 데이터가 부족할 경우 최소 4칸까지 '-'로 채우기 ---
+        let unitsDataPadded = [...st.unitsData];
+        while (unitsDataPadded.length < 4) {
+            unitsDataPadded.push({ name: '-', max: 0, score: 0, avg: 0, pct: 0, avgPct: 0 });
+        }
+        
+        let unitCols = unitsDataPadded.map(u => `<th style="width:${100/unitsDataPadded.length}%;">${u.name}</th>`).join('');
+        let unitMaxs = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.max}</td>`).join('');
+        let unitScores = unitsDataPadded.map(u => {
+            if (u.max === 0) return `<td>-</td>`;
+            let diffIcon = '', color = '#111827';
+            if (u.score > u.avg) { diffIcon = '▲'; color = '#3b82f6'; } else if (u.score < u.avg) { diffIcon = '▼'; color = '#ef4444'; }
+            // 요청하신 화살표 복구 및 색상 적용
+            return `<td style="position:relative; color:${color}; font-weight:800;"><span style="display:block; text-align:center;">${u.score}</span>${diffIcon ? `<span style="position:absolute; right:4px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span>` : ''}</td>`;
         }).join('');
-        let unitAvgs = st.unitsData.map(u => `<td>${u.avg}</td>`).join('');
-        let unitPcts = st.unitsData.map(u => `<td>${u.avgPct}%</td>`).join(''); 
+        let unitAvgs = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.avg}</td>`).join('');
+        let unitPcts = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.avgPct + '%'}</td>`).join(''); 
 
-        let diffCols = st.diffsData.map(d => `<th style="width:${100/st.diffsData.length}%;">${d.name}</th>`).join('');
-        let diffMaxs = st.diffsData.map(d => `<td>${d.max}</td>`).join('');
-        let diffScores = st.diffsData.map(d => {
-            let color = '#111827';
-            if (d.score > d.avg) { color = '#3b82f6'; } else if (d.score < d.avg) { color = '#ef4444'; }
-            // 화살표 아이콘 제거 및 색상으로만 구분
-            return `<td style="color:${color}; font-weight:800; text-align:center;">${d.score}</td>`;
+        // --- 난이도 데이터 빈칸 '-' 채우기 (기준만점이 0인 경우) ---
+        let diffsDataPadded = [...st.diffsData];
+        let diffCols = diffsDataPadded.map(d => `<th style="width:${100/diffsDataPadded.length}%;">${d.name}</th>`).join('');
+        let diffMaxs = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.max}</td>`).join('');
+        let diffScores = diffsDataPadded.map(d => {
+            if (d.max === 0) return `<td>-</td>`;
+            let diffIcon = '', color = '#111827';
+            if (d.score > d.avg) { diffIcon = '▲'; color = '#3b82f6'; } else if (d.score < d.avg) { diffIcon = '▼'; color = '#ef4444'; }
+            // 요청하신 화살표 복구 및 색상 적용
+            return `<td style="position:relative; color:${color}; font-weight:800;"><span style="display:block; text-align:center;">${d.score}</span>${diffIcon ? `<span style="position:absolute; right:4px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span>` : ''}</td>`;
         }).join('');
-        let diffAvgs = st.diffsData.map(d => `<td>${d.avg}</td>`).join('');
-        let diffPcts = st.diffsData.map(d => `<td>${d.avgPct}%</td>`).join('');
+        let diffAvgs = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.avg}</td>`).join('');
+        let diffPcts = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.avgPct + '%'}</td>`).join('');
 
-        let unitLabels = st.unitsData.map(u => u.name), unitMyData = st.unitsData.map(u => u.pct), unitAvgData = st.unitsData.map(u => u.avgPct);
-        let diffLabels = st.diffsData.map(d => d.name), diffMyData = st.diffsData.map(d => d.pct), diffAvgData = st.diffsData.map(d => d.avgPct);
+        // 차트에 그릴 때는 실제 존재하는 (기준만점 0보다 큰) 데이터만 넘기기
+        let validUnits = st.unitsData.filter(u => u.max > 0);
+        let unitLabels = validUnits.map(u => u.name);
+        let unitMyData = validUnits.map(u => u.pct);
+        let unitAvgData = validUnits.map(u => u.avgPct);
+
+        let validDiffs = st.diffsData.filter(d => d.max > 0);
+        let diffLabels = validDiffs.map(d => d.name);
+        let diffMyData = validDiffs.map(d => d.pct);
+        let diffAvgData = validDiffs.map(d => d.avgPct);
 
         let calcTopPct = examInfo.totalCount > 0 ? Math.round((st.rank / examInfo.totalCount) * 100) : 100;
         calcTopPct = Math.max(1, calcTopPct); 
@@ -1196,9 +1225,9 @@
                    </div>
                 </div>
                 <div class="badge-divider"></div>
-                <div class="info-badge"><span>반명</span> <strong>${examInfo.className}</strong></div>
-                <div class="info-badge"><span>담임명</span> <strong>${examInfo.teacher}</strong></div>
-                <div class="info-badge"><span>학생명</span> <strong style="color:#3b82f6;">${st.name}</strong></div>
+                <div class="info-badge small-badge"><span>반명</span> <strong>${examInfo.className}</strong></div>
+                <div class="info-badge small-badge"><span>담임명</span> <strong>${examInfo.teacher}</strong></div>
+                <div class="info-badge small-badge"><span>학생명</span> <strong style="color:#3b82f6;">${st.name}</strong></div>
               </div>
             </div>
             
@@ -1206,7 +1235,7 @@
               <div class="dash-card">
                 <div class="card-title">단원별 분석</div>
                 <div class="dash-card-content">
-                  <!-- 단원별 분석 색상 클래스(bg-head-blue) 및 학생명 삽입 -->
+                  <!-- 단원별 분석 색상 클래스(bg-head-blue) -->
                   <table class="willow-table bg-head-blue">
                     <tr><th>단원</th>${unitCols}</tr>
                     <tr class="bg-subhead"><th>기준만점</th>${unitMaxs}</tr>
@@ -1221,7 +1250,7 @@
               <div class="dash-card">
                 <div class="card-title card-title-green">난이도별 분석</div>
                 <div class="dash-card-content">
-                  <!-- 난이도별 분석 색상 클래스(bg-head-green) 및 학생명 삽입 -->
+                  <!-- 난이도별 분석 색상 클래스(bg-head-green) -->
                   <table class="willow-table bg-head-green">
                     <tr><th>난이도</th>${diffCols}</tr>
                     <tr class="bg-subhead"><th>기준만점</th>${diffMaxs}</tr>
@@ -1265,11 +1294,11 @@
                            <!-- lower is better 곡면 맞춤. (도넛 바 표면 중앙 계산: 반지름 48) -->
                            <path id="innerCurve_${idx}" d="M 27,75 A 48,48 0 0,0 123,75" />
                         </defs>
-                        <!-- 12시에서 반시계방향(9시, 6시)을 거쳐 3시로 도착하는 점선 화살표 -->
+                        <!-- 12시에서 9시, 6시를 거쳐 3시 쪽으로 향하는 점선 화살표 -->
                         <path d="M 75,10 A 65,65 0 1,0 140,75" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow_${idx})" />
                         
-                        <!-- 그림자 제거 및 도넛 표면 중앙 안착 (dy="4" 속성으로 아래로 미세조정) -->
-                        <text style="font-size: 11px; fill: #ffffff; font-weight: 700; letter-spacing: 0.5px;" dy="4">
+                        <!-- 그림자 제거 및 도넛 표면 중앙 안착 (dy="5" 속성으로 아래로 미세조정) -->
+                        <text style="font-size: 11px; fill: #ffffff; font-weight: 700; letter-spacing: 0.5px;" dy="5">
                            <textPath href="#innerCurve_${idx}" startOffset="50%" text-anchor="middle">lower is better</textPath>
                         </text>
                      </svg>
@@ -1286,7 +1315,7 @@
             <div class="report-footer">
               - 단원별 성적 : 출제 문항 중 각 단원별 점수를 나타냅니다.<br>
               - 난이도별 성적 : 출제 문항 중 배점에 따른 난도별 점수를 나타냅니다.<br>
-              - 본인의 점수가 전체의 평균 점수보다 높을 경우 점수는 파란색으로, 낮을 경우 점수는 빨간색으로 표시됩니다.<br>
+              - 본인의 점수가 전체의 평균 점수보다 높을 경우 점수는 파란색(▲)으로, 낮을 경우 빨간색(▼)으로 표시됩니다.<br>
               - 정답률(%)은 총 응시자들의 정답 비율입니다.<br>
               - 그래프의 점수 분포는 만점을 100점으로 환산하여 표기되었습니다.
             </div>
@@ -1300,7 +1329,10 @@
             maintainAspectRatio: false, 
             layout: { padding: { top: 15, bottom: 0, left: 0, right: 0 } }, 
             scales: { 
-              x: { ticks: { display: false }, grid: { display: false, drawBorder: false } }, 
+              x: { 
+                  ticks: { display: true, font: { family: 'Pretendard', size: 10 }, color: '#64748b' }, 
+                  grid: { display: false, drawBorder: false } 
+              }, 
               y: { 
                 beginAtZero: true, 
                 max: 100, 
