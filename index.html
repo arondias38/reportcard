@@ -116,16 +116,17 @@
     .dash-chart-basic { width: 100%; height: 250px; position: relative; }
 
     /* =========================================================
-       🟢 성적표 출력 디자인: 모던 대시보드 테마 완벽 이식
+       🟢 성적표 출력 디자인: A4 사이즈 고정 및 모던 테마 완벽 이식
        ========================================================= */
     #view_report { padding-bottom: 50px; background: transparent; }
-    .report-container { width: 100%; max-width: 1150px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; margin-bottom: 30px; }
+    .report-container { width: 100%; overflow-x: auto; display: flex; flex-direction: column; gap: 30px; margin-bottom: 30px; align-items: center; }
     
-    .report-page { position: relative; width: 100%; aspect-ratio: 297/210; box-sizing: border-box; border: 1px solid #e2e8f0; border-radius: 20px; padding: 35px; display: flex; flex-direction: column; background: #fdfdfd; box-shadow: 0 8px 30px rgba(0,0,0,0.04); overflow: hidden; }
+    /* 정확한 A4 렌더링 규격 설정 (가로 모드 297mm x 210mm) */
+    .report-page { position: relative; width: 297mm; height: 210mm; flex-shrink: 0; margin: 0 auto; box-sizing: border-box; border: 1px solid #e2e8f0; border-radius: 20px; padding: 35px; display: flex; flex-direction: column; background: #fdfdfd; box-shadow: 0 8px 30px rgba(0,0,0,0.04); overflow: hidden; }
     
-    .report-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; padding-bottom: 15px; flex-shrink: 0; }
+    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; flex-shrink: 0; }
     .report-logo { display: flex; align-items: center; }
-    .report-logo img { height: 48px; } /* 로고 크기 증가 및 텍스트 삭제로 margin 제거 */
+    .report-logo img { height: 48px; } 
     
     .report-info { display: flex; gap: 12px; }
     .info-badge { flex: 1; min-width: 145px; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 15px; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
@@ -135,10 +136,9 @@
     
     .report-grid { display: flex; gap: 20px; flex: 1; min-height: 0; }
     .dash-card { flex: 1; display: flex; flex-direction: column; background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-    /* 표와 차트 컨테이너를 1:1로 맞추기 위한 공통 래퍼 클래스 */
     .dash-card-content { flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
 
-    .summary-col { flex: 0.22; display: flex; flex-direction: column; gap: 15px; }
+    .summary-col { flex: 0.22; display: flex; flex-direction: column; gap: 15px; justify-content: space-between; }
     
     .card-title { font-size: 15px; font-weight: 800; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
     .card-title::before { content: ''; display: block; width: 4px; height: 16px; background: #3b82f6; border-radius: 2px; }
@@ -146,25 +146,26 @@
     
     table.willow-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; table-layout: fixed; border: 2px solid #94a3b8; }
     table.willow-table th, table.willow-table td { padding: 6px 2px; height: 36px; white-space: normal; word-break: keep-all; line-height: 1.3; vertical-align: middle; border: 1px solid #cbd5e1; }
-    table.willow-table th:first-child, table.willow-table td:first-child { width: 55px; min-width: 55px; max-width: 55px; font-weight: 700; color: #6b7280; text-align: center; background-color: #f1f5f9; }
-    table.willow-table th { color: #6b7280; font-weight: 700; background-color: #f1f5f9; }
-    .bg-gray { background-color: #f1f5f9 !important; }
+    table.willow-table th:first-child, table.willow-table td:first-child { width: 55px; min-width: 55px; max-width: 55px; font-weight: 700; text-align: center; }
+    table.willow-table th { font-weight: 700; }
+    
+    /* 표 헤더 색상 구분 클래스 지정 */
+    table.willow-table.bg-head-blue th, table.willow-table.bg-head-blue td:first-child { background-color: #eff6ff !important; color: #1e3a8a; border-color: #bfdbfe; }
+    table.willow-table.bg-head-green th, table.willow-table.bg-head-green td:first-child { background-color: #ecfdf5 !important; color: #065f46; border-color: #a7f3d0; }
+    .bg-gray { background-color: #f1f5f9 !important; color: #6b7280; }
     
     .chart-container-report { position: relative; display: flex; justify-content: center; align-items: center; padding-top: 15px; }
     
-    .kpi-card-white { background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 15px 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-    .kpi-card-white .kpi-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-    .kpi-card-white .kpi-info { display: flex; flex-direction: column; justify-content: center; gap: 4px; }
-    .kpi-card-white .kpi-label { font-size: 13px !important; color: #64748b !important; font-weight: 700 !important; }
-    .kpi-card-white .kpi-val { font-size: 22px !important; font-weight: 900 !important; color: #0f172a !important; line-height: 1 !important; }
-    
-    .bg-blue-light { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
-    .bg-green-light { background: #ecfdf5; color: #10b981; }
-    .bg-purple-light { background: #f5f3ff; color: #8b5cf6; }
+    /* 우측 요약정보 KPI 카드 정렬 및 사이즈 변경 */
+    .kpi-card-white { background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    .kpi-card-white .kpi-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .kpi-card-white .kpi-info { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+    .kpi-card-white .kpi-label { font-size: 12px !important; color: #64748b !important; font-weight: 700 !important; }
+    .kpi-card-white .kpi-val { font-size: 18px !important; font-weight: 900 !important; color: #0f172a !important; line-height: 1 !important; }
     
     .doughnut-card { flex: 1; display: flex; flex-direction: column; background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); align-items: center; justify-content: center; padding: 15px; position: relative; }
     .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
-    .doughnut-val { font-size: 26px; font-weight: 900; color: #111827; line-height: 1; }
+    .doughnut-val { font-size: 18px; font-weight: 900; color: #111827; line-height: 1; }
     
     .report-footer { margin-top: 15px; padding: 15px 20px; background-color: #f8fafc; border-radius: 12px; font-size: 11px; color: #6b7280; line-height: 1.6; flex-shrink: 0; border: 1px solid #f3f4f6; }
 
@@ -176,7 +177,7 @@
       #reportContainer, #reportContainer * { visibility: visible; }
       #reportContainer { position: absolute; left: 0; top: 0; width: 100%; margin-bottom: 0; }
       .top-nav-bar, .filter-card { display: none !important; }
-      .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; background: #fff; }
+      .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; background: #fff; margin: 0; flex-shrink: 1; }
       @page { size: A4 landscape; margin: 0; }
     }
   </style>
@@ -638,7 +639,7 @@
               } break;
             }
           }
-          if (headerRowIdx === -1 || colMap.ban === -1 || colMap.name === -1) throw new Error("머릿글(반명, 학생명)을 찾을 수 없습니다.");
+          if (headerRowIdx === -1 || colMap.ban === -1 || colMap.name === -1) throw new Error("머릿글(반명, 학생명)을 찾을 수 확인을 수 없습니다.");
 
           let tt = getTermAndTest('roster');
           let termName = tt.term; let testName = tt.test;
@@ -1153,7 +1154,8 @@
         let unitScores = st.unitsData.map(u => {
             let diffIcon = '', color = '#111827';
             if (u.score > u.avg) { diffIcon = '▲'; color = '#3b82f6'; } else if (u.score < u.avg) { diffIcon = '▼'; color = '#ef4444'; }
-            return `<td style="position:relative; color:${color};"><span style="display:block; text-align:center;">${u.score}</span><span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span></td>`;
+            // 해당 학생 점수를 볼드체(font-weight: 800)로 강조
+            return `<td style="position:relative; color:${color}; font-weight:800;"><span style="display:block; text-align:center;">${u.score}</span><span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span></td>`;
         }).join('');
         let unitAvgs = st.unitsData.map(u => `<td>${u.avg}</td>`).join('');
         let unitPcts = st.unitsData.map(u => `<td>${u.avgPct}%</td>`).join(''); 
@@ -1163,7 +1165,8 @@
         let diffScores = st.diffsData.map(d => {
             let diffIcon = '', color = '#111827';
             if (d.score > d.avg) { diffIcon = '▲'; color = '#3b82f6'; } else if (d.score < d.avg) { diffIcon = '▼'; color = '#ef4444'; }
-            return `<td style="position:relative; color:${color};"><span style="display:block; text-align:center;">${d.score}</span><span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span></td>`;
+            // 해당 학생 점수를 볼드체(font-weight: 800)로 강조
+            return `<td style="position:relative; color:${color}; font-weight:800;"><span style="display:block; text-align:center;">${d.score}</span><span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span></td>`;
         }).join('');
         let diffAvgs = st.diffsData.map(d => `<td>${d.avg}</td>`).join('');
         let diffPcts = st.diffsData.map(d => `<td>${d.avgPct}%</td>`).join('');
@@ -1173,6 +1176,10 @@
 
         let calcTopPct = examInfo.totalCount > 0 ? Math.round((st.rank / examInfo.totalCount) * 100) : 100;
         calcTopPct = Math.max(1, calcTopPct); 
+
+        // 파란색이 그려지는 시작 각도 역산 (1%일때 파란색이 99% 꽉 차게, 반시계로 그려지도록 설정)
+        let bluePct = 100 - calcTopPct;
+        let startAngle = 360 - (bluePct * 3.6);
 
         let html = `
           <div class="report-page">
@@ -1194,10 +1201,11 @@
               <div class="dash-card">
                 <div class="card-title">단원별 분석</div>
                 <div class="dash-card-content">
-                  <table class="willow-table">
+                  <!-- 단원별 분석 색상 클래스(bg-head-blue) 및 학생명 삽입 -->
+                  <table class="willow-table bg-head-blue">
                     <tr><th>단원</th>${unitCols}</tr>
                     <tr><th>기준만점</th>${unitMaxs}</tr>
-                    <tr><th>내 점수</th>${unitScores}</tr>
+                    <tr><th>${st.name}</th>${unitScores}</tr>
                     <tr><th>전체평균</th>${unitAvgs}</tr>
                     <tr><th>정답률</th>${unitPcts}</tr>
                   </table>
@@ -1208,10 +1216,11 @@
               <div class="dash-card">
                 <div class="card-title card-title-green">난이도별 분석</div>
                 <div class="dash-card-content">
-                  <table class="willow-table">
+                  <!-- 난이도별 분석 색상 클래스(bg-head-green) 및 학생명 삽입 -->
+                  <table class="willow-table bg-head-green">
                     <tr><th>난이도</th>${diffCols}</tr>
                     <tr><th>기준만점</th>${diffMaxs}</tr>
-                    <tr><th>내 점수</th>${diffScores}</tr>
+                    <tr><th>${st.name}</th>${diffScores}</tr>
                     <tr><th>전체평균</th>${diffAvgs}</tr>
                     <tr><th>정답률</th>${diffPcts}</tr>
                   </table>
@@ -1221,16 +1230,22 @@
               
               <div class="summary-col">
                 <div class="kpi-card-white">
-                  <div class="kpi-icon bg-blue-light">📊</div>
-                  <div class="kpi-info"><div class="kpi-label">평균 / 총점</div><div class="kpi-val">${examInfo.totalAvg} <span style="color:#9ca3af;">/ ${maxTotalScore}</span></div></div>
+                  <div class="kpi-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-5 5"/></svg>
+                  </div>
+                  <div class="kpi-info"><div class="kpi-label">평균 / 총점</div><div class="kpi-val">${examInfo.totalAvg} <span style="font-size:12px; color:#9ca3af; font-weight:700;">/ ${maxTotalScore}</span></div></div>
                 </div>
                 <div class="kpi-card-white">
-                  <div class="kpi-icon bg-green-light">🎯</div>
+                  <div class="kpi-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                  </div>
                   <div class="kpi-info"><div class="kpi-label">나의 점수</div><div class="kpi-val">${st.totalScore}</div></div>
                 </div>
                 <div class="kpi-card-white">
-                  <div class="kpi-icon bg-purple-light">🏆</div>
-                  <div class="kpi-info"><div class="kpi-label">나의 석차</div><div class="kpi-val">${st.rank} <span style="color:#9ca3af;">/ ${examInfo.totalCount}</span></div></div>
+                  <div class="kpi-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                  </div>
+                  <div class="kpi-info"><div class="kpi-label">나의 석차</div><div class="kpi-val">${st.rank} <span style="font-size:12px; color:#9ca3af; font-weight:700;">/ ${examInfo.totalCount}</span></div></div>
                 </div>
                 <div class="doughnut-card">
                   <div style="position: relative; width: 150px; height: 150px; margin: 0 auto;">
@@ -1239,16 +1254,17 @@
                      </div>
                      <svg viewBox="0 0 150 150" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;">
                         <defs>
-                           <!-- 마커 방향은 라인을 따라가므로 자동 정렬됩니다 -->
-                           <marker id="arrow_${idx}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-                             <path d="M 0 0 L 10 5 L 0 10 z" fill="#cbd5e1" />
+                           <marker id="arrow_${idx}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                             <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af" />
                            </marker>
-                           <!-- 텍스트가 안착할 도넛 바 표면 중앙 라인 (좌측에서 우측으로 하단을 가로지름) -->
-                           <path id="innerCurve_${idx}" d="M 30, 85 A 45,45 0 0,0 120, 85" />
+                           <!-- lower is better 곡면 맞춤. (도넛 바 표면 중앙 계산: 반지름 48) -->
+                           <path id="innerCurve_${idx}" d="M 27,75 A 48,48 0 0,0 123,75" />
                         </defs>
-                        <!-- 반시계 방향 화살표: 우측(139,98)에서 좌측(11,98)으로 원을 크게 감싸며 그려짐 -->
-                        <path d="M 139,98 A 68,68 0 0,0 11,98" fill="none" stroke="#cbd5e1" stroke-width="2.5" stroke-dasharray="5,5" marker-end="url(#arrow_${idx})" />
-                        <text style="font-size: 11px; fill: #ffffff; text-shadow: 0px 1px 2px rgba(0,0,0,0.5); font-weight: 700; letter-spacing: 0.5px;">
+                        <!-- 12시에서 3시 방향 궤도의 점선 화살표 -->
+                        <path d="M 75,10 A 65,65 0 0,1 140,75" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow_${idx})" />
+                        
+                        <!-- 그림자 제거 및 도넛 표면 중앙 안착 -->
+                        <text style="font-size: 11px; fill: #ffffff; font-weight: 700; letter-spacing: 0.5px;">
                            <textPath href="#innerCurve_${idx}" startOffset="50%" text-anchor="middle">lower is better</textPath>
                         </text>
                      </svg>
@@ -1279,7 +1295,7 @@
               y: { 
                 beginAtZero: true, 
                 max: 100, 
-                ticks: { stepSize: 10, color: '#9ca3af', font: { family: 'Pretendard' } }, // y축 폰트 설정
+                ticks: { stepSize: 10, color: '#9ca3af', font: { family: 'Pretendard' } }, 
                 border: { display: false }, 
                 grid: { color: '#f3f4f6' }, 
                 afterFit: function(scale) { scale.width = 55; } 
@@ -1290,7 +1306,28 @@
           
           chartInstances.push(new Chart(document.getElementById(`chart_unit_${idx}`).getContext('2d'), { type: 'bar', data: { labels: unitLabels, datasets: [{ label: st.name, data: unitMyData, backgroundColor: '#3b82f6', barPercentage: 0.5, borderRadius: 4 }, { label: '전체평균', data: unitAvgData, backgroundColor: '#e5e7eb', barPercentage: 0.5, borderRadius: 4 }]}, options: chartOpts }));
           chartInstances.push(new Chart(document.getElementById(`chart_diff_${idx}`).getContext('2d'), { type: 'bar', data: { labels: diffLabels, datasets: [{ label: st.name, data: diffMyData, backgroundColor: '#10b981', barPercentage: 0.5, borderRadius: 4 }, { label: '전체평균', data: diffAvgData, backgroundColor: '#e5e7eb', barPercentage: 0.5, borderRadius: 4 }]}, options: chartOpts }));
-          chartInstances.push(new Chart(document.getElementById(`chart_doughnut_${idx}`).getContext('2d'), { type: 'doughnut', data: { labels: ['나머지', '상위 %'], datasets: [{ data: [100 - calcTopPct, calcTopPct], backgroundColor: ['#f3f4f6', '#3b82f6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { display: false }, tooltip: { enabled: false } } } }));
+          
+          chartInstances.push(new Chart(document.getElementById(`chart_doughnut_${idx}`).getContext('2d'), { 
+            type: 'doughnut', 
+            data: { 
+                labels: ['내 비율', '나머지'], 
+                datasets: [{ 
+                    // % 작을수록 파란색(내 비율)이 커짐
+                    data: [bluePct, calcTopPct], 
+                    // 도넛 회색 채도 조금 올림 (#d1d5db)
+                    backgroundColor: ['#3b82f6', '#d1d5db'], 
+                    borderWidth: 0 
+                }] 
+            }, 
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                cutout: '65%', 
+                // 12시에서 11시, 10시 방향으로 파란색이 채워지도록 동적 각도 설정
+                rotation: startAngle, 
+                plugins: { legend: { display: false }, tooltip: { enabled: false } } 
+            } 
+          }));
         }, 100);
       });
     }
