@@ -48,8 +48,12 @@
     .select-group label { font-weight: bold; font-size: 13px; color: #1366ce; white-space: nowrap; }
     .admin-mode .select-group label { color: #495057; }
     
-    /* 🟢 셀렉트 박스 너비를 균등하게 소폭 축소 (항목이 늘어남에 따라 여백 확보) */
+    /* 🟢 셀렉트 박스 너비를 늘리고 통합 항목 반영 */
     .select-group select { width: 135px; height: 30px; padding: 4px 30px 4px 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 16px; color: #333; }
+    
+    /* 테스트 선택 박스는 너비를 훨씬 넓게 (220px) 설정 */
+    .select-group select.wide-select { width: 220px; }
+    
     .select-group select:invalid { color: #888; } 
     .select-group select option { color: #333; }
     
@@ -141,8 +145,6 @@
     table.report-table th { background-color: #fdfdfd; color: #495057; font-weight: bold; }
     table.report-table td { font-weight: bold; }
     table.report-table td:last-child, table.report-table th:last-child { border-right: none; }
-    
-    /* 🟢 3. 정답률 행 밑줄 추가 (그래프와 명확히 구분) */
     table.report-table tr:last-child td, table.report-table tr:last-child th { border-bottom: 2px solid #ccc; }
     
     .chart-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; min-height: 0; padding: 15px 10px 5px 10px; height: 160px; }
@@ -199,10 +201,9 @@
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box" style="width: 700px; padding: 25px; text-align: left;">
       <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">환경설정 (필수)</div>
-      <p style="font-size: 13px; color: #666; margin-bottom: 15px;">항목을 차례대로 입력해 주세요. (마지막 줄에 입력하면 자동으로 새 줄이 추가됩니다.)</p>
+      <p style="font-size: 13px; color: #666; margin-bottom: 15px;">항목을 차례대로 입력해 주세요. (마지막 줄에 입력하면 <b>자동으로 새 줄이 추가</b>됩니다.)</p>
       <div class="settings-table-wrapper">
         <table class="settings-table">
-          <!-- 🟢 1. 테스트 목록 추가 -->
           <thead><tr><th width="20%" style="color:#495057;">캠퍼스 목록</th><th width="20%" style="color:#495057;">학기 목록</th><th width="20%" style="color:#495057;">테스트 목록</th><th width="20%" style="color:#495057;">난이도 목록</th><th width="20%" style="color:#495057; border-right: none;">과정명 목록</th></tr></thead>
           <tbody id="settingsGridBody"></tbody>
         </table>
@@ -218,7 +219,8 @@
     <div class="modal-box" style="width: 480px; padding: 25px;">
       <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">학생명단 일괄 업로드</div>
       <div style="display: flex; gap: 15px; margin-bottom: 20px; text-align: left;">
-         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">학기</label><select id="rosterTerm" style="width:100%; height:36px; border-radius:4px; border:1px solid #ccc;"></select></div>
+         <!-- 🟢 1. 업로드 모달 통합 테스트 박스 적용 -->
+         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">테스트 (학기+테스트)</label><select id="rosterCombinedTest" style="width:100%; height:36px; border-radius:4px; border:1px solid #ccc;"></select></div>
          <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">캠퍼스</label><select id="rosterCampus" style="width:100%; height:36px; border-radius:4px; border:1px solid #ccc;"></select></div>
       </div>
       <div id="dropZone" style="border: 2px dashed #28a745; border-radius: 8px; padding: 40px 15px; background-color: #f8f9fa; cursor: pointer; transition: 0.2s; margin-bottom:20px;">
@@ -256,12 +258,12 @@
       </div>
     </div>
 
+    <!-- 메인 화면 -->
     <div id="page-main" class="page-content active">
       
-      <!-- 🟢 3. 메인 화면 테스트 셀렉트 추가 -->
       <div class="filter-card" id="mainFilterCard">
-        <div class="select-group"><label>학기</label><select id="mainTerm" required onchange="filterTests('main', true)"></select></div>
-        <div class="select-group"><label>테스트</label><select id="mainTest" required onchange="filterCampuses('main', true)"></select></div>
+        <!-- 🟢 1. 묶음 표시를 위한 드롭다운 (wide-select 로 너비 확장) -->
+        <div class="select-group"><label>테스트</label><select id="mainCombinedTest" class="wide-select" required onchange="filterCampuses('main', true)"></select></div>
         <div class="select-group"><label>캠퍼스</label><select id="mainCampus" required onchange="filterCourses('main', true)"></select></div>
         <div class="select-group"><label>과정</label><select id="mainCourse" required onchange="filterTeachers('main', true)"></select></div>
         <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
@@ -303,7 +305,7 @@
 
       <div id="view_data" style="display: none;">
         <div id="dashEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
-          과정을 확인하고 [데이터 조회]를 누르면 동일 학기/테스트/과정의 통합 데이터를 확인합니다.
+          과정을 확인하고 [데이터 조회]를 누르면 동일 테스트/과정의 통합 데이터를 확인합니다.
         </div>
         <div id="dashContainer" style="display: none; flex-direction: column;">
           <div class="dash-grid">
@@ -336,15 +338,15 @@
     <!-- ========================================== -->
     <div id="page-admin" class="page-content">
       <div class="filter-card admin-mode">
-        <!-- 🟢 3. 관리자 탭에도 테스트 목록 추가 -->
-        <div class="select-group"><label>학기</label><select id="setupTerm" required onchange="filterSetupTests()"></select></div>
-        <div class="filter-divider"></div>
-        <div class="select-group"><label>테스트</label><select id="setupTest" required onchange="checkExistingSetup()"></select></div>
+        <!-- 🟢 1. 관리자 탭 묶음 표시 -->
+        <div class="select-group"><label>테스트</label><select id="setupCombinedTest" class="wide-select" required onchange="checkExistingSetup()"></select></div>
         <div class="filter-divider"></div>
         <div class="select-group"><label>과정</label><select id="setupLevel" required onchange="checkExistingSetup()"></select><select id="setupCourse" required onchange="checkExistingSetup()"></select></div>
         <div class="filter-divider"></div>
-        <div class="select-group"><label>총 문항 수</label><input type="number" id="setupTotalCount" value="45" min="1" max="100" style="width: 50px;" onchange="renderSetupTable()"></div>
-        <div class="select-group"><label>시작 번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 50px;" onchange="renderSetupTable()"></div>
+        
+        <!-- 🟢 2. 문항시작번호 / 문항종료번호 -->
+        <div class="select-group"><label>문항시작번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
+        <div class="select-group"><label>문항종료번호</label><input type="number" id="setupEndNum" value="45" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
         
         <button class="btn-primary" style="margin-left: 5px; background-color: #495057;" onclick="saveExamSetup()">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 시험 정보 저장
@@ -382,6 +384,8 @@
     let currentStudentsList = [];
     let pendingNextStudentIdx = -1;
     let currentGlobalOtherScores = []; 
+    
+    // 🟢 2. 탭간 상태 유지를 위한 전역 변수
     let lastSelectedCampus = ""; 
     let confirmCallback = null;
     let cancelCallback = null;
@@ -424,6 +428,15 @@
       else if (!isConfirmed && cancelCallback) cancelCallback();
     }
 
+    // 🟢 1. 통합 값(term|test) 추출 헬퍼 함수
+    function getTermAndTest(prefix) {
+      const val = document.getElementById(`${prefix}CombinedTest`)?.value;
+      if (!val || val.includes("선택하세요")) return { term: null, test: null };
+      const parts = val.split('|');
+      return { term: parts[0], test: parts[1] };
+    }
+
+    // 🟢 2. 탭 스위칭 시 필터 상태 유지 및 캠퍼스(All) 보존 로직
     function switchNav(navId) {
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`button[onclick="switchNav('${navId}')"]`).classList.add('active');
@@ -440,10 +453,9 @@
         document.getElementById('mainTeacherGroup').style.display = 'none';
         document.getElementById('mainClassGroup').style.display = 'none';
         if (!mainCampus.querySelector('option[value="전체"]')) {
-           lastSelectedCampus = mainCampus.value; 
+           lastSelectedCampus = mainCampus.value; // 현재 선택값 임시 저장
            mainCampus.insertAdjacentHTML('afterbegin', '<option value="전체" style="color:#333;">전체 (All)</option>');
            mainCampus.value = "전체";
-           filterCourses('main'); 
         }
       } else {
         document.getElementById('mainTeacherGroup').style.display = 'flex';
@@ -451,8 +463,7 @@
         let optAll = mainCampus.querySelector('option[value="전체"]');
         if(optAll) {
             optAll.remove();
-            mainCampus.value = lastSelectedCampus || "";
-            filterCourses('main'); 
+            mainCampus.value = lastSelectedCampus || (mainCampus.options[1] ? mainCampus.options[1].value : ""); // 원래 캠퍼스로 복원
         }
       }
     }
@@ -481,23 +492,22 @@
 
     window.onload = function() { fetchMetadata(); renderSetupTable(); };
 
-    // ==========================================
-    // 🟢 1. 2. 환경설정 데이터 구조 전면 개편 (A열, B열, C열... 세로 읽기)
-    // ==========================================
-    function fetchMetadata(silent = false) {
+    function fetchMetadata(silent = false, preserveState = false) {
       const url = document.getElementById('backendUrl').value.trim();
       if (url.includes('YOUR_GAS_ID_HERE')) return;
       if(!silent) showLoading(true, "시스템 로딩 중...");
       fetch(url, { method: 'POST', body: JSON.stringify({ action: 'getDropdownData' }) })
       .then(res => res.json()).then(res => {
         if(!silent) showLoading(false);
-        if(res.success) { globalData = res.data; populateSettingsAndDropdowns(); } else { showAlert("에러: " + res.error); }
+        if(res.success) { 
+            globalData = res.data; 
+            populateSettingsAndDropdowns(preserveState); 
+        } else { showAlert("에러: " + res.error); }
       }).catch(handleError);
     }
 
     function openSettingsModal() { renderSettingsGrid(); document.getElementById('settingsModal').style.display = 'flex'; }
     
-    // 환경설정 창 열 때 배열 렌더링
     function renderSettingsGrid() {
       const tbody = document.getElementById('settingsGridBody'); tbody.innerHTML = ''; const s = globalData.settings;
       const maxLen = Math.max(15, (s.campuses||[]).length+1, (s.terms||[]).length+1, (s.tests||[]).length+1, (s.levels||[]).length+1, (s.courses||[]).length+1);
@@ -529,7 +539,6 @@
 
     function saveSettings() {
       const extract = (className) => Array.from(document.querySelectorAll(className)).map(i => i.value.trim()).filter(v => v);
-      // 백엔드로 보낼 때 컬럼 분할된 데이터를 그대로 보냅니다.
       const payload = { action: 'saveSettings', campuses: extract('.set-campus'), terms: extract('.set-term'), tests: extract('.set-test'), levels: extract('.set-level'), courses: extract('.set-course') };
       
       if(payload.campuses.length === 0 || payload.terms.length === 0 || payload.tests.length === 0) return showAlert("캠퍼스, 학기, 테스트 목록은 최소 1개 이상 입력해야 합니다.");
@@ -545,47 +554,67 @@
       }).catch(handleError);
     }
 
-    // 🟢 3. 선택 목록(드롭다운)에 '테스트' 추가 및 연쇄 필터링 재정립
-    function populateSettingsAndDropdowns() {
+    // 🟢 1. 2. 묶음 표시 (Term + Test 조합) 및 Placeholder 숨김 로직
+    function populateSettingsAndDropdowns(preserveState = false) {
       const s = globalData.settings;
+      
+      // 상태 보존용 변수 캡처
+      let prevAdminTest = document.getElementById('setupCombinedTest')?.value;
+      let prevAdminLevel = document.getElementById('setupLevel')?.value;
+      let prevAdminCourse = document.getElementById('setupCourse')?.value;
+      
+      let prevMainTest = document.getElementById('mainCombinedTest')?.value;
+      let prevUploadTest = document.getElementById('rosterCombinedTest')?.value;
+
       const fillSelect = (id, arr, placeholder) => { 
         let el = document.getElementById(id); if(!el) return; 
         el.innerHTML = `<option value="" disabled selected hidden>${placeholder}</option>`; 
         (arr||[]).forEach(val => el.innerHTML += `<option value="${val}" style="color:#333;">${val}</option>`); 
       };
       
-      // 관리자 세팅용 (테스트 항목 추가)
-      fillSelect('setupTerm', s.terms, '학기 선택'); 
-      fillSelect('setupTest', s.tests, '테스트 선택'); 
-      fillSelect('setupLevel', s.levels, '난이도 선택'); 
-      fillSelect('setupCourse', s.courses, '과정명 선택'); 
+      // 학기 x 테스트 조합 배열 생성
+      let combinedArr = [];
+      if (s.terms && s.tests) {
+         s.terms.forEach(term => {
+            s.tests.forEach(test => {
+                combinedArr.push(`${term}|${test}`);
+            });
+         });
+      }
       
-      // 업로드용
-      fillSelect('rosterTerm', s.terms, '학기를 선택하세요'); 
+      const fillCombinedSelect = (id, placeholder) => {
+        let el = document.getElementById(id); if(!el) return; 
+        el.innerHTML = `<option value="" disabled selected hidden>${placeholder}</option>`; 
+        combinedArr.forEach(val => {
+            let parts = val.split('|');
+            el.innerHTML += `<option value="${val}" style="color:#333;">${parts[0]} ${parts[1]}</option>`;
+        });
+      }
+
+      // 관리자 화면
+      fillCombinedSelect('setupCombinedTest', '테스트를 선택하세요');
+      fillSelect('setupLevel', s.levels, '난이도를 선택하세요'); 
+      fillSelect('setupCourse', s.courses, '과정명을 선택하세요'); 
+      
+      // 명단 업로드
+      fillCombinedSelect('rosterCombinedTest', '테스트 (학기+테스트)');
       fillSelect('rosterCampus', s.campuses, '캠퍼스를 선택하세요');
       
-      // 메인 화면용 (학기만 세팅해주고 나머지는 체인 대기)
-      let mainTerm = document.getElementById('mainTerm'); 
-      mainTerm.innerHTML = `<option value="" disabled selected hidden>학기를 선택하세요</option>`;
-      (s.terms||[]).forEach(t => mainTerm.innerHTML += `<option value="${t}" style="color:#333;">${t}</option>`);
-      mainTerm.value = "";
-      filterTests('main', true); // 학기 -> 테스트 로 필터 시작
-    }
-
-    function filterSetupTests() {
-      const term = document.getElementById('setupTerm').value;
-      const sel = document.getElementById('setupTest');
-      sel.innerHTML = `<option value="" disabled selected hidden>테스트 선택</option>`;
-      if(term && globalData.settings.tests) {
-         globalData.settings.tests.forEach(t => sel.innerHTML += `<option value="${t}" style="color:#333;">${t}</option>`);
+      // 메인 화면
+      fillCombinedSelect('mainCombinedTest', '테스트를 선택하세요');
+      
+      // 상태 복원 또는 초기화 연쇄
+      if (preserveState) {
+          if (prevAdminTest && document.getElementById('setupCombinedTest').querySelector(`option[value="${prevAdminTest}"]`)) document.getElementById('setupCombinedTest').value = prevAdminTest;
+          if (prevAdminLevel && document.getElementById('setupLevel').querySelector(`option[value="${prevAdminLevel}"]`)) document.getElementById('setupLevel').value = prevAdminLevel;
+          if (prevAdminCourse && document.getElementById('setupCourse').querySelector(`option[value="${prevAdminCourse}"]`)) document.getElementById('setupCourse').value = prevAdminCourse;
+      } else {
+          document.getElementById('setupCombinedTest').value = "";
+          document.getElementById('mainCombinedTest').value = "";
+          filterCampuses('main', true); // 최초 로딩 시 하위 항목 싹 비우기
       }
-      sel.value = "";
-      checkExistingSetup();
     }
 
-    // ==========================================
-    // 명단 업로드
-    // ==========================================
     const dropZone = document.getElementById('dropZone'); const fileInput = document.getElementById('fileInput');
     dropZone.addEventListener('click', () => fileInput.click());
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#e6f0ff'; });
@@ -614,114 +643,112 @@
           }
           if (headerRowIdx === -1 || colMap.ban === -1 || colMap.name === -1) throw new Error("머릿글(반명, 학생명)을 찾을 수 없습니다.");
 
-          let termName = document.getElementById('rosterTerm').value, campusName = document.getElementById('rosterCampus').value, parsedStudents = [];
+          let tt = getTermAndTest('roster');
+          let termName = tt.term; let testName = tt.test;
+          let campusName = document.getElementById('rosterCampus').value;
+          
+          if (!termName || !testName || !campusName) throw new Error("위쪽 팝업에서 테스트와 캠퍼스를 모두 선택해주세요.");
+
+          let parsedStudents = [];
           for (let i = headerRowIdx + 1; i < jsonArr.length; i++) {
             let row = jsonArr[i]; if (!row || row.length === 0) continue;
             let ban = String(row[colMap.ban] || '').trim();
             let name = String(row[colMap.name] || '').replace(/\([^)]*\)/g, '').trim(); 
             if (!ban || !name) continue; 
             let school = colMap.school !== -1 ? String(row[colMap.school] || '').trim() : '', grade = colMap.grade !== -1 ? String(row[colMap.grade] || '').trim() : '', teacher = colMap.teacher !== -1 ? String(row[colMap.teacher] || '').trim() : '';
-            parsedStudents.push([termName, campusName, teacher, ban, name, school, grade]);
+            parsedStudents.push([termName, testName, campusName, teacher, ban, name, school, grade]);
           }
           if(parsedStudents.length === 0) throw new Error("데이터가 없습니다.");
 
-          let isDuplicate = globalData.rosters.some(r => r.term === termName && r.campus === campusName);
+          let isDuplicate = globalData.rosters.some(r => r.term === termName && r.test === testName && r.campus === campusName);
           const executeUpload = () => {
             showLoading(true, "저장 중...");
-            fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'uploadRoster', term: termName, campus: campusName, students: parsedStudents }) })
+            fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'uploadRoster', term: termName, test: testName, campus: campusName, students: parsedStudents }) })
             .then(res => res.json()).then(result => {
               showLoading(false); document.getElementById('fileInput').value = '';
               if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showAlert(`✔ 업로드 완료!`); fetchMetadata(true); } else { showAlert("Error: " + result.error); }
             }).catch(err => { document.getElementById('fileInput').value = ''; handleError(err); });
           };
 
-          if (isDuplicate) { showLoading(false); setTimeout(() => { if (confirm(`이미 명단이 있습니다.\n기존 명단을 삭제하고 새로 덮어쓰시겠습니까?`)) executeUpload(); else document.getElementById('fileInput').value = ''; }, 50); 
+          if (isDuplicate) { showLoading(false); setTimeout(() => { if (confirm(`해당 테스트의 명단이 이미 있습니다.\n기존 명단을 삭제하고 새로 덮어쓰시겠습니까?`)) executeUpload(); else document.getElementById('fileInput').value = ''; }, 50); 
           } else { executeUpload(); }
         } catch (err) { showLoading(false); document.getElementById('fileInput').value = ''; showAlert("Error: " + err.message); }
       }; reader.readAsArrayBuffer(file);
     }
 
     // ==========================================
-    // 🟢 통합 연쇄 필터링 체인 (학기 -> 테스트 -> 캠퍼스 -> 과정 -> 선생님 -> 반)
+    // 🟢 2. 연쇄 필터링 (강제 리셋 플래그 활용하여 탭 유지 적용)
     // ==========================================
-    function filterTests(prefix, forceReset = false) {
-      const term = document.getElementById(`${prefix}Term`)?.value;
-      const sel = document.getElementById(`${prefix}Test`);
-      if(!sel) return;
-      const prevVal = forceReset ? "" : sel.value;
-      sel.innerHTML = `<option value="" disabled selected hidden>테스트를 선택하세요</option>`;
-      if(term && globalData.settings.tests) { 
-        globalData.settings.tests.forEach(t => sel.innerHTML += `<option value="${t}" style="color:#333;">${t}</option>`); 
-      }
-      if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
-      else sel.value = "";
-      filterCampuses(prefix, forceReset);
-    }
-
     function filterCampuses(prefix, forceReset = false) {
-      const term = document.getElementById(`${prefix}Term`)?.value;
-      const test = document.getElementById(`${prefix}Test`)?.value;
+      const tt = getTermAndTest(prefix);
+      const term = tt.term; const test = tt.test;
       const sel = document.getElementById(`${prefix}Campus`);
       if(!sel) return;
+      
       const prevVal = forceReset ? "" : sel.value;
       const keepAll = sel.querySelector('option[value="전체"]');
       let optionsHtml = keepAll ? '<option value="전체" style="color:#333;">전체 (All)</option>' : `<option value="" disabled selected hidden>캠퍼스를 선택하세요</option>`;
       
-      // 캠퍼스는 학기와 테스트가 선택되었을 때만 열어줍니다.
       if(term && test) { 
-        let campuses = [...new Set(globalData.rosters.filter(r => r.term === term).map(r => r.campus))].sort(); 
+        let campuses = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test).map(r => r.campus))].sort(); 
         campuses.forEach(c => optionsHtml += `<option value="${c}" style="color:#333;">${c}</option>`); 
       }
       sel.innerHTML = optionsHtml;
       if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
       else sel.value = keepAll ? "전체" : "";
+      
       filterCourses(prefix, forceReset);
     }
 
     function filterCourses(prefix, forceReset = false) {
-      const term = document.getElementById(`${prefix}Term`)?.value;
-      const test = document.getElementById(`${prefix}Test`)?.value;
+      const tt = getTermAndTest(prefix);
+      const term = tt.term; const test = tt.test;
       const sel = document.getElementById(`${prefix}Course`); 
       if(!sel) return;
       const prevVal = forceReset ? "" : sel.value;
       sel.innerHTML = `<option value="" disabled selected hidden>과정을 선택하세요</option>`;
       
-      // 과정은 학기+테스트가 선택되었을때
       if(term && test) { 
         let courses = [...new Set(globalData.setups.filter(s => s.term === term && s.test === test).map(s => s.course))].sort(); 
         courses.forEach(c => sel.innerHTML += `<option value="${c}" style="color:#333;">${c}</option>`); 
       }
       if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
       else sel.value = "";
+      
       filterTeachers(prefix, forceReset);
     }
 
     function filterTeachers(prefix, forceReset = false) {
-      const term = document.getElementById(`${prefix}Term`)?.value;
+      const tt = getTermAndTest(prefix);
+      const term = tt.term; const test = tt.test;
       const campus = document.getElementById(`${prefix}Campus`)?.value;
       const sel = document.getElementById(`${prefix}Teacher`);
       if(!sel) return; 
       const prevVal = forceReset ? "" : sel.value;
       sel.innerHTML = `<option value="" disabled selected hidden>선생님을 선택하세요</option>`;
-      if(term && campus && campus !== "전체") { 
-        let teachers = [...new Set(globalData.rosters.filter(r => r.term === term && r.campus === campus).map(r => r.teacher))].sort(); 
+      
+      if(term && test && campus && campus !== "전체") { 
+        let teachers = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus).map(r => r.teacher))].sort(); 
         teachers.forEach(t => sel.innerHTML += `<option value="${t}" style="color:#333;">${t}</option>`); 
       }
       if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
       else sel.value = "";
+      
       filterClasses(prefix, forceReset);
     }
 
     function filterClasses(prefix, forceReset = false) {
-      const term = document.getElementById(`${prefix}Term`)?.value;
+      const tt = getTermAndTest(prefix);
+      const term = tt.term; const test = tt.test;
       const campus = document.getElementById(`${prefix}Campus`)?.value;
       const teacher = document.getElementById(`${prefix}Teacher`)?.value;
       const sel = document.getElementById(`${prefix}Class`);
       if(!sel) return; 
       const prevVal = forceReset ? "" : sel.value;
       sel.innerHTML = `<option value="" disabled selected hidden>반을 선택하세요</option>`;
-      if(term && campus && teacher) { 
-        let classes = [...new Set(globalData.rosters.filter(r => r.term === term && r.campus === campus && r.teacher === teacher).map(r => r.className))].sort(); 
+      
+      if(term && test && campus && teacher) { 
+        let classes = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus && r.teacher === teacher).map(r => r.className))].sort(); 
         classes.forEach(c => sel.innerHTML += `<option value="${c}" style="color:#333;">${c}</option>`); 
       }
       if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
@@ -729,11 +756,17 @@
     }
 
     // ==========================================
-    // 관리자: 시험 기본 세팅 (테스트 조건 연동)
+    // 🟢 2. 관리자 시험 기본 세팅 (시작/종료 번호 연산)
     // ==========================================
     function renderSetupTable() {
-      const totalCount = parseInt(document.getElementById('setupTotalCount').value) || 45, startNum = parseInt(document.getElementById('setupStartNum').value) || 1, tbody = document.getElementById('setupTableBody');
+      const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
+      const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
+      const totalCount = endNum - startNum + 1;
+      const tbody = document.getElementById('setupTableBody');
       tbody.innerHTML = '';
+      
+      if (totalCount < 1) return; // 오류 방지
+      
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i;
         tbody.innerHTML += `<tr><td class="bg-gray" style="text-align:center; font-weight:bold;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" oninput="updateDiff(${qNum})" placeholder="2,3,4,5"></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:transparent; text-align:center; border:none; padding:0;"></td><td id="status_${qNum}" style="color:#adb5bd; text-align:center;">-</td></tr>`;
@@ -746,60 +779,82 @@
       if (document.getElementById(`unit_${qNum}`).value.trim() && diff) { statusCell.innerHTML = "✔"; statusCell.style.color = "#28a745"; statusCell.style.fontWeight = "bold"; } else { statusCell.innerHTML = "-"; statusCell.style.color = "#adb5bd"; }
     }
     
-    // 🟢 관리자 셋팅 조회 시 테스트명도 함께 넘김
     function checkExistingSetup() {
-      const t = document.getElementById('setupTerm').value, ts = document.getElementById('setupTest').value, l = document.getElementById('setupLevel').value, cr = document.getElementById('setupCourse').value; 
+      const tt = getTermAndTest('setup');
+      const t = tt.term; const ts = tt.test;
+      const l = document.getElementById('setupLevel').value; const cr = document.getElementById('setupCourse').value; 
       if (!t || !ts || !l || !cr) return;
       
       showLoading(true, "기존 세팅 불러오는 중...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getExamSetup', term: t, test: ts, level: l, course: cr }) }).then(res => res.json()).then(res => {
         showLoading(false);
-        if(res.success && res.data) { document.getElementById('setupTotalCount').value = res.data.totalCount; document.getElementById('setupStartNum').value = res.data.startNum; renderSetupTable();
+        if(res.success && res.data) { 
+           // 시작번호와 종료번호로 환원
+           document.getElementById('setupStartNum').value = res.data.startNum; 
+           document.getElementById('setupEndNum').value = res.data.startNum + res.data.totalCount - 1; 
+           renderSetupTable();
            res.data.items.forEach(item => { let u = document.getElementById(`unit_${item.num}`), s = document.getElementById(`score_${item.num}`); if(u) u.value = item.unit; if(s) { s.value = item.score; updateDiff(item.num); } }); 
         } else { renderSetupTable(); }
       }).catch(err => { showLoading(false); handleError(err); });
     }
 
-    document.getElementById('hwpPasteZone').addEventListener('click', function() { document.getElementById('pasteCatcher').focus(); this.style.backgroundColor = '#e9ecef'; setTimeout(() => this.style.backgroundColor = '#fff', 500); });
-    document.getElementById('pasteCatcher').addEventListener('paste', function(e) {
+    function documentPaste(e) {
       e.preventDefault(); let htmlData = (e.clipboardData || window.clipboardData).getData('text/html'), textData = (e.clipboardData || window.clipboardData).getData('text/plain'), rows = [];
       if(htmlData) { let t = document.createElement('div'); t.innerHTML = htmlData; let tbl = t.querySelector('table'); if(tbl) tbl.querySelectorAll('tr').forEach(tr => { let r = Array.from(tr.querySelectorAll('td,th')).map(c => c.innerText.replace(/<[^>]+>/g, '').trim()); if(r.join('')) rows.push(r); }); } 
       else if(textData) { textData.split(/\r?\n/).forEach(l => { let r = l.split('\t').map(c => c.trim()); if(r.join('')) rows.push(r); }); }
       if(rows.length===0) return showAlert("표 데이터가 아닙니다.");
       let st = (rows[0].join('').includes('단원') || rows[0].join('').includes('난이도') || rows[0].join('').includes('배점')) ? 1 : 0;
-      let count = parseInt(document.getElementById('setupTotalCount').value), sNum = parseInt(document.getElementById('setupStartNum').value), c = 0;
-      for(let i = st; i < rows.length && c < count; i++) {
+      
+      const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
+      const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
+      const totalCount = endNum - startNum + 1;
+      let c = 0;
+      
+      for(let i = st; i < rows.length && c < totalCount; i++) {
         let u = rows[i].length >= 3 ? rows[i][1] : rows[i][0], d = rows[i].length >= 3 ? rows[i][2] : rows[i][1];
-        if(u) document.getElementById(`unit_${sNum+c}`).value = u;
-        if(d) { let score = d.replace(/[^0-9]/g, ''); if(score) { document.getElementById(`score_${sNum+c}`).value = score; updateDiff(sNum+c); } } c++;
+        if(u && document.getElementById(`unit_${startNum+c}`)) document.getElementById(`unit_${startNum+c}`).value = u;
+        if(d && document.getElementById(`score_${startNum+c}`)) { let score = d.replace(/[^0-9]/g, ''); if(score) { document.getElementById(`score_${startNum+c}`).value = score; updateDiff(startNum+c); } } c++;
       }
-    });
+    }
+    
+    document.getElementById('hwpPasteZone').addEventListener('click', function() { document.getElementById('pasteCatcher').focus(); this.style.backgroundColor = '#e9ecef'; setTimeout(() => this.style.backgroundColor = '#fff', 500); });
+    document.getElementById('pasteCatcher').addEventListener('paste', documentPaste);
 
-    // 🟢 시험 정보 저장 시 테스트명 포함
     function saveExamSetup() {
-      const term = document.getElementById('setupTerm').value, test = document.getElementById('setupTest').value, level = document.getElementById('setupLevel').value, course = document.getElementById('setupCourse').value;
-      if(!term || !test || !level || !course) return showAlert("항목을 모두 선택하세요.");
-      const totalCount = parseInt(document.getElementById('setupTotalCount').value), startNum = parseInt(document.getElementById('setupStartNum').value), items = [];
+      const tt = getTermAndTest('setup');
+      const term = tt.term, test = tt.test, level = document.getElementById('setupLevel').value, course = document.getElementById('setupCourse').value;
+      if(!term || !test || !level || !course) return showAlert("상단 항목을 모두 선택하세요.");
+      
+      const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
+      const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
+      const totalCount = endNum - startNum + 1;
+      const items = [];
       
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i; 
         let unitVal = document.getElementById(`unit_${qNum}`).value.trim();
         let scoreVal = document.getElementById(`score_${qNum}`).value.trim();
         if(!unitVal || !scoreVal) return showAlert(`[${qNum}번] 문항의 단원명 또는 배점이 누락되었습니다.<br>입력을 완료해 주세요.`);
-        
         items.push({ num: qNum, unit: unitVal, score: parseInt(scoreVal)||0, diff: document.getElementById(`diff_${qNum}`).value });
       }
       
       showLoading(true, "저장 중...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveExamSetup', term, test, level, course, totalCount, startNum, items }) })
-      .then(res => res.json()).then(res => { showLoading(false); if(res.success) { showAlert("✔ 저장 완료"); fetchMetadata(true); } else { showAlert("에러: " + res.error); } }).catch(handleError);
+      .then(res => res.json()).then(res => { 
+          showLoading(false); 
+          if(res.success) { 
+              showAlert("✔ 저장 완료"); 
+              // 🟢 저장 직후 드롭다운 초기화 안함. 상태 완벽 유지.
+          } else { showAlert("에러: " + res.error); } 
+      }).catch(handleError);
     }
 
     // ==========================================
-    // 🟢 채점 입력 로직 (테스트 조건 포함)
+    // 채점 입력 로직
     // ==========================================
     function loadGradesData() {
-      const term = document.getElementById('mainTerm').value, test = document.getElementById('mainTest').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
+      const tt = getTermAndTest('main');
+      const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
       
       showLoading(true, "데이터 불러오는 중...");
@@ -1002,7 +1057,6 @@
       });
     }
 
-    // 🟢 성적 저장 시 테스트명 포함
     function saveGrades() {
       if (!currentExamSetup) return showAlert("명단을 먼저 불러와 주세요.");
       
@@ -1050,7 +1104,8 @@
     }
 
     function executeSaveGrades() {
-      const term = document.getElementById('mainTerm').value, test = document.getElementById('mainTest').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
+      const tt = getTermAndTest('main');
+      const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       
       let studentsData = [];
       for (let sIdx = 0; sIdx < currentStudentsCount; sIdx++) {
@@ -1075,7 +1130,7 @@
     }
 
     // ==========================================
-    // 🟢 4. 성적표 출력 (테스트명 추가 및 렌더링 세분화)
+    // 🟢 3. 4. 성적표 출력 렌더링 퀄리티 강화
     // ==========================================
     function executePrint() {
       const reportContainer = document.getElementById('reportContainer');
@@ -1087,7 +1142,8 @@
     }
 
     function generateReports() {
-      const term = document.getElementById('mainTerm').value, test = document.getElementById('mainTest').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
+      const tt = getTermAndTest('main');
+      const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
       showLoading(true, "분석 중...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getReportData', term, test, campus, course, teacher, className }) })
@@ -1108,6 +1164,7 @@
       students.forEach((st, idx) => {
         let unitCols = st.unitsData.map(u => `<th style="width:${100/st.unitsData.length}%;">${u.name}</th>`).join('');
         let unitMaxs = st.unitsData.map(u => `<td>${u.max}</td>`).join('');
+        // 🟢 학생 점수 중앙 정렬 및 우측 화살표 치우침 정렬 적용
         let unitScores = st.unitsData.map(u => {
             let diffIcon = '', color = '#495057';
             if (u.score > u.avg) { diffIcon = '▲'; color = '#1366ce'; } else if (u.score < u.avg) { diffIcon = '▼'; color = '#dc3545'; }
@@ -1129,6 +1186,7 @@
         let unitLabels = st.unitsData.map(u => u.name), unitMyData = st.unitsData.map(u => u.pct), unitAvgData = st.unitsData.map(u => u.avgPct);
         let diffLabels = st.diffsData.map(d => d.name), diffMyData = st.diffsData.map(d => d.pct), diffAvgData = st.diffsData.map(d => d.avgPct);
 
+        // 🟢 상위 1% 강제 보정 로직
         let calcTopPct = examInfo.totalCount > 0 ? Math.round((st.rank / examInfo.totalCount) * 100) : 100;
         calcTopPct = Math.max(1, calcTopPct); 
 
@@ -1137,9 +1195,7 @@
             <div class="report-header">
               <div class="report-logo"><span style="color: #1366ce;">SG</span>청운학원 <span style="font-size:16px; font-weight:normal; color:#666;">(${examInfo.campus})</span></div>
               <div class="report-info">
-                <!-- 🟢 4. 테스트 정보 분리 반영 -->
-                <div class="info-badge"><span>학기:</span> <span>${examInfo.term}</span></div>
-                <div class="info-badge"><span>테스트명:</span> <span>${examInfo.test}</span></div>
+                <div class="info-badge"><span>테스트:</span> <span>${examInfo.term} ${examInfo.test}</span></div>
                 <div class="info-badge"><span>과정명:</span> <span>${examInfo.className}</span></div>
                 <div class="info-badge"><span>학생명:</span> <span style="color:#1366ce;">${st.name}</span></div>
                 <div class="info-badge"><span>담임명:</span> <span>${examInfo.teacher}</span></div>
@@ -1166,10 +1222,11 @@
     }
 
     // ==========================================
-    // 🟢 대시보드 렌더링 (테스트명 추가)
+    // 대시보드 렌더링
     // ==========================================
     function generateDashboard() {
-      const term = document.getElementById('mainTerm').value, test = document.getElementById('mainTest').value, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value;
+      const tt = getTermAndTest('main');
+      const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value;
       if (!term || !test || !campus || !course) return showAlert("[학기, 테스트, 캠퍼스, 과정]을 모두 선택해주세요.");
       
       showLoading(true, "분석 중...");
