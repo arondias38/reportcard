@@ -9,7 +9,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
-    * { box-sizing: border-box; }
+    
+    /* 🟢 프린트 시 배경색/그림자 강제 유지 옵션 */
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
     html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow: hidden; }
@@ -19,144 +21,164 @@
     .page-content.active { display: flex; }
 
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
-    .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1366ce; border-radius: 50%; animation: spin 1s linear infinite; }
-    .spinner-text { margin-top: 15px; font-weight: bold; color: #1366ce; font-size: 15px; }
+    .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
+    .spinner-text { margin-top: 15px; font-weight: bold; color: #3b82f6; font-size: 15px; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center; }
-    .modal-box { background: white; border-radius: 12px; padding: 25px 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-    .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; background-color: #1366ce; color: white; transition: 0.2s; }
-    .modal-btn:hover { background-color: #0f52a8; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.6); z-index: 10000; justify-content: center; align-items: center; }
+    .modal-box { background: white; border-radius: 16px; padding: 25px 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    .modal-btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; background-color: #3b82f6; color: white; transition: 0.2s; }
+    .modal-btn:hover { background-color: #2563eb; }
 
-    .top-nav-bar { flex-shrink: 0; background-color: #fff; border-radius: 50px; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 20px; position: relative; }
-    .main-title { font-size: 18px; font-weight: normal; color: #111; margin: 0; display: flex; align-items: center; letter-spacing: -0.5px; }
+    .top-nav-bar { flex-shrink: 0; background-color: #fff; border-radius: 12px; padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 20px; position: relative; border: 1px solid #e2e8f0; }
+    .main-title { font-size: 18px; font-weight: 600; color: #0f172a; margin: 0; display: flex; align-items: center; letter-spacing: -0.5px; }
     .main-title img { height: 26px; margin-right: 10px; }
 
-    .nav-tabs { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
-    .nav-btn { width: 130px; background-color: #f1f3f5; color: #6c757d; border: none; border-radius: 50px; padding: 10px 0; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; text-align: center; }
-    .nav-btn:hover { background-color: #e9ecef; }
-    .nav-btn.active { background: linear-gradient(180deg, #1366ce 0%, #3a82e0 100%); color: white; box-shadow: 0 2px 6px rgba(19,102,206,0.3); }
+    .nav-tabs { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 10px; border: 1px solid #e2e8f0; }
+    .nav-btn { width: 120px; background-color: transparent; color: #64748b; border: none; border-radius: 8px; padding: 8px 0; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; }
+    .nav-btn:hover { color: #3b82f6; }
+    .nav-btn.active { background: #fff; color: #3b82f6; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-    .icon-btn { background-color: #fff; border: 1px solid #dee2e6; color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; margin-left: 10px; }
-    .icon-btn:hover { background-color: #e9ecef; color: #111; }
+    .icon-btn { background-color: #fff; border: 1px solid #e2e8f0; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 8px; transition: 0.2s; margin-left: 10px; }
+    .icon-btn:hover { background-color: #f8fafc; color: #0f172a; }
 
-    .filter-card { flex-shrink: 0; height: 56px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 0 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; position: sticky; top: 0; z-index: 200; overflow-x: auto; }
-    .filter-card.admin-mode { border-left: 6px solid #495057; } 
-    .filter-divider { width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px; }
+    /* 공통 필터 카드 */
+    .filter-card { flex-shrink: 0; height: 56px; background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); padding: 0 20px; border: 1px solid #e2e8f0; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; overflow-x: auto; }
+    .filter-divider { width: 1px; height: 20px; background-color: #e2e8f0; margin: 0 4px; }
     
-    .select-group { display: flex; align-items: center; gap: 6px; }
-    .select-group label { font-weight: bold; font-size: 13px; color: #1366ce; white-space: nowrap; }
-    .admin-mode .select-group label { color: #495057; }
+    .select-group { display: flex; align-items: center; gap: 8px; }
+    .select-group label { font-weight: 600; font-size: 13px; color: #475569; white-space: nowrap; }
     
-    .select-group select { width: 135px; height: 30px; padding: 4px 30px 4px 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 16px; color: #333; }
-    .select-group select.wide-select { width: 220px; }
-    .select-group select:invalid { color: #888; } 
-    .select-group select option { color: #333; }
+    /* 🟢 1. 셀렉트 박스 너비 클래스 세분화 (테스트: 180px, 나머지: 130px) */
+    .select-group select { height: 32px; padding: 4px 30px 4px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 16px; color: #1e293b; font-weight: 500; background-color: #f8fafc; cursor: pointer; transition: 0.2s; }
+    .select-group select:hover { border-color: #94a3b8; }
+    .select-group select:focus { border-color: #3b82f6; background-color: #fff; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
     
-    .select-group input, .select-group textarea { height: 30px; padding: 4px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; }
-    .select-group select:focus, input:focus { border-color: #1366ce; }
+    .sel-test { width: 180px; }
+    .sel-normal { width: 130px; }
     
-    .btn-primary { height: 32px; padding: 0 16px; border: none; border-radius: 50px; font-weight: bold; font-size: 13px; background-color: #1366ce; color: white; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap; }
-    .btn-primary:hover { background-color: #0f52a8; }
+    .select-group select:invalid { color: #94a3b8; } 
+    .select-group select option { color: #1e293b; font-weight: 500; }
     
-    #view_input { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-    #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
-    #view_data { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
+    .select-group input { height: 32px; padding: 4px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; background-color: #f8fafc; }
+    .select-group input:focus { border-color: #3b82f6; background-color: #fff; }
+    
+    .btn-primary { height: 32px; padding: 0 16px; border: none; border-radius: 6px; font-weight: 600; font-size: 13px; background-color: #3b82f6; color: white; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
+    .btn-primary:hover { background-color: #2563eb; }
+    
+    #view_input, #view_report, #view_data { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
 
-    .table-wrapper { flex: 1; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .table-wrapper { flex: 1; overflow: auto; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
     table.data-table { border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; min-width: 100%; }
-    table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; box-sizing: border-box; }
+    table.data-table th, table.data-table td { border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; padding: 2px 4px; height: 30px; vertical-align: middle; box-sizing: border-box; }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
     .sticky-top-1 { position: sticky; top: 0; z-index: 80; }
-    .sticky-top-2 { position: sticky; top: 28px; z-index: 80; }
-    .sticky-top-3 { position: sticky; top: 56px; z-index: 80; }
-    .sticky-top-4 { position: sticky; top: 84px; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
-    .admin-sticky-top { position: sticky; top: 0; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
+    .sticky-top-2 { position: sticky; top: 30px; z-index: 80; }
+    .sticky-top-3 { position: sticky; top: 60px; z-index: 80; }
+    .sticky-top-4 { position: sticky; top: 90px; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-bottom: 1px solid #cbd5e1 !important; } 
+    .admin-sticky-top { position: sticky; top: 0; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.04); border-bottom: 1px solid #cbd5e1 !important; } 
     
     .sticky-col-1 { position: sticky; left: 0; min-width: 60px; max-width: 60px; z-index: 60; }
     .sticky-col-2 { position: sticky; left: 60px; min-width: 140px; max-width: 140px; z-index: 60; }
-    .sticky-col-3 { position: sticky; left: 200px; min-width: 60px; max-width: 60px; z-index: 60; border-right: 1px solid #ced4da !important; box-shadow: 2px 0 4px rgba(0,0,0,0.04); }
-    .sticky-col-all { position: sticky; left: 0; z-index: 60; border-right: 1px solid #ced4da !important; box-shadow: 2px 0 4px rgba(0,0,0,0.04); }
+    .sticky-col-3 { position: sticky; left: 200px; min-width: 60px; max-width: 60px; z-index: 60; border-right: 1px solid #cbd5e1 !important; }
+    .sticky-col-all { position: sticky; left: 0; z-index: 60; border-right: 1px solid #cbd5e1 !important; }
     
-    table.data-table thead th { font-weight: bold; color: #333; }
+    table.data-table thead th { font-weight: 600; color: #475569; }
     table.data-table thead th.sticky-top-1, table.data-table thead th.sticky-top-2, table.data-table thead th.sticky-top-3, table.data-table thead th.sticky-top-4, table.data-table thead th.admin-sticky-top { z-index: 90; }
     table.data-table thead th.sticky-col-1, table.data-table thead th.sticky-col-2, table.data-table thead th.sticky-col-3, table.data-table thead th.sticky-col-all { z-index: 100; }
     
-    .bg-gray { background-color: #e9ecef !important; color: #333; }
-    .bg-light { background-color: #f8f9fa !important; color: #333; }
+    .bg-gray { background-color: #f1f5f9 !important; color: #475569; }
+    .bg-light { background-color: #f8fafc !important; color: #333; }
     .bg-white { background-color: #ffffff !important; }
     
-    .student-name-cell { min-width: 60px; max-width: 60px; overflow: hidden; text-overflow: clip; letter-spacing: -0.5px; }
+    .student-name-cell { min-width: 60px; max-width: 60px; overflow: hidden; text-overflow: clip; letter-spacing: -0.5px; color:#1e293b !important; }
 
-    .ox-input { width: 100%; height: 100%; border: none; text-align: center; font-weight: 900; font-size: 14px; padding: 0; background-color: transparent; outline: none; cursor: pointer; color: #dee2e6; }
-    .ox-input:focus { background-color: #e6f0ff; color: #333; }
-    .ox-input:disabled { background-color: transparent; color: #ccc; cursor: default; }
-    .ox-input.val-o { color: #28a745; } 
-    .ox-input.val-x { color: #dc3545; } 
+    .ox-input { width: 100%; height: 100%; border: none; text-align: center; font-weight: 800; font-size: 14px; padding: 0; background-color: transparent; outline: none; cursor: pointer; color: #cbd5e1; }
+    .ox-input:focus { background-color: #eff6ff; color: #0f172a; }
+    .ox-input:disabled { background-color: transparent; color: #e2e8f0; cursor: default; }
+    .ox-input.val-o { color: #10b981; } 
+    .ox-input.val-x { color: #ef4444; } 
 
-    .setup-input { width: 90%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
-    .setup-input:focus { border-color: #1366ce; outline: none; }
+    .setup-input { width: 90%; padding: 4px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 13px; }
+    .setup-input:focus { border-color: #3b82f6; outline: none; }
 
-    .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
-    .paste-zone:hover { background-color: #e9ecef; }
+    .paste-zone { border: 2px dashed #94a3b8; background-color: #fff; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+    .paste-zone:hover { background-color: #f8fafc; border-color: #3b82f6; }
 
-    .settings-table-wrapper { max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px; }
+    .settings-table-wrapper { max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 20px; }
     .settings-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: center; }
-    .settings-table th { background: #e9ecef; padding: 10px; position: sticky; top: 0; z-index: 5; color: #1366ce; border-bottom: 2px solid #ced4da; }
-    .settings-table td { padding: 0; border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
+    .settings-table th { background: #f8fafc; padding: 10px; position: sticky; top: 0; z-index: 5; color: #475569; border-bottom: 1px solid #e2e8f0; }
+    .settings-table td { padding: 0; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9; }
     .set-input { width: 100%; border: none; padding: 8px; box-sizing: border-box; text-align: center; outline: none; background: transparent; }
-    .set-input:focus { background-color: #e6f0ff; }
+    .set-input:focus { background-color: #eff6ff; }
 
-    #view_data { padding-bottom: 30px; }
+    /* 🟢 2. 모던 대시보드 스타일 성적표 출력 디자인 개편 */
+    #view_report { padding-bottom: 50px; background: transparent; }
+    .report-container { width: 100%; max-width: 1150px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; margin-bottom: 30px; }
+    
+    .report-page { position: relative; width: 100%; aspect-ratio: 297/210; box-sizing: border-box; border: 1px solid #e2e8f0; border-radius: 16px; padding: 30px; display: flex; flex-direction: column; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.03); overflow: hidden; }
+    
+    .report-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9; flex-shrink: 0; }
+    .report-logo { display: flex; align-items: center; font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px; }
+    .report-logo-icon { width: 32px; height: 32px; background: #3b82f6; color: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-right: 10px; font-weight: 900; }
+    
+    .report-info { display: flex; gap: 8px; }
+    .info-badge { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 12px; text-align: center; font-size: 12px; font-weight: 500; color: #64748b; display: flex; align-items: center; gap: 6px; }
+    .info-badge strong { color: #0f172a; font-weight: 700; font-size: 13px; }
+    
+    .report-grid { display: flex; gap: 20px; flex: 1; min-height: 0; }
+    
+    /* 메인 카드 UI */
+    .dash-card { flex: 1; display: flex; flex-direction: column; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.01); }
+    .card-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+    .card-title::before { content: ''; display: block; width: 4px; height: 14px; background: #3b82f6; border-radius: 2px; }
+    
+    /* 테이블 미니멀화 */
+    table.minimal-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; table-layout: fixed; }
+    table.minimal-table th, table.minimal-table td { padding: 4px 2px; height: 30px; white-space: normal; word-break: keep-all; line-height: 1.2; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+    table.minimal-table th:first-child, table.minimal-table td:first-child { width: 55px; min-width: 55px; max-width: 55px; background-color: transparent; font-weight: 600; color: #64748b; text-align: left; padding-left: 5px; }
+    table.minimal-table th { color: #64748b; font-weight: 500; }
+    table.minimal-table tr:last-child td, table.minimal-table tr:last-child th { border-bottom: 2px solid #cbd5e1; } /* 정답률 밑줄 강조 */
+    
+    /* 🟢 차트 높이 축소 */
+    .chart-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; min-height: 0; padding-top: 15px; height: 130px; }
+    
+    /* 우측 요약 컬럼 (KPI 카드) */
+    .summary-col { flex: 0.28; display: flex; flex-direction: column; gap: 12px; }
+    .kpi-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.01); }
+    .kpi-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .kpi-info { display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+    .kpi-label { font-size: 11px; color: #64748b; font-weight: 600; }
+    .kpi-val { font-size: 20px; font-weight: 800; color: #0f172a; line-height: 1; }
+    
+    .bg-blue-light { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
+    .bg-green-light { background: #f0fdf4; color: #10b981; }
+    .bg-purple-light { background: #faf5ff; color: #a855f7; }
+    
+    .doughnut-card { flex: 1; align-items: center; justify-content: center; padding-top: 20px; }
+    .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
+    .doughnut-val { font-size: 22px; font-weight: 900; color: #0f172a; line-height: 1; }
+    .doughnut-sub { font-size: 10px; color: #64748b; font-weight: 600; margin-top: 4px; }
+    
+    .report-footer { margin-top: 15px; padding: 12px 15px; background-color: #f8fafc; border-radius: 8px; font-size: 11px; color: #64748b; line-height: 1.5; flex-shrink: 0; border: 1px solid #e2e8f0; }
+
+    /* 대시보드 탭 (기본 데이터 확인) */
     .dash-grid { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
-    .dash-card { flex: 1; min-width: 250px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); padding: 20px; display: flex; flex-direction: column; }
-    .dash-title { font-size: 14px; color: #6c757d; font-weight: bold; margin-bottom: 10px; }
-    .dash-value { font-size: 32px; font-weight: 900; color: #1366ce; }
-    .dash-chart { width: 100%; height: 250px; position: relative; }
-
-    #view_report { padding-bottom: 50px; }
-    .report-container { width: 100%; max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; margin-bottom: 40px; }
-    
-    .report-page { position: relative; width: 100%; aspect-ratio: 297/210; box-sizing: border-box; border: none; border-radius: 10px; padding: 35px 35px; display: flex; flex-direction: column; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.06); overflow: hidden; }
-    .report-page::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, #1366ce, #68488e); }
-    
-    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 12px; flex-shrink: 0; }
-    .report-logo { font-size: 24px; font-weight: 900; color: #111; letter-spacing: -1px; }
-    .report-info { display: flex; gap: 10px; }
-    .info-badge { background-color: #f4f6f9; border: none; border-radius: 6px; padding: 6px 12px; text-align: center; font-size: 13px; font-weight: bold; color: #495057; display: flex; align-items: center; gap: 8px; }
-    
-    .report-grid { display: flex; gap: 18px; flex: 1; min-height: 0; }
-    .grid-col { flex: 1; display: flex; flex-direction: column; box-shadow: 0 0 0 1px #e0e0e0; border-radius: 8px; overflow: hidden; }
-    .grid-col-right { flex: 0.28; display: flex; flex-direction: column; box-shadow: 0 0 0 1px #e0e0e0; border-radius: 8px; overflow: hidden; background-color: #fff; }
-    
-    .col-header { color: white; padding: 6px; text-align: center; font-weight: bold; font-size: 14px; letter-spacing: 1px; flex-shrink: 0; }
-    .bg-blue { background-color: #3b5998; }
-    .bg-green { background-color: #5c8041; }
-    .bg-purple { background-color: #68488e; }
-    
-    table.report-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; table-layout: fixed; }
-    table.report-table th, table.report-table td { border-bottom: 1px solid #eaedf1; border-right: 1px solid #eaedf1; padding: 2px 4px; height: 30px; white-space: normal; word-break: keep-all; line-height: 1.2; vertical-align: middle; }
-    table.report-table th:first-child, table.report-table td:first-child { width: 55px; min-width: 55px; max-width: 55px; background-color: #f8f9fa; font-weight: bold; color: #495057; }
-    table.report-table th { background-color: #fdfdfd; color: #495057; font-weight: bold; }
-    table.report-table td { font-weight: bold; }
-    table.report-table td:last-child, table.report-table th:last-child { border-right: none; }
-    table.report-table tr:last-child td, table.report-table tr:last-child th { border-bottom: 2px solid #ccc; }
-    
-    .chart-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; min-height: 0; padding: 15px 10px 5px 10px; height: 160px; }
-    .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 20px; font-weight: 900; color: #68488e; }
-    .report-footer { margin-top: 15px; padding: 12px; background-color: #f8f9fa; border: none; border-radius: 6px; font-size: 11px; color: #666; line-height: 1.5; flex-shrink: 0; text-align: left; }
+    .dash-card-basic { flex: 1; min-width: 250px; background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; padding: 20px; display: flex; flex-direction: column; }
+    .dash-title { font-size: 14px; color: #64748b; font-weight: 600; margin-bottom: 10px; }
+    .dash-value { font-size: 32px; font-weight: 800; color: #3b82f6; }
+    .dash-chart-basic { width: 100%; height: 250px; position: relative; }
 
     @media print {
       body * { visibility: hidden; }
-      html, body { overflow: visible !important; height: auto !important; }
+      html, body { overflow: visible !important; height: auto !important; background: #fff !important; }
       .app-container { padding: 0 !important; margin: 0 !important; height: auto !important; overflow: visible !important; display: block !important; }
       .page-content, #view_report { display: block !important; overflow: visible !important; }
       #reportContainer, #reportContainer * { visibility: visible; }
       #reportContainer { position: absolute; left: 0; top: 0; width: 100%; margin-bottom: 0; }
       .top-nav-bar, .filter-card { display: none !important; }
       .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; }
-      .report-page::before { display: none; }
       @page { size: A4 landscape; margin: 0; }
     }
   </style>
@@ -169,17 +191,17 @@
   
   <div class="modal-overlay" id="customAlertModal">
     <div class="modal-box" style="width: 320px;">
-      <div id="modalMessage" class="modal-message" style="text-align: center; margin: 25px 0;"></div>
+      <div id="modalMessage" class="modal-message" style="text-align: center; margin: 25px 0; color: #1e293b; font-weight: 500;"></div>
       <button class="modal-btn" onclick="document.getElementById('customAlertModal').style.display='none'">확인</button>
     </div>
   </div>
 
   <div class="modal-overlay" id="customConfirmModal">
     <div class="modal-box" style="width: 380px; padding: 25px;">
-      <div id="confirmMessage" class="modal-message" style="text-align: center; font-size: 15px; margin-bottom: 25px; font-weight:bold;"></div>
+      <div id="confirmMessage" class="modal-message" style="text-align: center; font-size: 14px; margin-bottom: 25px; font-weight:600; color:#1e293b; line-height: 1.5;"></div>
       <div style="display: flex; gap: 10px;">
-        <button class="modal-btn" style="background-color: #6c757d;" onclick="closeConfirm(false)">아니오</button>
-        <button class="modal-btn" style="background-color: #28a745;" onclick="closeConfirm(true)">예</button>
+        <button class="modal-btn" style="background-color: #94a3b8;" onclick="closeConfirm(false)">아니오</button>
+        <button class="modal-btn" style="background-color: #3b82f6;" onclick="closeConfirm(true)">예</button>
       </div>
     </div>
   </div>
@@ -188,7 +210,7 @@
     <div class="modal-box" style="width: 340px; padding: 30px 20px;">
       <div style="font-size: 32px; margin-bottom: 10px;">👤</div>
       <div style="font-size: 16px; font-weight: bold; color: #333; margin-bottom: 25px;">
-        <span id="nextStudentName" style="color: #1366ce; font-size: 18px;"></span> 학생의<br>채점을 이어서 진행합니다.
+        <span id="nextStudentName" style="color: #3b82f6; font-size: 18px;"></span> 학생의<br>채점을 이어서 진행합니다.
       </div>
       <button class="modal-btn" onclick="confirmNextStudent()">확인 (Enter)</button>
     </div>
@@ -196,36 +218,36 @@
 
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box" style="width: 700px; padding: 25px; text-align: left;">
-      <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">환경설정 (필수)</div>
-      <p style="font-size: 13px; color: #666; margin-bottom: 15px;">항목을 차례대로 입력해 주세요. (마지막 줄에 입력하면 <b>자동으로 새 줄이 추가</b>됩니다.)</p>
+      <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 15px;">환경설정 (필수)</div>
+      <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">항목을 차례대로 입력해 주세요. (마지막 줄에 입력하면 자동으로 새 줄이 추가됩니다.)</p>
       <div class="settings-table-wrapper">
         <table class="settings-table">
-          <thead><tr><th width="20%" style="color:#495057;">캠퍼스 목록</th><th width="20%" style="color:#495057;">학기 목록</th><th width="20%" style="color:#495057;">테스트 목록</th><th width="20%" style="color:#495057;">난이도 목록</th><th width="20%" style="color:#495057; border-right: none;">과정명 목록</th></tr></thead>
+          <thead><tr><th width="20%">캠퍼스 목록</th><th width="20%">학기 목록</th><th width="20%">테스트 목록</th><th width="20%">난이도 목록</th><th width="20%" style="border-right: none;">과정명 목록</th></tr></thead>
           <tbody id="settingsGridBody"></tbody>
         </table>
       </div>
       <div style="display: flex; gap: 10px; justify-content: flex-end;">
-        <button class="modal-btn" style="background-color: #6c757d; width: 100px;" onclick="document.getElementById('settingsModal').style.display='none'">닫기</button>
-        <button class="modal-btn" style="background-color: #28a745; width: 130px;" onclick="saveSettings()">설정 저장</button>
+        <button class="modal-btn" style="background-color: #94a3b8; width: 100px;" onclick="document.getElementById('settingsModal').style.display='none'">닫기</button>
+        <button class="modal-btn" style="width: 130px;" onclick="saveSettings()">설정 저장</button>
       </div>
     </div>
   </div>
 
   <div class="modal-overlay" id="rosterUploadModal">
     <div class="modal-box" style="width: 480px; padding: 25px;">
-      <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">학생명단 일괄 업로드</div>
+      <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 15px; text-align: left;">학생명단 일괄 업로드</div>
       <div style="display: flex; gap: 15px; margin-bottom: 20px; text-align: left;">
-         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">테스트 (학기+테스트)</label><select id="rosterCombinedTest" style="width:100%; height:36px; border-radius:4px; border:1px solid #ccc;"></select></div>
-         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">캠퍼스</label><select id="rosterCampus" style="width:100%; height:36px; border-radius:4px; border:1px solid #ccc;"></select></div>
+         <div style="flex:1;"><label style="font-size:12px; font-weight:600; color:#64748b; display:block; margin-bottom:4px;">테스트 (학기+테스트)</label><select id="rosterCombinedTest" style="width:100%; height:36px; border-radius:6px; border:1px solid #cbd5e1; font-size:13px; padding-left:10px;"></select></div>
+         <div style="flex:1;"><label style="font-size:12px; font-weight:600; color:#64748b; display:block; margin-bottom:4px;">캠퍼스</label><select id="rosterCampus" style="width:100%; height:36px; border-radius:6px; border:1px solid #cbd5e1; font-size:13px; padding-left:10px;"></select></div>
       </div>
-      <div id="dropZone" style="border: 2px dashed #28a745; border-radius: 8px; padding: 40px 15px; background-color: #f8f9fa; cursor: pointer; transition: 0.2s; margin-bottom:20px;">
+      <div id="dropZone" class="paste-zone" style="padding: 40px 15px;">
          <div style="font-size:32px; margin-bottom:10px;">📂</div>
-         <div style="font-size:15px; font-weight:bold; color:#28a745; margin-bottom:8px;">엑셀 파일을 이곳에 끌어다 놓거나 클릭하세요.</div>
-         <div style="font-size:13px; color:#888; line-height: 1.4;">※ '담임명, 반명, 학생명, 학교, 학년' 열을 자동으로 추출합니다.</div>
+         <div style="font-size:14px; font-weight:bold; color:#3b82f6; margin-bottom:8px;">엑셀 파일을 이곳에 끌어다 놓거나 클릭하세요.</div>
+         <div style="font-size:12px; color:#64748b; line-height: 1.4;">※ '담임명, 반명, 학생명, 학교, 학년' 열을 추출합니다.</div>
          <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;">
       </div>
-      <div class="modal-buttons" style="margin-bottom: 5px; display: flex; width: 100%;">
-        <button class="modal-btn btn-no" style="flex:none; width: 100%; border-radius: 50px; padding: 10px 20px; background-color: #6c757d;" onclick="document.getElementById('rosterUploadModal').style.display='none'">닫기</button>
+      <div style="display: flex; width: 100%;">
+        <button class="modal-btn" style="background-color: #94a3b8;" onclick="document.getElementById('rosterUploadModal').style.display='none'">닫기</button>
       </div>
     </div>
   </div>
@@ -234,7 +256,8 @@
     
     <div class="top-nav-bar" id="mainHeaderBar">
       <h2 class="main-title" id="mainHeaderTitle">
-        <img src="https://i.imgur.com/PQRrCSI.png" alt="SG청운학원"> 성적표 통합 시스템
+        <div style="width: 28px; height: 28px; background: #3b82f6; color: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 10px; font-weight: 900;">SG</div>
+        성적표 통합 시스템
       </h2>
       
       <div class="nav-tabs" id="navTabs">
@@ -245,36 +268,37 @@
 
       <div style="display: flex; align-items: center;">
         <button class="icon-btn" id="headerAdminBtn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         </button>
         <button class="icon-btn" id="headerMainBtn" style="display: none;" onclick="switchPage('page-main')" title="뒤로가기">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         </button>
       </div>
     </div>
 
-    <!-- 메인 화면 -->
+    <!-- 🟢 메인 화면 -->
     <div id="page-main" class="page-content active">
       
       <div class="filter-card" id="mainFilterCard">
-        <div class="select-group"><label>테스트</label><select id="mainCombinedTest" class="wide-select" required onchange="filterCampuses('main', true)"></select></div>
-        <div class="select-group"><label>캠퍼스</label><select id="mainCampus" required onchange="filterCourses('main', true)"></select></div>
-        <div class="select-group"><label>과정</label><select id="mainCourse" required onchange="filterTeachers('main', true)"></select></div>
-        <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
-        <div class="select-group" id="mainClassGroup"><label>반명</label><select id="mainClass" required></select></div>
+        <!-- 🟢 1. 필터 순서 완벽 재배치 (테스트 -> 과정 -> 캠퍼스 -> 선생님 -> 반명) -->
+        <div class="select-group"><label>테스트</label><select id="mainCombinedTest" class="sel-test" required onchange="filterCourses('main', true)"></select></div>
+        <div class="select-group"><label>과정</label><select id="mainCourse" class="sel-normal" required onchange="filterCampuses('main', true)"></select></div>
+        <div class="select-group"><label>캠퍼스</label><select id="mainCampus" class="sel-normal" required onchange="filterTeachers('main', true)"></select></div>
+        <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" class="sel-normal" required onchange="filterClasses('main', true)"></select></div>
+        <div class="select-group" id="mainClassGroup"><label>반명</label><select id="mainClass" class="sel-normal" required></select></div>
         
-        <div id="actionBtn_input" style="display: flex; gap: 10px; margin-left: 15px; flex: 1;">
-          <button class="btn-primary" onclick="loadGradesData()">명단 불러오기</button>
-          <button class="btn-primary" style="margin-left: auto; background-color: #d32f2f;" onclick="saveGrades()">결과 저장</button>
+        <div id="actionBtn_input" style="display: flex; gap: 10px; margin-left: auto;">
+          <button class="btn-primary" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;" onclick="loadGradesData()">명단 불러오기</button>
+          <button class="btn-primary" onclick="saveGrades()">결과 저장</button>
         </div>
 
-        <div id="actionBtn_report" style="display: none; gap: 10px; margin-left: 15px; flex: 1;">
-          <button class="btn-primary" style="background-color: #68488e;" onclick="generateReports()">성적표 렌더링</button>
-          <button class="btn-primary" style="margin-left: auto; background-color: #333;" onclick="executePrint()">일괄 인쇄 (PDF)</button>
+        <div id="actionBtn_report" style="display: none; gap: 10px; margin-left: auto;">
+          <button class="btn-primary" onclick="generateReports()">성적표 렌더링</button>
+          <button class="btn-primary" style="background-color: #0f172a;" onclick="executePrint()">일괄 인쇄 (PDF)</button>
         </div>
 
-        <div id="actionBtn_data" style="display: none; gap: 10px; margin-left: 15px; flex: 1;">
-          <button class="btn-primary" style="background-color: #17a2b8;" onclick="generateDashboard()">데이터 조회</button>
+        <div id="actionBtn_data" style="display: none; gap: 10px; margin-left: auto;">
+          <button class="btn-primary" onclick="generateDashboard()">데이터 조회</button>
         </div>
       </div>
 
@@ -285,41 +309,41 @@
             <tbody id="inputTableBody"></tbody>
           </table>
         </div>
-        <div id="inputEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
+        <div id="inputEmptyState" style="text-align: center; padding: 100px 0; color: #94a3b8; font-weight: 600; font-size: 14px; border: 2px dashed #e2e8f0; border-radius: 12px; background-color: #fff; flex: 1;">
           상단의 조건을 확인하고 [명단 불러오기]를 눌러주세요.
         </div>
       </div>
 
       <div id="view_report" style="display: none;">
         <div class="report-container" id="reportContainer" style="display: none;"></div>
-        <div id="reportEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
+        <div id="reportEmptyState" style="text-align: center; padding: 100px 0; color: #94a3b8; font-weight: 600; font-size: 14px; border: 2px dashed #e2e8f0; border-radius: 12px; background-color: #fff; flex: 1;">
           반을 확인하고 [성적표 렌더링]을 누르면 성적표가 생성됩니다.
         </div>
       </div>
 
       <div id="view_data" style="display: none;">
-        <div id="dashEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
-          과정을 확인하고 [데이터 조회]를 누르면 동일 테스트/과정의 통합 데이터를 확인합니다.
+        <div id="dashEmptyState" style="text-align: center; padding: 100px 0; color: #94a3b8; font-weight: 600; font-size: 14px; border: 2px dashed #e2e8f0; border-radius: 12px; background-color: #fff; flex: 1;">
+          과정을 확인하고 [데이터 조회]를 누르면 통합 데이터를 확인합니다.
         </div>
         <div id="dashContainer" style="display: none; flex-direction: column;">
           <div class="dash-grid">
-            <div class="dash-card">
+            <div class="dash-card-basic">
               <div class="dash-title">총 응시 인원</div>
               <div class="dash-value" id="dashTotalStudents">0명</div>
             </div>
-            <div class="dash-card">
+            <div class="dash-card-basic">
               <div class="dash-title">통합 평균 점수</div>
-              <div class="dash-value" id="dashTotalAvg" style="color: #68488e;">0.0점</div>
+              <div class="dash-value" id="dashTotalAvg">0.0점</div>
             </div>
           </div>
           <div class="dash-grid">
-            <div class="dash-card" style="flex: 2;">
+            <div class="dash-card-basic" style="flex: 2;">
               <div class="dash-title">점수대별 인원 분포</div>
-              <div class="dash-chart"><canvas id="dashScoreDistChart"></canvas></div>
+              <div class="dash-chart-basic"><canvas id="dashScoreDistChart"></canvas></div>
             </div>
-            <div class="dash-card" style="flex: 1;" id="dashCampusCard">
+            <div class="dash-card-basic" style="flex: 1;" id="dashCampusCard">
               <div class="dash-title">캠퍼스별 평균 점수</div>
-              <div class="dash-chart"><canvas id="dashCampusAvgChart"></canvas></div>
+              <div class="dash-chart-basic"><canvas id="dashCampusAvgChart"></canvas></div>
             </div>
           </div>
         </div>
@@ -327,32 +351,29 @@
 
     </div>
 
-    <!-- ========================================== -->
-    <!-- 관리자 화면 (시험 세팅) -->
-    <!-- ========================================== -->
+    <!-- 관리자 화면 -->
     <div id="page-admin" class="page-content">
       <div class="filter-card admin-mode">
-        <div class="select-group"><label>테스트</label><select id="setupCombinedTest" class="wide-select" required onchange="checkExistingSetup()"></select></div>
+        <!-- 🟢 1. 관리자 탭 필터 순서 일치화 -->
+        <div class="select-group"><label>테스트</label><select id="setupCombinedTest" class="sel-test" required onchange="checkExistingSetup()"></select></div>
         <div class="filter-divider"></div>
-        <div class="select-group"><label>과정</label><select id="setupLevel" required onchange="checkExistingSetup()"></select><select id="setupCourse" required onchange="checkExistingSetup()"></select></div>
+        <div class="select-group"><label>과정</label><select id="setupLevel" class="sel-normal" required onchange="checkExistingSetup()"></select><select id="setupCourse" class="sel-normal" required onchange="checkExistingSetup()"></select></div>
         <div class="filter-divider"></div>
         
         <div class="select-group"><label>문항시작번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
         <div class="select-group"><label>문항종료번호</label><input type="number" id="setupEndNum" value="45" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
         
-        <button class="btn-primary" style="margin-left: 5px; background-color: #495057;" onclick="saveExamSetup()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> 시험 정보 저장
-        </button>
+        <button class="btn-primary" style="margin-left: 5px;" onclick="saveExamSetup()">시험 정보 저장</button>
 
         <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
-          <button class="btn-primary" style="background-color: #28a745;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">학생명단 업로드</button>
-          <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">환경설정 (필수)</button>
+          <button class="btn-primary" style="background-color: #10b981;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">학생명단 업로드</button>
+          <button class="btn-primary" style="background-color: #64748b;" onclick="openSettingsModal()">환경설정 (필수)</button>
         </div>
       </div>
 
       <div class="paste-zone" id="hwpPasteZone">
-        <h4 style="margin-top: 0; color: #495057; margin-bottom: 8px;">📄 엑셀/한글 출제표 복사-붙여넣기 영역</h4>
-        <p style="color: #666; margin-bottom: 0; font-size: 13px;">답지 표(단원명, 배점)를 복사한 후 이곳을 클릭하고 <b>Ctrl + V</b>를 누르세요. 자동으로 매핑됩니다.</p>
+        <h4 style="margin-top: 0; color: #333; margin-bottom: 8px; font-weight:700;">📄 엑셀/한글 출제표 복사-붙여넣기 영역</h4>
+        <p style="color: #64748b; margin-bottom: 0; font-size: 13px;">답지 표(단원명, 배점)를 복사한 후 이곳을 클릭하고 <b>Ctrl + V</b>를 누르세요.</p>
         <input type="text" id="pasteCatcher" style="opacity: 0; position: absolute; pointer-events: none;">
       </div>
 
@@ -403,7 +424,7 @@
       }
     });
 
-    function showAlert(msg) { document.getElementById('modalMessage').innerHTML = `<div style="margin: 25px 0;">${msg}</div>`; document.getElementById('customAlertModal').style.display = 'flex'; }
+    function showAlert(msg) { document.getElementById('modalMessage').innerHTML = msg; document.getElementById('customAlertModal').style.display = 'flex'; }
     function showLoading(status, msg = "처리 중입니다...") { document.getElementById('spinnerText').innerText = msg; document.getElementById('globalSpinner').style.display = status ? 'flex' : 'none'; }
     function handleError(err) { showLoading(false); showAlert("🚫 에러 발생: " + err.message); }
 
@@ -470,12 +491,12 @@
         adminBtn.style.display = 'flex';
         mainBtn.style.display = 'none';
         navTabs.style.display = 'flex';
-        headerTitle.innerHTML = `<img src="https://i.imgur.com/PQRrCSI.png" alt="로고"> 성적표 통합 시스템`;
+        headerTitle.innerHTML = `<div style="width: 28px; height: 28px; background: #3b82f6; color: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 10px; font-weight: 900;">SG</div> 성적표 통합 시스템`;
       } else {
         adminBtn.style.display = 'none';
         mainBtn.style.display = 'flex';
         navTabs.style.display = 'none';
-        headerTitle.innerHTML = `<img src="https://i.imgur.com/PQRrCSI.png" alt="로고"> 시험 기본 세팅 (관리자)`;
+        headerTitle.innerHTML = `<div style="width: 28px; height: 28px; background: #475569; color: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 10px; font-weight: 900;">SG</div> 시험 기본 세팅 (관리자)`;
       }
     }
 
@@ -574,14 +595,14 @@
         });
       }
 
-      fillCombinedSelect('setupCombinedTest', '테스트를 선택하세요');
-      fillSelect('setupLevel', s.levels, '난이도를 선택하세요'); 
-      fillSelect('setupCourse', s.courses, '과정명을 선택하세요'); 
+      fillCombinedSelect('setupCombinedTest', '테스트 선택');
+      fillSelect('setupLevel', s.levels, '난이도 선택'); 
+      fillSelect('setupCourse', s.courses, '과정 선택'); 
       
       fillCombinedSelect('rosterCombinedTest', '테스트 (학기+테스트)');
       fillSelect('rosterCampus', s.campuses, '캠퍼스를 선택하세요');
       
-      fillCombinedSelect('mainCombinedTest', '테스트를 선택하세요');
+      fillCombinedSelect('mainCombinedTest', '테스트 선택');
       
       if (preserveState) {
           if (prevAdminTest && document.getElementById('setupCombinedTest').querySelector(`option[value="${prevAdminTest}"]`)) document.getElementById('setupCombinedTest').value = prevAdminTest;
@@ -590,15 +611,15 @@
       } else {
           document.getElementById('setupCombinedTest').value = "";
           document.getElementById('mainCombinedTest').value = "";
-          filterCampuses('main', true); 
+          filterCourses('main', true); 
       }
     }
 
     const dropZone = document.getElementById('dropZone'); const fileInput = document.getElementById('fileInput');
     dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#e6f0ff'; });
-    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#f8f9fa'; });
-    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#f8f9fa'; if (e.dataTransfer.files.length) processExcel(e.dataTransfer.files[0]); });
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#f1f5f9'; border-color: '#3b82f6'; });
+    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#fff'; border-color: '#94a3b8'; });
+    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#fff'; if (e.dataTransfer.files.length) processExcel(e.dataTransfer.files[0]); });
     fileInput.addEventListener('change', (e) => { if (e.target.files.length) processExcel(e.target.files[0]); });
 
     function processExcel(file) {
@@ -655,6 +676,25 @@
       }; reader.readAsArrayBuffer(file);
     }
 
+    // 🟢 1. 필터 체인 변경 (Test -> Course -> Campus -> Teacher -> Class)
+    function filterCourses(prefix, forceReset = false) {
+      const tt = getTermAndTest(prefix);
+      const term = tt.term; const test = tt.test;
+      const sel = document.getElementById(`${prefix}Course`); 
+      if(!sel) return;
+      const prevVal = forceReset ? "" : sel.value;
+      sel.innerHTML = `<option value="" disabled selected hidden>과정 선택</option>`;
+      
+      if(term && test) { 
+        let courses = [...new Set(globalData.setups.filter(s => s.term === term && s.test === test).map(s => s.course))].sort(); 
+        courses.forEach(c => sel.innerHTML += `<option value="${c}" style="color:#333;">${c}</option>`); 
+      }
+      if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
+      else sel.value = "";
+      
+      filterCampuses(prefix, forceReset);
+    }
+    
     function filterCampuses(prefix, forceReset = false) {
       const tt = getTermAndTest(prefix);
       const term = tt.term; const test = tt.test;
@@ -663,8 +703,9 @@
       
       const prevVal = forceReset ? "" : sel.value;
       const keepAll = sel.querySelector('option[value="전체"]');
-      let optionsHtml = keepAll ? '<option value="전체" style="color:#333;">전체 (All)</option>' : `<option value="" disabled selected hidden>캠퍼스를 선택하세요</option>`;
+      let optionsHtml = keepAll ? '<option value="전체" style="color:#333;">전체 (All)</option>' : `<option value="" disabled selected hidden>캠퍼스 선택</option>`;
       
+      // 코스 선택 여부와 무관하게, Test 기준으로 캠퍼스 셋업
       if(term && test) { 
         let campuses = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test).map(r => r.campus))].sort(); 
         campuses.forEach(c => optionsHtml += `<option value="${c}" style="color:#333;">${c}</option>`); 
@@ -672,24 +713,6 @@
       sel.innerHTML = optionsHtml;
       if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
       else sel.value = keepAll ? "전체" : "";
-      
-      filterCourses(prefix, forceReset);
-    }
-
-    function filterCourses(prefix, forceReset = false) {
-      const tt = getTermAndTest(prefix);
-      const term = tt.term; const test = tt.test;
-      const sel = document.getElementById(`${prefix}Course`); 
-      if(!sel) return;
-      const prevVal = forceReset ? "" : sel.value;
-      sel.innerHTML = `<option value="" disabled selected hidden>과정을 선택하세요</option>`;
-      
-      if(term && test) { 
-        let courses = [...new Set(globalData.setups.filter(s => s.term === term && s.test === test).map(s => s.course))].sort(); 
-        courses.forEach(c => sel.innerHTML += `<option value="${c}" style="color:#333;">${c}</option>`); 
-      }
-      if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
-      else sel.value = "";
       
       filterTeachers(prefix, forceReset);
     }
@@ -701,7 +724,7 @@
       const sel = document.getElementById(`${prefix}Teacher`);
       if(!sel) return; 
       const prevVal = forceReset ? "" : sel.value;
-      sel.innerHTML = `<option value="" disabled selected hidden>선생님을 선택하세요</option>`;
+      sel.innerHTML = `<option value="" disabled selected hidden>선생님 선택</option>`;
       
       if(term && test && campus && campus !== "전체") { 
         let teachers = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus).map(r => r.teacher))].sort(); 
@@ -721,7 +744,7 @@
       const sel = document.getElementById(`${prefix}Class`);
       if(!sel) return; 
       const prevVal = forceReset ? "" : sel.value;
-      sel.innerHTML = `<option value="" disabled selected hidden>반을 선택하세요</option>`;
+      sel.innerHTML = `<option value="" disabled selected hidden>반 선택</option>`;
       
       if(term && test && campus && teacher) { 
         let classes = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus && r.teacher === teacher).map(r => r.className))].sort(); 
@@ -742,14 +765,14 @@
       
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i;
-        tbody.innerHTML += `<tr><td class="bg-gray" style="text-align:center; font-weight:bold;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" oninput="updateDiff(${qNum})" placeholder="2,3,4,5"></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:transparent; text-align:center; border:none; padding:0;"></td><td id="status_${qNum}" style="color:#adb5bd; text-align:center;">-</td></tr>`;
+        tbody.innerHTML += `<tr><td class="bg-gray" style="text-align:center; font-weight:bold;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" oninput="updateDiff(${qNum})" placeholder="2,3,4,5"></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:transparent; text-align:center; border:none; padding:0; color:#475569;"></td><td id="status_${qNum}" style="color:#cbd5e1; text-align:center;">-</td></tr>`;
       }
     }
     function updateDiff(qNum) {
       const score = document.getElementById(`score_${qNum}`).value, diffInput = document.getElementById(`diff_${qNum}`), statusCell = document.getElementById(`status_${qNum}`); let diff = "";
       if (score == "2") diff = "하"; else if (score == "3") diff = "중"; else if (score == "4") diff = "상"; else if (score == "5") diff = "최상";
       diffInput.value = diff;
-      if (document.getElementById(`unit_${qNum}`).value.trim() && diff) { statusCell.innerHTML = "✔"; statusCell.style.color = "#28a745"; statusCell.style.fontWeight = "bold"; } else { statusCell.innerHTML = "-"; statusCell.style.color = "#adb5bd"; }
+      if (document.getElementById(`unit_${qNum}`).value.trim() && diff) { statusCell.innerHTML = "✔"; statusCell.style.color = "#10b981"; statusCell.style.fontWeight = "bold"; } else { statusCell.innerHTML = "-"; statusCell.style.color = "#cbd5e1"; }
     }
     
     function checkExistingSetup() {
@@ -789,7 +812,7 @@
       }
     }
     
-    document.getElementById('hwpPasteZone').addEventListener('click', function() { document.getElementById('pasteCatcher').focus(); this.style.backgroundColor = '#e9ecef'; setTimeout(() => this.style.backgroundColor = '#fff', 500); });
+    document.getElementById('hwpPasteZone').addEventListener('click', function() { document.getElementById('pasteCatcher').focus(); this.style.backgroundColor = '#f8fafc'; setTimeout(() => this.style.backgroundColor = '#fff', 500); });
     document.getElementById('pasteCatcher').addEventListener('paste', documentPaste);
 
     function saveExamSetup() {
@@ -816,7 +839,7 @@
           showLoading(false); 
           if(res.success) { 
               showAlert("✔ 저장 완료"); 
-              fetchMetadata(true, true); // 상태를 보존하며 메타데이터 갱신
+              fetchMetadata(true, true); 
           } else { showAlert("에러: " + res.error); } 
       }).catch(handleError);
     }
@@ -856,22 +879,22 @@
       const tbody = document.getElementById('inputTableBody');
       
       let htmlThead = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>`;
-      parsedStudents.forEach((st, sIdx) => { htmlThead += `<th class="sticky-top-1 bg-gray" style="color:#555;">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}</th>`; });
+      parsedStudents.forEach((st, sIdx) => { htmlThead += `<th class="sticky-top-1 bg-gray" style="color:#94a3b8;">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}</th>`; });
       
       htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-2 bg-gray" style="text-align:center; letter-spacing:1px;">총점</th>`;
       parsedStudents.forEach((st, sIdx) => { 
-        if (st.isEmpty) htmlThead += `<th class="sticky-top-2 bg-light" style="color:#adb5bd;">-</th>`; 
+        if (st.isEmpty) htmlThead += `<th class="sticky-top-2 bg-light" style="color:#cbd5e1;">-</th>`; 
         else {
           let stGrade = grades.find(g => g.name === st.name);
           let hasData = stGrade && Object.keys(stGrade.answers).length > 0;
-          htmlThead += `<th class="sticky-top-2 bg-light" style="color:#1366ce; font-size:14px;" id="totalScore_${sIdx}" data-valid="${hasData ? 'true' : 'false'}">${hasData ? stGrade.totalScore : '-'}</th>`; 
+          htmlThead += `<th class="sticky-top-2 bg-light" style="color:#3b82f6; font-size:14px; font-weight:800;" id="totalScore_${sIdx}" data-valid="${hasData ? 'true' : 'false'}">${hasData ? stGrade.totalScore : '-'}</th>`; 
         }
       });
       
       htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-3 bg-gray" style="text-align:center; letter-spacing:1px;">등수</th>`;
       parsedStudents.forEach((st, sIdx) => { 
-        if (st.isEmpty) htmlThead += `<th class="sticky-top-3 bg-light" style="color:#adb5bd;">-</th>`; 
-        else htmlThead += `<th class="sticky-top-3 bg-light" style="color:#dc3545;" id="rank_${sIdx}">-</th>`; 
+        if (st.isEmpty) htmlThead += `<th class="sticky-top-3 bg-light" style="color:#cbd5e1;">-</th>`; 
+        else htmlThead += `<th class="sticky-top-3 bg-light" style="color:#ef4444; font-weight:800;" id="rank_${sIdx}">-</th>`; 
       });
       
       htmlThead += `</tr><tr>
@@ -880,14 +903,14 @@
           <th class="sticky-col-3 sticky-top-4 bg-gray">배점</th>
       `;
       parsedStudents.forEach((st, sIdx) => { 
-        htmlThead += `<th class="sticky-top-4 bg-light student-name-cell" style="${st.isEmpty ? 'color:#adb5bd;' : 'font-weight:bold; color:#333;'}">${st.name}</th>`; 
+        htmlThead += `<th class="sticky-top-4 bg-light student-name-cell" style="${st.isEmpty ? 'color:#cbd5e1;' : 'font-weight:bold; color:#1e293b;'}">${st.name}</th>`; 
       });
       htmlThead += `</tr>`;
       thead.innerHTML = htmlThead;
 
       let htmlTbody = '';
       if(currentStudentsCount === 0 && rawStudents.length === 0) {
-        htmlTbody = `<tr><td colspan="3" style="padding: 30px; color: red;">명단이 없습니다.</td></tr>`;
+        htmlTbody = `<tr><td colspan="3" style="padding: 30px; color: #ef4444; font-weight:bold;">명단이 없습니다.</td></tr>`;
       } else {
         for (let qIdx = 0; qIdx < setupData.totalCount; qIdx++) {
           let qNum = setupData.startNum + qIdx;
@@ -895,9 +918,9 @@
           let scoreVal = setupData.items[qIdx].score || "";
           
           htmlTbody += `<tr>
-            <td class="sticky-col-1 bg-gray" style="font-weight:bold;">${qNum}</td>
-            <td class="sticky-col-2 bg-light" style="text-align:left; padding-left:10px; max-width: 140px; overflow: hidden; text-overflow: ellipsis;" title="${unitName}">${unitName}</td>
-            <td class="sticky-col-3 bg-light" style="color:#6c757d; font-weight:bold;">${scoreVal}</td>`;
+            <td class="sticky-col-1 bg-gray" style="font-weight:bold; color:#64748b;">${qNum}</td>
+            <td class="sticky-col-2 bg-light" style="text-align:left; padding-left:10px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; color:#475569; font-weight:500;" title="${unitName}">${unitName}</td>
+            <td class="sticky-col-3 bg-light" style="color:#94a3b8; font-weight:bold;">${scoreVal}</td>`;
             
           parsedStudents.forEach((st, sIdx) => {
             if (st.isEmpty) {
@@ -1099,7 +1122,7 @@
     }
 
     // ==========================================
-    // 성적표 출력
+    // 🟢 2. 모던 대시보드 UI 적용 성적표 렌더링
     // ==========================================
     function executePrint() {
       const reportContainer = document.getElementById('reportContainer');
@@ -1114,7 +1137,7 @@
       const tt = getTermAndTest('main');
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
-      showLoading(true, "분석 중...");
+      showLoading(true, "성적 분석 및 렌더링 중...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getReportData', term, test, campus, course, teacher, className }) })
       .then(res => res.json()).then(res => {
         showLoading(false);
@@ -1128,14 +1151,15 @@
 
     function renderReportCards(examInfo, students) {
       chartInstances.forEach(chart => chart.destroy()); chartInstances = []; const container = document.getElementById('reportContainer'); container.innerHTML = '';
-      if(students.length === 0) { container.innerHTML = '<h3 style="text-align:center; color:red; padding:40px;">데이터가 없습니다.</h3>'; return; }
+      if(students.length === 0) { container.innerHTML = '<h3 style="text-align:center; color:#ef4444; padding:40px;">데이터가 없습니다.</h3>'; return; }
 
       students.forEach((st, idx) => {
         let unitCols = st.unitsData.map(u => `<th style="width:${100/st.unitsData.length}%;">${u.name}</th>`).join('');
         let unitMaxs = st.unitsData.map(u => `<td>${u.max}</td>`).join('');
+        // 중앙 정렬 + 우측 화살표 분리
         let unitScores = st.unitsData.map(u => {
-            let diffIcon = '', color = '#495057';
-            if (u.score > u.avg) { diffIcon = '▲'; color = '#1366ce'; } else if (u.score < u.avg) { diffIcon = '▼'; color = '#dc3545'; }
+            let diffIcon = '', color = '#0f172a';
+            if (u.score > u.avg) { diffIcon = '▲'; color = '#3b82f6'; } else if (u.score < u.avg) { diffIcon = '▼'; color = '#ef4444'; }
             return `<td style="position:relative; color:${color};"><span style="display:block; text-align:center;">${u.score}</span><span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span></td>`;
         }).join('');
         let unitAvgs = st.unitsData.map(u => `<td>${u.avg}</td>`).join('');
@@ -1144,8 +1168,8 @@
         let diffCols = st.diffsData.map(d => `<th style="width:${100/st.diffsData.length}%;">${d.name}</th>`).join('');
         let diffMaxs = st.diffsData.map(d => `<td>${d.max}</td>`).join('');
         let diffScores = st.diffsData.map(d => {
-            let diffIcon = '', color = '#495057';
-            if (d.score > d.avg) { diffIcon = '▲'; color = '#1366ce'; } else if (d.score < d.avg) { diffIcon = '▼'; color = '#dc3545'; }
+            let diffIcon = '', color = '#0f172a';
+            if (d.score > d.avg) { diffIcon = '▲'; color = '#3b82f6'; } else if (d.score < d.avg) { diffIcon = '▼'; color = '#ef4444'; }
             return `<td style="position:relative; color:${color};"><span style="display:block; text-align:center;">${d.score}</span><span style="position:absolute; right:8px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span></td>`;
         }).join('');
         let diffAvgs = st.diffsData.map(d => `<td>${d.avg}</td>`).join('');
@@ -1154,44 +1178,107 @@
         let unitLabels = st.unitsData.map(u => u.name), unitMyData = st.unitsData.map(u => u.pct), unitAvgData = st.unitsData.map(u => u.avgPct);
         let diffLabels = st.diffsData.map(d => d.name), diffMyData = st.diffsData.map(d => d.pct), diffAvgData = st.diffsData.map(d => d.avgPct);
 
+        // 1등인 경우 무조건 상위 1%로 보정
         let calcTopPct = examInfo.totalCount > 0 ? Math.round((st.rank / examInfo.totalCount) * 100) : 100;
         calcTopPct = Math.max(1, calcTopPct); 
 
+        // 🟢 모던 대시보드 구조 반영 HTML
         let html = `
           <div class="report-page">
             <div class="report-header">
-              <div class="report-logo"><span style="color: #1366ce;">SG</span>청운학원 <span style="font-size:16px; font-weight:normal; color:#666;">(${examInfo.campus})</span></div>
+              <div class="report-logo">
+                <div class="report-logo-icon">SG</div>청운학원
+                <span style="font-size:14px; font-weight:600; color:#64748b; margin-left: 8px;">(${examInfo.campus})</span>
+              </div>
               <div class="report-info">
-                <div class="info-badge"><span>테스트:</span> <span>${examInfo.term} ${examInfo.test}</span></div>
-                <div class="info-badge"><span>과정명:</span> <span>${examInfo.className}</span></div>
-                <div class="info-badge"><span>학생명:</span> <span style="color:#1366ce;">${st.name}</span></div>
-                <div class="info-badge"><span>담임명:</span> <span>${examInfo.teacher}</span></div>
+                <div class="info-badge"><span>테스트</span> <strong>${examInfo.term} ${examInfo.test}</strong></div>
+                <div class="info-badge"><span>과정명</span> <strong>${examInfo.className}</strong></div>
+                <div class="info-badge"><span>학생명</span> <strong style="color:#3b82f6;">${st.name}</strong></div>
+                <div class="info-badge"><span>담임명</span> <strong>${examInfo.teacher}</strong></div>
               </div>
             </div>
+            
             <div class="report-grid">
-              <div class="grid-col"><div class="col-header bg-blue">단원별 성적</div><table class="report-table"><tr><th>단원</th>${unitCols}</tr><tr><th>기준만점</th>${unitMaxs}</tr><tr><th>${st.name}</th>${unitScores}</tr><tr><th>전체평균</th>${unitAvgs}</tr><tr><th>정답률</th>${unitPcts}</tr></table><div class="chart-container"><canvas id="chart_unit_${idx}"></canvas></div></div>
-              <div class="grid-col"><div class="col-header bg-green">문항수준별 성적</div><table class="report-table"><tr><th>단원</th>${diffCols}</tr><tr><th>기준만점</th>${diffMaxs}</tr><tr><th>${st.name}</th>${diffScores}</tr><tr><th>전체평균</th>${diffAvgs}</tr><tr><th>정답률</th>${diffPcts}</tr></table><div class="chart-container"><canvas id="chart_diff_${idx}"></canvas></div></div>
-              <div class="grid-col-right"><div class="col-header bg-purple">총점</div><table class="report-table" style="height: 40px;"><tr><td style="font-size:22px; color:#68488e;">${st.totalScore}</td></tr></table><div class="col-header bg-purple" style="margin-top: -1px;">통합평균</div><table class="report-table" style="height: 40px;"><tr><td style="font-size:16px;">${examInfo.totalAvg}</td></tr></table><div class="col-header bg-purple" style="margin-top: -1px;">통합석차</div><table class="report-table" style="height: 40px;"><tr><td style="font-size:16px;">${st.rank} / ${examInfo.totalCount}</td></tr></table><div class="chart-container" style="padding-top: 15px; height: 120px;"><canvas id="chart_doughnut_${idx}"></canvas><div class="doughnut-text" style="font-size:18px;">${calcTopPct}%</div></div><div style="text-align:center; font-size:12px; color:#666; padding-bottom:10px;">동일과정 상위</div></div>
+              
+              <!-- 1번 카드: 단원별 성적 -->
+              <div class="dash-card">
+                <div class="card-title">단원별 분석</div>
+                <table class="minimal-table">
+                  <tr><th>단원</th>${unitCols}</tr>
+                  <tr><th>기준만점</th>${unitMaxs}</tr>
+                  <tr><th>내 점수</th>${unitScores}</tr>
+                  <tr><th>전체평균</th>${unitAvgs}</tr>
+                  <tr><th>정답률</th>${unitPcts}</tr>
+                </table>
+                <div class="chart-container"><canvas id="chart_unit_${idx}"></canvas></div>
+              </div>
+              
+              <!-- 2번 카드: 문항수준별 성적 -->
+              <div class="dash-card">
+                <div class="card-title">난이도별 분석</div>
+                <table class="minimal-table">
+                  <tr><th>단원</th>${diffCols}</tr>
+                  <tr><th>기준만점</th>${diffMaxs}</tr>
+                  <tr><th>내 점수</th>${diffScores}</tr>
+                  <tr><th>전체평균</th>${diffAvgs}</tr>
+                  <tr><th>정답률</th>${diffPcts}</tr>
+                </table>
+                <div class="chart-container"><canvas id="chart_diff_${idx}"></canvas></div>
+              </div>
+              
+              <!-- 3번 카드: 우측 미니 KPI 요약 -->
+              <div class="summary-col">
+                <div class="kpi-card">
+                  <div class="kpi-icon bg-blue-light">🎯</div>
+                  <div class="kpi-info"><div class="kpi-label">총점</div><div class="kpi-val">${st.totalScore}</div></div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-icon bg-green-light">📊</div>
+                  <div class="kpi-info"><div class="kpi-label">통합평균</div><div class="kpi-val">${examInfo.totalAvg}</div></div>
+                </div>
+                <div class="kpi-card">
+                  <div class="kpi-icon bg-purple-light">🏆</div>
+                  <div class="kpi-info"><div class="kpi-label">통합석차</div><div class="kpi-val">${st.rank} <span style="font-size:12px; color:#94a3b8;">/ ${examInfo.totalCount}</span></div></div>
+                </div>
+                <div class="dash-card doughnut-card">
+                  <div class="chart-container" style="height: 100%; padding:0;"><canvas id="chart_doughnut_${idx}"></canvas>
+                    <div class="doughnut-text">
+                      <div class="doughnut-val">${calcTopPct}%</div>
+                      <div class="doughnut-sub">상위 퍼센트</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
             </div>
-            <div class="report-footer">- 단원별 성적 : 출제 문항 중 각 단원별 점수를 나타냅니다.<br>- 본인의 점수가 전체의 평균 점수보다 높을 경우 점수는 파란색(▲)으로, 낮을 경우 빨간색(▼)으로 표시됩니다.<br>- 항목별 정답률(%)은 총 응시자들의 정답 비율입니다. (그래프의 점수 분포는 만점을 100점으로 환산하여 표기되었습니다.)</div>
+            
+            <div class="report-footer">
+              - 단원별 분석 : 출제 문항 중 각 단원별 점수를 나타냅니다.<br>
+              - 본인의 점수가 전체의 평균 점수보다 높을 경우 점수는 파란색(▲)으로, 낮을 경우 빨간색(▼)으로 표시됩니다.<br>
+              - 항목별 정답률(%)은 총 응시자들의 정답 비율입니다. (하단 그래프의 점수 분포는 만점을 100점으로 환산하여 표기되었습니다.)
+            </div>
           </div>
         `;
         container.insertAdjacentHTML('beforeend', html);
         
+        // 🟢 차트 색상도 Willow 테마(소프트 블루/그린, 그레이)로 변경 적용
         setTimeout(() => {
-          let chartOpts = { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 0, left: 0, right: 0 } }, scales: { x: { ticks: { display: false }, grid: { display: false } }, y: { beginAtZero: true, max: 100, ticks: { stepSize: 20 }, afterFit: function(scale) { scale.width = 55; } } }, plugins: { legend: { display: false } } };
+          let chartOpts = { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 0, left: 0, right: 0 } }, scales: { x: { ticks: { display: false }, grid: { display: false, drawBorder: false } }, y: { beginAtZero: true, max: 100, ticks: { stepSize: 25, color: '#94a3b8' }, border: { display: false }, grid: { color: '#f1f5f9' }, afterFit: function(scale) { scale.width = 55; } } }, plugins: { legend: { display: false } } };
           
-          chartInstances.push(new Chart(document.getElementById(`chart_unit_${idx}`).getContext('2d'), { type: 'bar', data: { labels: unitLabels, datasets: [{ label: st.name, data: unitMyData, backgroundColor: '#3b5998', barPercentage: 0.6 }, { label: '전체평균', data: unitAvgData, backgroundColor: '#adb5bd', barPercentage: 0.6 }]}, options: chartOpts }));
-          chartInstances.push(new Chart(document.getElementById(`chart_diff_${idx}`).getContext('2d'), { type: 'bar', data: { labels: diffLabels, datasets: [{ label: st.name, data: diffMyData, backgroundColor: '#5c8041', barPercentage: 0.6 }, { label: '전체평균', data: diffAvgData, backgroundColor: '#adb5bd', barPercentage: 0.6 }]}, options: chartOpts }));
-          chartInstances.push(new Chart(document.getElementById(`chart_doughnut_${idx}`).getContext('2d'), { type: 'doughnut', data: { labels: ['상위 %', '나머지'], datasets: [{ data: [calcTopPct, 100 - calcTopPct], backgroundColor: ['#68488e', '#e9ecef'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: false } } } }));
+          chartInstances.push(new Chart(document.getElementById(`chart_unit_${idx}`).getContext('2d'), { type: 'bar', data: { labels: unitLabels, datasets: [{ label: st.name, data: unitMyData, backgroundColor: '#3b82f6', barPercentage: 0.5, borderRadius: 2 }, { label: '전체평균', data: unitAvgData, backgroundColor: '#e2e8f0', barPercentage: 0.5, borderRadius: 2 }]}, options: chartOpts }));
+          chartInstances.push(new Chart(document.getElementById(`chart_diff_${idx}`).getContext('2d'), { type: 'bar', data: { labels: diffLabels, datasets: [{ label: st.name, data: diffMyData, backgroundColor: '#10b981', barPercentage: 0.5, borderRadius: 2 }, { label: '전체평균', data: diffAvgData, backgroundColor: '#e2e8f0', barPercentage: 0.5, borderRadius: 2 }]}, options: chartOpts }));
+          chartInstances.push(new Chart(document.getElementById(`chart_doughnut_${idx}`).getContext('2d'), { type: 'doughnut', data: { labels: ['상위 %', '나머지'], datasets: [{ data: [calcTopPct, 100 - calcTopPct], backgroundColor: ['#3b82f6', '#f1f5f9'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false }, tooltip: { enabled: false } } } }));
         }, 100);
       });
     }
 
+    // ==========================================
+    // 대시보드 렌더링
+    // ==========================================
     function generateDashboard() {
       const tt = getTermAndTest('main');
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value;
-      if (!term || !test || !campus || !course) return showAlert("[학기, 테스트, 캠퍼스, 과정]을 모두 선택해주세요.");
+      if (!term || !test || !campus || !course) return showAlert("[테스트, 캠퍼스, 과정]을 모두 선택해주세요.");
       
       showLoading(true, "분석 중...");
       
@@ -1212,14 +1299,14 @@
           const ctxDist = document.getElementById('dashScoreDistChart').getContext('2d');
           dashChartInstances.push(new Chart(ctxDist, {
             type: 'bar',
-            data: { labels: ['90점 이상', '80점대', '70점대', '60점대', '60점 미만'], datasets: [{ label: '인원(명)', data: [d.dist.over90, d.dist.over80, d.dist.over70, d.dist.over60, d.dist.under60], backgroundColor: '#17a2b8' }] },
+            data: { labels: ['90점 이상', '80점대', '70점대', '60점대', '60점 미만'], datasets: [{ label: '인원(명)', data: [d.dist.over90, d.dist.over80, d.dist.over70, d.dist.over60, d.dist.under60], backgroundColor: '#3b82f6' }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
           }));
 
           const ctxCam = document.getElementById('dashCampusAvgChart').getContext('2d');
           dashChartInstances.push(new Chart(ctxCam, {
             type: 'bar',
-            data: { labels: d.campuses, datasets: [{ label: '평균 점수', data: d.campusAvgs, backgroundColor: '#68488e' }] },
+            data: { labels: d.campuses, datasets: [{ label: '평균 점수', data: d.campusAvgs, backgroundColor: '#8b5cf6' }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
           }));
 
