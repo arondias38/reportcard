@@ -48,12 +48,8 @@
     .select-group label { font-weight: bold; font-size: 13px; color: #1366ce; white-space: nowrap; }
     .admin-mode .select-group label { color: #495057; }
     
-    /* 🟢 셀렉트 박스 너비를 늘리고 통합 항목 반영 */
     .select-group select { width: 135px; height: 30px; padding: 4px 30px 4px 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 16px; color: #333; }
-    
-    /* 테스트 선택 박스는 너비를 훨씬 넓게 (220px) 설정 */
     .select-group select.wide-select { width: 220px; }
-    
     .select-group select:invalid { color: #888; } 
     .select-group select option { color: #333; }
     
@@ -219,7 +215,6 @@
     <div class="modal-box" style="width: 480px; padding: 25px;">
       <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">학생명단 일괄 업로드</div>
       <div style="display: flex; gap: 15px; margin-bottom: 20px; text-align: left;">
-         <!-- 🟢 1. 업로드 모달 통합 테스트 박스 적용 -->
          <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">테스트 (학기+테스트)</label><select id="rosterCombinedTest" style="width:100%; height:36px; border-radius:4px; border:1px solid #ccc;"></select></div>
          <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">캠퍼스</label><select id="rosterCampus" style="width:100%; height:36px; border-radius:4px; border:1px solid #ccc;"></select></div>
       </div>
@@ -262,7 +257,6 @@
     <div id="page-main" class="page-content active">
       
       <div class="filter-card" id="mainFilterCard">
-        <!-- 🟢 1. 묶음 표시를 위한 드롭다운 (wide-select 로 너비 확장) -->
         <div class="select-group"><label>테스트</label><select id="mainCombinedTest" class="wide-select" required onchange="filterCampuses('main', true)"></select></div>
         <div class="select-group"><label>캠퍼스</label><select id="mainCampus" required onchange="filterCourses('main', true)"></select></div>
         <div class="select-group"><label>과정</label><select id="mainCourse" required onchange="filterTeachers('main', true)"></select></div>
@@ -338,13 +332,11 @@
     <!-- ========================================== -->
     <div id="page-admin" class="page-content">
       <div class="filter-card admin-mode">
-        <!-- 🟢 1. 관리자 탭 묶음 표시 -->
         <div class="select-group"><label>테스트</label><select id="setupCombinedTest" class="wide-select" required onchange="checkExistingSetup()"></select></div>
         <div class="filter-divider"></div>
         <div class="select-group"><label>과정</label><select id="setupLevel" required onchange="checkExistingSetup()"></select><select id="setupCourse" required onchange="checkExistingSetup()"></select></div>
         <div class="filter-divider"></div>
         
-        <!-- 🟢 2. 문항시작번호 / 문항종료번호 -->
         <div class="select-group"><label>문항시작번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
         <div class="select-group"><label>문항종료번호</label><input type="number" id="setupEndNum" value="45" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
         
@@ -385,7 +377,6 @@
     let pendingNextStudentIdx = -1;
     let currentGlobalOtherScores = []; 
     
-    // 🟢 2. 탭간 상태 유지를 위한 전역 변수
     let lastSelectedCampus = ""; 
     let confirmCallback = null;
     let cancelCallback = null;
@@ -428,7 +419,6 @@
       else if (!isConfirmed && cancelCallback) cancelCallback();
     }
 
-    // 🟢 1. 통합 값(term|test) 추출 헬퍼 함수
     function getTermAndTest(prefix) {
       const val = document.getElementById(`${prefix}CombinedTest`)?.value;
       if (!val || val.includes("선택하세요")) return { term: null, test: null };
@@ -436,7 +426,6 @@
       return { term: parts[0], test: parts[1] };
     }
 
-    // 🟢 2. 탭 스위칭 시 필터 상태 유지 및 캠퍼스(All) 보존 로직
     function switchNav(navId) {
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`button[onclick="switchNav('${navId}')"]`).classList.add('active');
@@ -453,7 +442,7 @@
         document.getElementById('mainTeacherGroup').style.display = 'none';
         document.getElementById('mainClassGroup').style.display = 'none';
         if (!mainCampus.querySelector('option[value="전체"]')) {
-           lastSelectedCampus = mainCampus.value; // 현재 선택값 임시 저장
+           lastSelectedCampus = mainCampus.value; 
            mainCampus.insertAdjacentHTML('afterbegin', '<option value="전체" style="color:#333;">전체 (All)</option>');
            mainCampus.value = "전체";
         }
@@ -463,7 +452,7 @@
         let optAll = mainCampus.querySelector('option[value="전체"]');
         if(optAll) {
             optAll.remove();
-            mainCampus.value = lastSelectedCampus || (mainCampus.options[1] ? mainCampus.options[1].value : ""); // 원래 캠퍼스로 복원
+            mainCampus.value = lastSelectedCampus || (mainCampus.options[1] ? mainCampus.options[1].value : ""); 
         }
       }
     }
@@ -554,25 +543,19 @@
       }).catch(handleError);
     }
 
-    // 🟢 1. 2. 묶음 표시 (Term + Test 조합) 및 Placeholder 숨김 로직
     function populateSettingsAndDropdowns(preserveState = false) {
       const s = globalData.settings;
       
-      // 상태 보존용 변수 캡처
       let prevAdminTest = document.getElementById('setupCombinedTest')?.value;
       let prevAdminLevel = document.getElementById('setupLevel')?.value;
       let prevAdminCourse = document.getElementById('setupCourse')?.value;
       
-      let prevMainTest = document.getElementById('mainCombinedTest')?.value;
-      let prevUploadTest = document.getElementById('rosterCombinedTest')?.value;
-
       const fillSelect = (id, arr, placeholder) => { 
         let el = document.getElementById(id); if(!el) return; 
         el.innerHTML = `<option value="" disabled selected hidden>${placeholder}</option>`; 
         (arr||[]).forEach(val => el.innerHTML += `<option value="${val}" style="color:#333;">${val}</option>`); 
       };
       
-      // 학기 x 테스트 조합 배열 생성
       let combinedArr = [];
       if (s.terms && s.tests) {
          s.terms.forEach(term => {
@@ -591,19 +574,15 @@
         });
       }
 
-      // 관리자 화면
       fillCombinedSelect('setupCombinedTest', '테스트를 선택하세요');
       fillSelect('setupLevel', s.levels, '난이도를 선택하세요'); 
       fillSelect('setupCourse', s.courses, '과정명을 선택하세요'); 
       
-      // 명단 업로드
       fillCombinedSelect('rosterCombinedTest', '테스트 (학기+테스트)');
       fillSelect('rosterCampus', s.campuses, '캠퍼스를 선택하세요');
       
-      // 메인 화면
       fillCombinedSelect('mainCombinedTest', '테스트를 선택하세요');
       
-      // 상태 복원 또는 초기화 연쇄
       if (preserveState) {
           if (prevAdminTest && document.getElementById('setupCombinedTest').querySelector(`option[value="${prevAdminTest}"]`)) document.getElementById('setupCombinedTest').value = prevAdminTest;
           if (prevAdminLevel && document.getElementById('setupLevel').querySelector(`option[value="${prevAdminLevel}"]`)) document.getElementById('setupLevel').value = prevAdminLevel;
@@ -611,7 +590,7 @@
       } else {
           document.getElementById('setupCombinedTest').value = "";
           document.getElementById('mainCombinedTest').value = "";
-          filterCampuses('main', true); // 최초 로딩 시 하위 항목 싹 비우기
+          filterCampuses('main', true); 
       }
     }
 
@@ -666,7 +645,7 @@
             fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'uploadRoster', term: termName, test: testName, campus: campusName, students: parsedStudents }) })
             .then(res => res.json()).then(result => {
               showLoading(false); document.getElementById('fileInput').value = '';
-              if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showAlert(`✔ 업로드 완료!`); fetchMetadata(true); } else { showAlert("Error: " + result.error); }
+              if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showAlert(`✔ 업로드 완료!`); fetchMetadata(true, true); } else { showAlert("Error: " + result.error); }
             }).catch(err => { document.getElementById('fileInput').value = ''; handleError(err); });
           };
 
@@ -676,9 +655,6 @@
       }; reader.readAsArrayBuffer(file);
     }
 
-    // ==========================================
-    // 🟢 2. 연쇄 필터링 (강제 리셋 플래그 활용하여 탭 유지 적용)
-    // ==========================================
     function filterCampuses(prefix, forceReset = false) {
       const tt = getTermAndTest(prefix);
       const term = tt.term; const test = tt.test;
@@ -755,9 +731,6 @@
       else sel.value = "";
     }
 
-    // ==========================================
-    // 🟢 2. 관리자 시험 기본 세팅 (시작/종료 번호 연산)
-    // ==========================================
     function renderSetupTable() {
       const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
       const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
@@ -765,7 +738,7 @@
       const tbody = document.getElementById('setupTableBody');
       tbody.innerHTML = '';
       
-      if (totalCount < 1) return; // 오류 방지
+      if (totalCount < 1) return; 
       
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i;
@@ -789,7 +762,6 @@
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getExamSetup', term: t, test: ts, level: l, course: cr }) }).then(res => res.json()).then(res => {
         showLoading(false);
         if(res.success && res.data) { 
-           // 시작번호와 종료번호로 환원
            document.getElementById('setupStartNum').value = res.data.startNum; 
            document.getElementById('setupEndNum').value = res.data.startNum + res.data.totalCount - 1; 
            renderSetupTable();
@@ -844,14 +816,11 @@
           showLoading(false); 
           if(res.success) { 
               showAlert("✔ 저장 완료"); 
-              // 🟢 저장 직후 드롭다운 초기화 안함. 상태 완벽 유지.
+              fetchMetadata(true, true); // 상태를 보존하며 메타데이터 갱신
           } else { showAlert("에러: " + res.error); } 
       }).catch(handleError);
     }
 
-    // ==========================================
-    // 채점 입력 로직
-    // ==========================================
     function loadGradesData() {
       const tt = getTermAndTest('main');
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
@@ -1130,7 +1099,7 @@
     }
 
     // ==========================================
-    // 🟢 3. 4. 성적표 출력 렌더링 퀄리티 강화
+    // 성적표 출력
     // ==========================================
     function executePrint() {
       const reportContainer = document.getElementById('reportContainer');
@@ -1164,7 +1133,6 @@
       students.forEach((st, idx) => {
         let unitCols = st.unitsData.map(u => `<th style="width:${100/st.unitsData.length}%;">${u.name}</th>`).join('');
         let unitMaxs = st.unitsData.map(u => `<td>${u.max}</td>`).join('');
-        // 🟢 학생 점수 중앙 정렬 및 우측 화살표 치우침 정렬 적용
         let unitScores = st.unitsData.map(u => {
             let diffIcon = '', color = '#495057';
             if (u.score > u.avg) { diffIcon = '▲'; color = '#1366ce'; } else if (u.score < u.avg) { diffIcon = '▼'; color = '#dc3545'; }
@@ -1186,7 +1154,6 @@
         let unitLabels = st.unitsData.map(u => u.name), unitMyData = st.unitsData.map(u => u.pct), unitAvgData = st.unitsData.map(u => u.avgPct);
         let diffLabels = st.diffsData.map(d => d.name), diffMyData = st.diffsData.map(d => d.pct), diffAvgData = st.diffsData.map(d => d.avgPct);
 
-        // 🟢 상위 1% 강제 보정 로직
         let calcTopPct = examInfo.totalCount > 0 ? Math.round((st.rank / examInfo.totalCount) * 100) : 100;
         calcTopPct = Math.max(1, calcTopPct); 
 
@@ -1221,9 +1188,6 @@
       });
     }
 
-    // ==========================================
-    // 대시보드 렌더링
-    // ==========================================
     function generateDashboard() {
       const tt = getTermAndTest('main');
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value;
