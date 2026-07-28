@@ -29,7 +29,6 @@
     .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; background-color: #1366ce; color: white; transition: 0.2s; }
     .modal-btn:hover { background-color: #0f52a8; }
 
-    /* 🟢 기존 오리지널 앱 UI 완벽 복원 */
     .top-nav-bar { flex-shrink: 0; background-color: #fff; border-radius: 50px; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 20px; position: relative; }
     .main-title { font-size: 18px; font-weight: normal; color: #111; margin: 0; display: flex; align-items: center; letter-spacing: -0.5px; }
     .main-title img { height: 26px; margin-right: 10px; }
@@ -44,17 +43,14 @@
 
     .filter-card { flex-shrink: 0; height: 56px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 0 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; overflow-x: auto; position: sticky; top: 0; z-index: 200; }
     .filter-card.admin-mode { border-left: 6px solid #495057; } 
-    .filter-divider { width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px; }
+    .filter-divider { width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px; flex-shrink: 0; }
     
     .select-group { display: flex; align-items: center; gap: 6px; }
     .select-group label { font-weight: bold; font-size: 13px; color: #1366ce; white-space: nowrap; }
     .admin-mode .select-group label { color: #495057; }
     
-    /* 🟢 1. 필터 너비 완벽 통일 (테스트 170px, 나머지 135px) */
-    .select-group select { height: 30px; padding: 4px 30px 4px 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 16px; color: #333; }
-    .sel-test { width: 170px; }
-    .sel-normal { width: 135px; }
-    
+    /* 🟢 모든 셀렉트 박스의 너비를 185px로 완벽 통일 */
+    .select-group select { width: 185px; height: 30px; padding: 4px 30px 4px 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 16px; color: #333; }
     .select-group select:invalid { color: #888; } 
     .select-group select option { color: #333; }
     
@@ -68,7 +64,6 @@
     #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
     #view_data { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
 
-    /* 표 영역 원복 */
     .table-wrapper { flex: 1; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     table.data-table { border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; min-width: 100%; }
     table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; box-sizing: border-box; }
@@ -89,7 +84,6 @@
     table.data-table thead th.sticky-top-1, table.data-table thead th.sticky-top-2, table.data-table thead th.sticky-top-3, table.data-table thead th.sticky-top-4, table.data-table thead th.admin-sticky-top { z-index: 90; }
     table.data-table thead th.sticky-col-1, table.data-table thead th.sticky-col-2, table.data-table thead th.sticky-col-3, table.data-table thead th.sticky-col-all { z-index: 100; }
     
-    /* 기존 색상 복구 */
     .bg-gray { background-color: #e9ecef !important; color: #333; }
     .bg-light { background-color: #f8f9fa !important; color: #333; }
     .bg-white { background-color: #ffffff !important; }
@@ -123,43 +117,42 @@
     .dash-chart-basic { width: 100%; height: 250px; position: relative; }
 
     /* =========================================================
-       🟢 2. 성적표 출력 디자인: Willow 모던 대시보드 테마 완벽 이식
+       🟢 성적표 출력 디자인: 모던 대시보드 테마 완벽 이식
        ========================================================= */
     #view_report { padding-bottom: 50px; background: transparent; }
-    .report-container { width: 100%; max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; margin-bottom: 30px; }
+    .report-container { width: 100%; max-width: 1150px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; margin-bottom: 30px; }
     
-    /* 뒷 배경이 살짝 들어간 메인 캔버스 */
-    .report-page { position: relative; width: 100%; aspect-ratio: 297/210; box-sizing: border-box; border: 1px solid #eaeaea; border-radius: 20px; padding: 35px; display: flex; flex-direction: column; background: #fafbfc; box-shadow: 0 8px 30px rgba(0,0,0,0.04); overflow: hidden; }
+    .report-page { position: relative; width: 100%; aspect-ratio: 297/210; box-sizing: border-box; border: 1px solid #e2e8f0; border-radius: 20px; padding: 35px; display: flex; flex-direction: column; background: #fdfdfd; box-shadow: 0 8px 30px rgba(0,0,0,0.04); overflow: hidden; }
     
     .report-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 25px; padding-bottom: 15px; flex-shrink: 0; }
-    .report-logo { display: flex; align-items: center; font-size: 24px; font-weight: 800; color: #111827; letter-spacing: -0.5px; }
-    .report-logo-icon { width: 34px; height: 34px; background: #2563eb; color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-right: 12px; font-weight: 900; }
+    .report-logo { display: flex; align-items: center; }
+    .report-logo img { height: 32px; margin-right: 12px; }
     
-    .report-info { display: flex; gap: 10px; }
-    .info-badge { background-color: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 14px; text-align: center; font-size: 12px; font-weight: 500; color: #6b7280; display: flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
-    .info-badge strong { color: #111827; font-weight: 700; font-size: 13px; }
+    /* 우측 정보 뱃지 너비 통일 및 구분선 적용 */
+    .report-info { display: flex; gap: 8px; }
+    .info-badge { flex: 1; min-width: 125px; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+    .info-badge span { font-size: 11px; color: #64748b; font-weight: 600; }
+    .info-badge strong { font-size: 13px; color: #0f172a; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    .badge-divider { width: 1px; background-color: #e2e8f0; margin: 0 4px; flex-shrink: 0; }
     
     .report-grid { display: flex; gap: 20px; flex: 1; min-height: 0; }
     
-    /* 모던 화이트 카드 UI */
+    /* 모던 화이트 카드 UI (우측 요약 너비 축소: 0.22) */
     .dash-card { flex: 1; display: flex; flex-direction: column; background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    .summary-col { flex: 0.22; display: flex; flex-direction: column; gap: 15px; }
+    
     .card-title { font-size: 15px; font-weight: 800; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
     .card-title::before { content: ''; display: block; width: 4px; height: 16px; background: #3b82f6; border-radius: 2px; }
     
     /* 미니멀리즘 테이블 (테두리 최소화) */
     table.willow-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; table-layout: fixed; }
     table.willow-table th, table.willow-table td { padding: 6px 2px; height: 32px; white-space: normal; word-break: keep-all; line-height: 1.3; vertical-align: middle; border-bottom: 1px solid #f3f4f6; }
-    /* 첫 번째 열 (항목명) */
     table.willow-table th:first-child, table.willow-table td:first-child { width: 55px; min-width: 55px; max-width: 55px; font-weight: 700; color: #6b7280; text-align: left; padding-left: 5px; }
     table.willow-table th { color: #6b7280; font-weight: 500; border-bottom: 1px solid #e5e7eb; }
-    /* 정답률 밑줄 강조 */
     table.willow-table tr:last-child td, table.willow-table tr:last-child th { border-bottom: 2px solid #d1d5db; } 
     
     /* 차트 컨테이너 (높이 슬림화) */
     .chart-container-report { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; min-height: 0; padding-top: 15px; height: 120px; }
-    
-    /* 우측 요약 컬럼 (Willow KPI 카드 스타일) */
-    .summary-col { flex: 0.28; display: flex; flex-direction: column; gap: 15px; }
     
     /* 솔리드 블루 카드 (총점) */
     .kpi-card-blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 16px; padding: 18px 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2); color: #fff; }
@@ -179,11 +172,11 @@
     
     /* 도넛 차트 카드 */
     .doughnut-card { flex: 1; display: flex; flex-direction: column; background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); align-items: center; justify-content: center; padding: 15px; position: relative; }
-    .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
-    .doughnut-val { font-size: 24px; font-weight: 900; color: #111827; line-height: 1; }
-    .doughnut-sub { font-size: 10px; color: #6b7280; font-weight: 700; margin-top: 4px; }
+    .doughnut-text { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
+    .doughnut-val { font-size: 26px; font-weight: 900; color: #111827; line-height: 1; }
+    .doughnut-sub { font-size: 11px; color: #6b7280; font-weight: 700; margin-top: 4px; }
     
-    .report-footer { margin-top: 15px; padding: 15px 20px; background-color: #fff; border-radius: 12px; font-size: 11px; color: #6b7280; line-height: 1.6; flex-shrink: 0; border: 1px solid #f3f4f6; }
+    .report-footer { margin-top: 15px; padding: 15px 20px; background-color: #f8fafc; border-radius: 12px; font-size: 11px; color: #6b7280; line-height: 1.6; flex-shrink: 0; border: 1px solid #f3f4f6; }
 
     @media print {
       body * { visibility: hidden; }
@@ -202,7 +195,6 @@
 
   <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycbwvGxr_gp1L2e7L5D_1u8LZ0BP2K07LMtjuRsvqKEVyCnBikAEYpqztc0REuXmoNMHvtg/exec">
 
-  <!-- 🟢 버그 원인이었던 오버레이, 안심하고 사용하셔도 됩니다. -->
   <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">처리 중입니다...</div></div>
   
   <div class="modal-overlay" id="customAlertModal">
@@ -291,28 +283,29 @@
       </div>
     </div>
 
-    <!-- 🟢 메인 화면 -->
+    <!-- 메인 화면 -->
     <div id="page-main" class="page-content active">
       
       <div class="filter-card" id="mainFilterCard">
-        <!-- 🟢 1. 필터 순서 및 너비 완벽 통일 -->
-        <div class="select-group"><label>테스트</label><select id="mainCombinedTest" class="sel-test" required onchange="filterCourses('main', true)"></select></div>
-        <div class="select-group"><label>과정</label><select id="mainCourse" class="sel-normal" required onchange="filterCampuses('main', true)"></select></div>
-        <div class="select-group"><label>캠퍼스</label><select id="mainCampus" class="sel-normal" required onchange="filterTeachers('main', true)"></select></div>
-        <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" class="sel-normal" required onchange="filterClasses('main', true)"></select></div>
-        <div class="select-group" id="mainClassGroup"><label>반명</label><select id="mainClass" class="sel-normal" required></select></div>
+        <!-- 🟢 1. 필터 순서 완벽 통일 및 세로 바 적용 -->
+        <div class="select-group"><label>테스트</label><select id="mainCombinedTest" required onchange="filterCourses('main', true)"></select></div>
+        <div class="select-group"><label>과정</label><select id="mainCourse" required onchange="filterCampuses('main', true)"></select></div>
+        <div class="filter-divider"></div>
+        <div class="select-group"><label>캠퍼스</label><select id="mainCampus" required onchange="filterTeachers('main', true)"></select></div>
+        <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
+        <div class="select-group" id="mainClassGroup"><label>반명</label><select id="mainClass" required></select></div>
         
-        <div id="actionBtn_input" style="display: flex; gap: 10px; margin-left: 15px; flex: 1;">
+        <div id="actionBtn_input" style="display: flex; gap: 10px; margin-left: auto;">
           <button class="btn-primary" style="background-color: #6c757d;" onclick="loadGradesData()">명단 불러오기</button>
-          <button class="btn-primary" style="margin-left: auto; background-color: #d32f2f;" onclick="saveGrades()">결과 저장</button>
+          <button class="btn-primary" style="background-color: #d32f2f;" onclick="saveGrades()">결과 저장</button>
         </div>
 
-        <div id="actionBtn_report" style="display: none; gap: 10px; margin-left: 15px; flex: 1;">
+        <div id="actionBtn_report" style="display: none; gap: 10px; margin-left: auto;">
           <button class="btn-primary" style="background-color: #68488e;" onclick="generateReports()">성적표 렌더링</button>
-          <button class="btn-primary" style="margin-left: auto; background-color: #333;" onclick="executePrint()">일괄 인쇄 (PDF)</button>
+          <button class="btn-primary" style="background-color: #333;" onclick="executePrint()">일괄 인쇄 (PDF)</button>
         </div>
 
-        <div id="actionBtn_data" style="display: none; gap: 10px; margin-left: 15px; flex: 1;">
+        <div id="actionBtn_data" style="display: none; gap: 10px; margin-left: auto;">
           <button class="btn-primary" style="background-color: #17a2b8;" onclick="generateDashboard()">데이터 조회</button>
         </div>
       </div>
@@ -369,10 +362,11 @@
     <!-- 관리자 화면 -->
     <div id="page-admin" class="page-content">
       <div class="filter-card admin-mode">
-        <!-- 🟢 1. 필터 순서 완벽 통일 -->
-        <div class="select-group"><label>테스트</label><select id="setupCombinedTest" class="sel-test" required onchange="checkExistingSetup()"></select></div>
+        <!-- 🟢 1. 필터 순서 및 세로 바 완벽 통일 -->
+        <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="checkExistingSetup()"></select></div>
+        <div class="select-group"><label>과정</label><select id="setupCourse" required onchange="checkExistingSetup()"></select></div>
         <div class="filter-divider"></div>
-        <div class="select-group"><label>과정</label><select id="setupLevel" class="sel-normal" required onchange="checkExistingSetup()"></select><select id="setupCourse" class="sel-normal" required onchange="checkExistingSetup()"></select></div>
+        <div class="select-group"><label>난이도</label><select id="setupLevel" required onchange="checkExistingSetup()"></select></div>
         <div class="filter-divider"></div>
         
         <div class="select-group"><label>문항시작번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
@@ -630,12 +624,11 @@
       }
     }
 
-    // 🟢 1. 버그 수정: border-color 문법 에러 완벽 해결
     const dropZone = document.getElementById('dropZone'); const fileInput = document.getElementById('fileInput');
     dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#f8f9fa'; dropZone.style.borderColor = '#1366ce'; });
-    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#fff'; dropZone.style.borderColor = '#495057'; });
-    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#fff'; dropZone.style.borderColor = '#495057'; if (e.dataTransfer.files.length) processExcel(e.dataTransfer.files[0]); });
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#e6f0ff'; });
+    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#fff'; });
+    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#fff'; if (e.dataTransfer.files.length) processExcel(e.dataTransfer.files[0]); });
     fileInput.addEventListener('change', (e) => { if (e.target.files.length) processExcel(e.target.files[0]); });
 
     function processExcel(file) {
@@ -1136,7 +1129,7 @@
     }
 
     // ==========================================
-    // 🟢 3. 모던 대시보드 (Willow) 성적표 출력 디자인 적용
+    // 🟢 3. 성적표 렌더링 : 모던 대시보드(Willow) 디자인 이식 완료
     // ==========================================
     function executePrint() {
       const reportContainer = document.getElementById('reportContainer');
@@ -1170,7 +1163,6 @@
       students.forEach((st, idx) => {
         let unitCols = st.unitsData.map(u => `<th style="width:${100/st.unitsData.length}%;">${u.name}</th>`).join('');
         let unitMaxs = st.unitsData.map(u => `<td>${u.max}</td>`).join('');
-        // 중앙 정렬 + 등락 아이콘 분리 (모던 UI)
         let unitScores = st.unitsData.map(u => {
             let diffIcon = '', color = '#111827';
             if (u.score > u.avg) { diffIcon = '▲'; color = '#3b82f6'; } else if (u.score < u.avg) { diffIcon = '▼'; color = '#ef4444'; }
@@ -1195,19 +1187,21 @@
         let calcTopPct = examInfo.totalCount > 0 ? Math.round((st.rank / examInfo.totalCount) * 100) : 100;
         calcTopPct = Math.max(1, calcTopPct); 
 
-        // 🟢 모던 대시보드(Willow) HTML 마크업
+        // 🟢 2. 모던 대시보드(Willow) HTML 마크업 및 좌측 상단 로고 교체
         let html = `
           <div class="report-page">
             <div class="report-header">
               <div class="report-logo">
-                <div class="report-logo-icon">SG</div>청운학원
-                <span style="font-size:14px; font-weight:600; color:#6b7280; margin-left: 8px;">(${examInfo.campus})</span>
+                <img src="https://i.imgur.com/PQRrCSI.png" alt="SG청운학원" style="height: 32px; margin-right: 10px;">
+                <span style="font-size:22px; font-weight:800; color:#3b82f6;">${examInfo.campus}</span>
               </div>
               <div class="report-info">
                 <div class="info-badge"><span>테스트</span> <strong>${examInfo.term} ${examInfo.test}</strong></div>
-                <div class="info-badge"><span>과정명</span> <strong>${examInfo.className}</strong></div>
-                <div class="info-badge"><span>학생명</span> <strong style="color:#3b82f6;">${st.name}</strong></div>
+                <div class="info-badge"><span>과정명</span> <strong>${examInfo.course}</strong></div>
+                <div class="badge-divider"></div>
+                <div class="info-badge"><span>반명</span> <strong>${examInfo.className}</strong></div>
                 <div class="info-badge"><span>담임명</span> <strong>${examInfo.teacher}</strong></div>
+                <div class="info-badge"><span>학생명</span> <strong style="color:#3b82f6;">${st.name}</strong></div>
               </div>
             </div>
             
@@ -1255,11 +1249,18 @@
                   <div class="kpi-info"><div class="kpi-label">통합석차</div><div class="kpi-val">${st.rank} <span style="font-size:12px; color:#9ca3af;">/ ${examInfo.totalCount}</span></div></div>
                 </div>
                 <div class="doughnut-card">
-                  <div class="chart-container-report" style="width: 100%; height: 100%; padding:0;"><canvas id="chart_doughnut_${idx}"></canvas>
-                    <div class="doughnut-text">
-                      <div class="doughnut-val">${calcTopPct}%</div>
-                      <div class="doughnut-sub">상위 퍼센트</div>
-                    </div>
+                  <div style="position: relative; width: 140px; height: 140px; margin: 0 auto;">
+                     <canvas id="chart_doughnut_${idx}"></canvas>
+                     <!-- 🟢 3. lower is better 둥근 텍스트 (SVG 정밀 적용) -->
+                     <svg viewBox="0 0 140 140" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;">
+                        <path id="curve_${idx}" d="M 28,70 A 42,42 0 0,1 112,70" fill="transparent" />
+                        <text style="font-size: 11px; fill: #cbd5e1; font-weight: 600;">
+                           <textPath href="#curve_${idx}" startOffset="50%" text-anchor="middle">lower is better</textPath>
+                        </text>
+                     </svg>
+                     <div class="doughnut-text" style="top: 42%;">
+                       <div class="doughnut-val">${calcTopPct}%</div>
+                     </div>
                   </div>
                 </div>
               </div>
@@ -1274,13 +1275,15 @@
         `;
         container.insertAdjacentHTML('beforeend', html);
         
-        // 🟢 차트 색상 및 디자인 (소프트 블루/그린, 그레이 적용)
+        // 🟢 3. 차트 색상 및 왼쪽으로 차오르는 도넛 설정 완료
         setTimeout(() => {
           let chartOpts = { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 15, bottom: 0, left: 0, right: 0 } }, scales: { x: { ticks: { display: false }, grid: { display: false, drawBorder: false } }, y: { beginAtZero: true, max: 100, ticks: { stepSize: 25, color: '#9ca3af' }, border: { display: false }, grid: { color: '#f3f4f6' }, afterFit: function(scale) { scale.width = 55; } } }, plugins: { legend: { display: false } } };
           
           chartInstances.push(new Chart(document.getElementById(`chart_unit_${idx}`).getContext('2d'), { type: 'bar', data: { labels: unitLabels, datasets: [{ label: st.name, data: unitMyData, backgroundColor: '#3b82f6', barPercentage: 0.5, borderRadius: 4 }, { label: '전체평균', data: unitAvgData, backgroundColor: '#e5e7eb', barPercentage: 0.5, borderRadius: 4 }]}, options: chartOpts }));
           chartInstances.push(new Chart(document.getElementById(`chart_diff_${idx}`).getContext('2d'), { type: 'bar', data: { labels: diffLabels, datasets: [{ label: st.name, data: diffMyData, backgroundColor: '#10b981', barPercentage: 0.5, borderRadius: 4 }, { label: '전체평균', data: diffAvgData, backgroundColor: '#e5e7eb', barPercentage: 0.5, borderRadius: 4 }]}, options: chartOpts }));
-          chartInstances.push(new Chart(document.getElementById(`chart_doughnut_${idx}`).getContext('2d'), { type: 'doughnut', data: { labels: ['상위 %', '나머지'], datasets: [{ data: [calcTopPct, 100 - calcTopPct], backgroundColor: ['#3b82f6', '#f3f4f6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false }, tooltip: { enabled: false } } } }));
+          
+          // data 배열을 [빈 영역, 내 퍼센트] 순서로 넣으면 중앙부터 반시계 방향(왼쪽)으로 차오르는 효과 발생
+          chartInstances.push(new Chart(document.getElementById(`chart_doughnut_${idx}`).getContext('2d'), { type: 'doughnut', data: { labels: ['나머지', '상위 %'], datasets: [{ data: [100 - calcTopPct, calcTopPct], backgroundColor: ['#f3f4f6', '#3b82f6'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false }, tooltip: { enabled: false } } } }));
         }, 100);
       });
     }
