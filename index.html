@@ -13,11 +13,11 @@
     * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
-    /* 🟢 100vh 앱 뷰포트 레이아웃: 화면 크기에 딱 맞추고 내부 영역이 스크롤을 통제 */
-    html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow: hidden; }
-    .app-container { height: 100vh; display: flex; flex-direction: column; padding: 20px 25px; overflow: hidden; }
+    /* 🟢 브라우저 창 전체 세로 스크롤 허용: min-height 100% 및 overflow-y: auto 적용 */
+    html, body { min-height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow-y: auto; overflow-x: auto; }
+    .app-container { min-height: 100vh; height: auto; display: flex; flex-direction: column; padding: 20px 25px; overflow: visible; }
     
-    .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; overflow: hidden; }
+    .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; overflow: visible; }
     .page-content.active { display: flex; }
 
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
@@ -42,7 +42,8 @@
     .icon-btn { background-color: #fff; border: 1px solid #dee2e6; color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; margin-left: 10px; }
     .icon-btn:hover { background-color: #e9ecef; color: #111; }
 
-    .filter-card { flex-shrink: 0; height: 56px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 0 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; overflow-x: auto; z-index: 200; }
+    /* 🟢 검색 필터 바: 페이지 전체 스크롤 시 화면 맨 위(top:0)에 고정 */
+    .filter-card { flex-shrink: 0; height: 56px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 0 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; overflow-x: auto; position: sticky; top: 0; left: 0; z-index: 200; }
     .filter-card.admin-mode { border-left: 6px solid #495057; } 
     .filter-divider { width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px; flex-shrink: 0; }
     
@@ -61,22 +62,23 @@
     .btn-primary:hover { background-color: #0f52a8; }
     .filter-card .btn-primary { min-width: 135px; justify-content: center; }
     
-    #view_input { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-    #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
-    #view_data { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
+    /* 🟢 뷰 컨테이너: overflow 해제 및 height: auto로 내용물 키만큼 자동 확장 */
+    #view_input { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: visible; height: auto; }
+    #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: visible; height: auto; }
+    #view_data { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: visible; height: auto; }
 
-    /* 🟢 표 래퍼: 남은 화면 높이를 빈틈없이 채우고 세로/가로 스크롤을 이 안에서 완벽 제어 */
-    .table-wrapper { flex: 1; overflow: auto; position: relative; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    /* 🟢 표 래퍼: 독립 세로 스크롤 컨테이너 속성 제거 (overflow: visible), 가로 스크롤만 허용 */
+    .table-wrapper { width: 100%; overflow-x: auto; overflow-y: visible; height: auto; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     table.data-table { border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; min-width: 100%; }
     table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; box-sizing: border-box; }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
-    /* 🟢 틀 고정 좌표: 0, 28, 56, 84px로 완벽 원복하여 표 맨 위에 착 붙음 */
-    .sticky-top-1 { position: sticky; top: 0; z-index: 80; }
-    .sticky-top-2 { position: sticky; top: 28px; z-index: 80; }
-    .sticky-top-3 { position: sticky; top: 56px; z-index: 80; }
-    .sticky-top-4 { position: sticky; top: 84px; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
-    .admin-sticky-top { position: sticky; top: 0; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
+    /* 🟢 표 머릿글 틀 고정 좌표: 상단 필터 바(56px) 바로 밑으로 완벽 도킹 */
+    .sticky-top-1 { position: sticky; top: 56px; z-index: 80; }
+    .sticky-top-2 { position: sticky; top: 84px; z-index: 80; }
+    .sticky-top-3 { position: sticky; top: 112px; z-index: 80; }
+    .sticky-top-4 { position: sticky; top: 140px; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
+    .admin-sticky-top { position: sticky; top: 56px; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
     
     .sticky-col-1 { position: sticky; left: 0; min-width: 60px; max-width: 60px; z-index: 60; }
     .sticky-col-2 { position: sticky; left: 60px; min-width: 140px; max-width: 140px; z-index: 60; }
@@ -119,7 +121,7 @@
     .dash-value { font-size: 32px; font-weight: 900; color: #1366ce; }
     .dash-chart-basic { width: 100%; height: 250px; position: relative; }
 
-    /* 🟢 플로팅 버튼 바: 평소엔 좌측 하단에 떠 있다가 맨 아래 도달 시 표 바로 아래 정착 */
+    /* 🟢 스마트 플로팅 바: 평소엔 좌측 하단에 떠 있다가 맨 아래 도달 시 표 아래 안착 */
     .sticky-fab-bar {
       position: sticky;
       bottom: 15px;
@@ -166,7 +168,7 @@
     
     .report-info { display: flex; gap: 10px; align-items: stretch; justify-content: flex-end; }
     
-    /* 상단 정보 박스: 요청하신 대로 155px 정확한 적용 */
+    /* 상단 정보 박스: 155px 정확한 적용 */
     .info-badge { display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; }
     .combined-badge { align-items: flex-start; text-align: left; width: 260px; min-width: 260px; max-width: 260px; }
     .info-badge.small-badge { width: 155px; min-width: 155px; max-width: 155px; }
@@ -338,7 +340,6 @@
       </div>
 
       <div style="display: flex; align-items: center;">
-        <!-- 🟢 완벽하게 교체된 깨끗하고 뚜렷한 최신 설정 Cog SVG 아이콘 -->
         <button class="icon-btn" id="headerAdminBtn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
@@ -380,7 +381,6 @@
             <thead id="inputTableHeader"></thead>
             <tbody id="inputTableBody"></tbody>
           </table>
-          <!-- 🟢 스마트 플로팅 버튼 바: 평소엔 화면 좌측 하단에 뜨고, 맨 아래 도달 시 표 바로 밑에 안착 -->
           <div class="sticky-fab-bar" id="inputBottomControls" style="display: none;">
             <button class="btn-roster-add-main" onclick="openAddStudentModal()"><span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">학생추가</span></button>
             <button class="btn-roster-delete-main" id="toggleDeleteBtn" onclick="toggleStudentDeleteMode()"><span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">학생삭제</span></button>
