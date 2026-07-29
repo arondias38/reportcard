@@ -13,10 +13,11 @@
     * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
-    html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow: hidden; }
-    .app-container { height: 100vh; display: flex; flex-direction: column; padding: 20px 25px; }
+    /* 🟢 전체 페이지 스크롤 허용: height: 100% 제한 및 overflow: hidden 해제 */
+    html, body { min-height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow-y: auto; overflow-x: hidden; }
+    .app-container { min-height: 100vh; height: auto; display: flex; flex-direction: column; padding: 20px 25px; overflow: visible; }
     
-    .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; overflow: hidden; }
+    .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; overflow: visible; }
     .page-content.active { display: flex; }
 
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
@@ -41,6 +42,7 @@
     .icon-btn { background-color: #fff; border: 1px solid #dee2e6; color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; margin-left: 10px; }
     .icon-btn:hover { background-color: #e9ecef; color: #111; }
 
+    /* 🟢 검색 필터 카드: 전체 스크롤 시 브라우저 최상단(top: 0)에 고정 */
     .filter-card { flex-shrink: 0; height: 56px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 0 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; overflow-x: auto; position: sticky; top: 0; z-index: 200; }
     .filter-card.admin-mode { border-left: 6px solid #495057; } 
     .filter-divider { width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px; flex-shrink: 0; }
@@ -56,25 +58,27 @@
     .select-group input { height: 30px; padding: 4px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; }
     .select-group select:focus, input:focus { border-color: #1366ce; }
     
-    /* 🟢 버튼 기본 스타일 + 필터바 내부 버튼 최소 너비 135px 지정 */
     .btn-primary { height: 32px; padding: 0 16px; border: none; border-radius: 50px; font-weight: bold; font-size: 13px; background-color: #1366ce; color: white; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap; }
     .btn-primary:hover { background-color: #0f52a8; }
     .filter-card .btn-primary { min-width: 135px; justify-content: center; }
     
-    #view_input { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-    #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
-    #view_data { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
+    /* 🟢 뷰 컨테이너: overflow 해제하고 내용물 높이만큼 완전 확장 */
+    #view_input { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: visible; height: auto; }
+    #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: visible; height: auto; }
+    #view_data { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: visible; height: auto; }
 
-    .table-wrapper { flex: 1; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    /* 🟢 표 래퍼: 세로 스크롤 제거(height: auto, overflow-y: visible), 가로 스크롤만 허용 */
+    .table-wrapper { width: 100%; overflow-x: auto; overflow-y: visible; height: auto; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     table.data-table { border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; min-width: 100%; }
     table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; box-sizing: border-box; }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
-    .sticky-top-1 { position: sticky; top: 0; z-index: 80; }
-    .sticky-top-2 { position: sticky; top: 28px; z-index: 80; }
-    .sticky-top-3 { position: sticky; top: 56px; z-index: 80; }
-    .sticky-top-4 { position: sticky; top: 84px; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
-    .admin-sticky-top { position: sticky; top: 0; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
+    /* 🟢 머릿글 틀 고정 좌표: 상단 필터 바(56px) 바로 밑으로 도킹되도록 top 수치 동기화 */
+    .sticky-top-1 { position: sticky; top: 56px; z-index: 80; }
+    .sticky-top-2 { position: sticky; top: 84px; z-index: 80; }
+    .sticky-top-3 { position: sticky; top: 112px; z-index: 80; }
+    .sticky-top-4 { position: sticky; top: 140px; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
+    .admin-sticky-top { position: sticky; top: 56px; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
     
     .sticky-col-1 { position: sticky; left: 0; min-width: 60px; max-width: 60px; z-index: 60; }
     .sticky-col-2 { position: sticky; left: 60px; min-width: 140px; max-width: 140px; z-index: 60; }
@@ -117,8 +121,7 @@
     .dash-value { font-size: 32px; font-weight: 900; color: #1366ce; }
     .dash-chart-basic { width: 100%; height: 250px; position: relative; }
 
-    /* 🟢 하단 확장형 둥근 버튼 스타일 */
-    .bottom-controls { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 12px; margin-bottom: 5px; flex-shrink: 0; }
+    .bottom-controls { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 12px; margin-bottom: 15px; flex-shrink: 0; }
     .left-controls { display: flex; gap: 10px; align-items: center; }
 
     .btn-roster-add-main, .btn-roster-delete-main {
@@ -154,7 +157,6 @@
     
     .report-info { display: flex; gap: 10px; align-items: stretch; justify-content: flex-end; }
     
-    /* 상단 정보 박스: 요청하신 대로 155px 통일 (테스트/과정명은 260px 유지) */
     .info-badge { display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; }
     .combined-badge { align-items: flex-start; text-align: left; width: 260px; min-width: 260px; max-width: 260px; }
     .info-badge.small-badge { width: 155px; min-width: 155px; max-width: 155px; }
@@ -242,7 +244,6 @@
     </div>
   </div>
 
-  <!-- 🟢 신규 학생 추가 모달: ex. 1, ex. 동탄초, (선택) 문구 삭제 반영 -->
   <div class="modal-overlay" id="addStudentModal">
     <div class="modal-box" style="width: 360px; padding: 25px; text-align: left;">
       <div style="font-size: 16px; font-weight: 900; background-color: #28a745; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 20px; text-align: center;">신규 학생 추가</div>
@@ -347,7 +348,6 @@
         <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
         <div class="select-group" id="mainClassGroup"><label>반명</label><select id="mainClass" required></select></div>
         
-        <!-- 🟢 버튼 영역: margin-left: 12px로 선택 목록 쪽으로 붙이고 최소 너비(135px) 통일 -->
         <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: 12px; align-items: center;">
           <button class="btn-primary" style="background-color: #6c757d;" onclick="loadGradesData()">명단 불러오기</button>
           <button class="btn-primary" style="background-color: #d32f2f;" onclick="saveGrades()">결과 저장</button>
@@ -371,7 +371,6 @@
           </table>
         </div>
         
-        <!-- 🟢 체크리스트 애니메이션 버튼 영역: 표 하단 좌측으로 위치 -->
         <div class="bottom-controls" id="inputBottomControls" style="display: none;">
           <div class="left-controls">
             <button class="btn-roster-add-main" onclick="openAddStudentModal()"><span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">학생추가</span></button>
@@ -699,7 +698,6 @@
     dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#fff'; if (e.dataTransfer.files.length) processExcel(e.dataTransfer.files[0]); });
     fileInput.addEventListener('change', (e) => { if (e.target.files.length) processExcel(e.target.files[0]); });
 
-    /* 🟢 엑셀 업로드 시 "학교명" 열을 우선 추출하도록 로직 강화 */
     function processExcel(file) {
       showLoading(true, "분석 중...");
       let reader = new FileReader();
@@ -925,7 +923,6 @@
       }).catch(handleError);
     }
 
-    /* 🟢 로딩 완료 후 알림창을 표출할 수 있도록 콜백 메시지 매개변수 지원 */
     function loadGradesData(afterLoadMsg = null) {
       const tt = getTermAndTest('main');
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
@@ -953,7 +950,6 @@
       }).catch(handleError);
     }
 
-    /* 🟢 삭제 모드 시 번호를 대체하여 마이너스[-] 버튼만 단독 표시 */
     function renderInputTable(setupData, rawStudents, grades) {
       document.getElementById('inputEmptyState').style.display = 'none'; 
       const tableContainer = document.getElementById('inputTableContainer');
