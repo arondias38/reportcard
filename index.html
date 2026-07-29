@@ -115,6 +115,22 @@
     .dash-value { font-size: 32px; font-weight: 900; color: #1366ce; }
     .dash-chart-basic { width: 100%; height: 250px; position: relative; }
 
+    /* 🟢 체크리스트 참고: 하단 확장형 둥근 버튼 스타일 완벽 이식[cite: 3] */
+    .bottom-controls { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 12px; margin-bottom: 5px; flex-shrink: 0; }[cite: 3]
+    .left-controls { display: flex; gap: 10px; align-items: center; }[cite: 3]
+
+    .btn-roster-add-main, .btn-roster-delete-main {
+      height: 38px; max-width: 38px; border-radius: 19px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-flex; align-items: center; justify-content: flex-start; transition: max-width 0.15s cubic-bezier(0.4, 0, 0.2, 1), padding 0.15s ease, background-color 0.2s;[cite: 3]
+    }
+    .btn-roster-add-main { background-color: #28a745; }[cite: 3]
+    .btn-roster-delete-main { background-color: #dc3545; }[cite: 3]
+    .btn-roster-add-main:hover, .btn-roster-delete-main:hover, .btn-roster-delete-main.active { max-width: 145px; padding-right: 18px; }[cite: 3]
+    .btn-roster-delete-main.active { background-color: #8b0000; box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }[cite: 3]
+
+    .btn-icon-wrap { width: 38px; height: 38px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; font-style: normal; font-size: 1.4em; font-weight: 900; line-height: 0; padding-bottom: 2px; }[cite: 3]
+    .btn-text-wrap { opacity: 0; transition: opacity 0.1s ease-in; }[cite: 3]
+    .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }[cite: 3]
+
     /* 학생 삭제 버튼 뱃지 (No. 헤더용) */
     .student-del-badge {
       display: inline-block; width: 18px; height: 18px; line-height: 14px; text-align: center;
@@ -127,7 +143,6 @@
        🟢 성적표 출력 디자인: A4 사이즈 고정 및 모던 테마 완벽 이식
        ========================================================= */
     #view_report { padding-bottom: 50px; background: transparent; }
-    /* 하단 스크롤 잘림 방지를 위해 100px 여백 확보 */
     .report-container { width: 100%; overflow-x: auto; display: flex; flex-direction: column; gap: 30px; padding-bottom: 100px; align-items: center; }
     
     .report-page { position: relative; width: 297mm; height: 210mm; flex-shrink: 0; margin: 0 auto; box-sizing: border-box; border: 1px solid #e2e8f0; border-radius: 20px; padding: 35px; display: flex; flex-direction: column; background: #fdfdfd; box-shadow: 0 8px 30px rgba(0,0,0,0.04); overflow: hidden; }
@@ -138,10 +153,10 @@
     
     .report-info { display: flex; gap: 10px; align-items: stretch; justify-content: flex-end; }
     
-    /* 상단 정보 박스: 요청하신 대로 155px 통일 */
+    /* 상단 정보 박스 가변 및 지정 너비 최적화 */
     .info-badge { display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; }
     .combined-badge { align-items: flex-start; text-align: left; width: 260px; }
-    .info-badge.small-badge { width: 155px; min-width: 155px; max-width: 155px; }
+    .info-badge.small-badge { width: 105px; }
     
     .info-badge span { font-size: 11px; color: #64748b; font-weight: 600; }
     .info-badge strong { font-size: 13px; color: #0f172a; font-weight: 800; }
@@ -157,7 +172,6 @@
     .card-title::before { content: ''; display: block; width: 4px; height: 16px; background: #3b82f6; border-radius: 2px; }
     .card-title-green::before { background: #10b981 !important; }
     
-    /* 표 테두리 세팅: 좌우 바깥쪽 테두리 제거 */
     table.willow-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; border-top: 2px solid; border-bottom: 2px solid; border-left: none; border-right: none; }
     table.willow-table th, table.willow-table td { padding: 6px 2px; height: 36px; white-space: normal; word-break: keep-all; line-height: 1.3; vertical-align: middle; border: 1px solid; }
     table.willow-table td { font-size: 13px !important; }
@@ -176,7 +190,6 @@
     
     .chart-container-report { position: relative; display: flex; justify-content: center; align-items: center; padding-top: 15px; }
     
-    /* 우측 요약정보 KPI 카드: 수평 레이아웃 */
     .kpi-card-white { background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 12px 15px; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .kpi-card-white .kpi-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .kpi-card-white .kpi-info { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 2px; }
@@ -187,7 +200,6 @@
     .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
     .doughnut-val { font-size: 18px; font-weight: 900; color: #111827; line-height: 1; }
     
-    /* 하단 설명 박스 배경색 조금 더 진하게(#f1f5f9) 변경 */
     .report-footer { margin-top: 15px; padding: 15px 20px; background-color: #f1f5f9; border-radius: 12px; font-size: 11px; color: #475569; line-height: 1.6; flex-shrink: 0; border: 1px solid #e2e8f0; }
 
     @media print {
@@ -200,7 +212,6 @@
       .top-nav-bar, .filter-card { display: none !important; }
       .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; background: #fff; margin: 0; flex-shrink: 1; }
       
-      /* 인쇄 시 가운데 분석 박스 테두리만 1.5px로 살짝 강화 */
       .dash-card, .kpi-card-white, .doughnut-card { border: 1.5px solid #94a3b8 !important; box-shadow: none !important; }
       
       @page { size: A4 landscape; margin: 0; }
@@ -335,10 +346,8 @@
         <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
         <div class="select-group" id="mainClassGroup"><label>반명</label><select id="mainClass" required></select></div>
         
+        <!-- 🟢 상단 바에는 조회 및 저장 버튼만 위치 -->
         <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: auto; align-items: center;">
-          <button class="btn-primary" style="background-color: #28a745;" onclick="openAddStudentModal()">+ 학생 추가</button>
-          <button class="btn-primary" style="background-color: #e2e8f0; color: #333; border: 1px solid #ced4da;" id="toggleDeleteBtn" onclick="toggleStudentDeleteMode()">- 학생 삭제</button>
-          <div style="width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px;"></div>
           <button class="btn-primary" style="background-color: #6c757d;" onclick="loadGradesData()">명단 불러오기</button>
           <button class="btn-primary" style="background-color: #d32f2f;" onclick="saveGrades()">결과 저장</button>
         </div>
@@ -360,6 +369,15 @@
             <tbody id="inputTableBody"></tbody>
           </table>
         </div>
+        
+        <!-- 🟢 체크리스트 스타일 애니메이션 확장 버튼: 명단 로드 시 좌측 하단(마지막 문항번호 아래)에 표시[cite: 3] -->
+        <div class="bottom-controls" id="inputBottomControls" style="display: none;">[cite: 3]
+          <div class="left-controls">[cite: 3]
+            <button class="btn-roster-add-main" onclick="openAddStudentModal()"><span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">학생추가</span></button>[cite: 3]
+            <button class="btn-roster-delete-main" id="toggleDeleteBtn" onclick="toggleStudentDeleteMode()"><span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">학생삭제</span></button>[cite: 3]
+          </div>[cite: 3]
+        </div>[cite: 3]
+
         <div id="inputEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
           상단의 조건을 확인하고 [명단 불러오기]를 눌러주세요.
         </div>
@@ -907,7 +925,11 @@
       
       isDeleteMode = false;
       const delBtn = document.getElementById('toggleDeleteBtn');
-      if(delBtn) { delBtn.style.backgroundColor = '#e2e8f0'; delBtn.style.color = '#333'; delBtn.innerText = '- 학생 삭제'; }
+      if(delBtn) { 
+        delBtn.classList.remove('active');[cite: 3]
+        const textWrap = delBtn.querySelector('.btn-text-wrap');[cite: 3]
+        if(textWrap) textWrap.innerText = '학생삭제'; 
+      }
 
       showLoading(true, "데이터 불러오는 중...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, test, campus, course, teacher, className }) })
@@ -924,6 +946,7 @@
       document.getElementById('inputEmptyState').style.display = 'none'; 
       const tableContainer = document.getElementById('inputTableContainer');
       tableContainer.style.display = 'block';
+      document.getElementById('inputBottomControls').style.display = 'flex';
       
       const availableWidth = tableContainer.clientWidth - 260; 
       const minCols = Math.max(0, Math.floor(availableWidth / 60)); 
@@ -992,7 +1015,6 @@
               let stGrade = grades.find(g => g.name === st.name) || { answers: {} };
               let val = stGrade.answers[qNum] || "";
               let colorClass = val === 'O' ? 'val-o' : (val === 'X' ? 'val-x' : '');
-              // 🟢 클릭 시 해당 글자 드래그(전체선택) 되도록 onclick="this.select()" 추가
               htmlTbody += `<td class="bg-white"><input type="text" class="ox-input grid-nav ${colorClass}" data-q="${qIdx}" data-s="${sIdx}" maxlength="1" value="${val}" onfocus="this.select()" onclick="this.select()" oninput="handleOxInput(event, ${qIdx}, ${sIdx})"></td>`;
             }
           });
@@ -1005,7 +1027,6 @@
       attachKeyboardNavigationListeners();
     }
 
-    /* 🟢 1, 2, o, x, O, X, ㅇ, ㅂ, ㅐ, ㅌ 입력 완벽 지원 */
     function handleOxInput(e, qIdx, sIdx) {
       let inputEl = e.target; 
       let val = inputEl.value.trim().toLowerCase();
@@ -1125,7 +1146,6 @@
       });
     }
 
-    /* 🟢 학생 추가 / 학생 삭제 기능 구현 */
     function openAddStudentModal() {
       const tt = getTermAndTest('main');
       if (!tt.term || !tt.test || !document.getElementById('mainCampus').value || !document.getElementById('mainClass').value) {
@@ -1157,7 +1177,7 @@
         if (res.success) {
           document.getElementById('addStudentModal').style.display = 'none';
           showAlert(`✔ [${name}] 학생이 명단에 추가되었습니다.`);
-          loadGradesData(); // 명단 새로고침
+          loadGradesData(); 
         } else {
           showAlert("에러: " + res.error);
         }
@@ -1168,16 +1188,14 @@
       if (currentStudentsCount === 0) return showAlert("불러온 명단이 없습니다. 먼저 명단을 불러와 주세요.");
       isDeleteMode = !isDeleteMode;
       const delBtn = document.getElementById('toggleDeleteBtn');
+      const textWrap = delBtn.querySelector('.btn-text-wrap');[cite: 3]
       if (isDeleteMode) {
-        delBtn.style.backgroundColor = '#dc3545';
-        delBtn.style.color = '#fff';
-        delBtn.innerText = '삭제 모드 종료';
+        delBtn.classList.add('active');[cite: 3]
+        if (textWrap) textWrap.innerText = '삭제종료';
       } else {
-        delBtn.style.backgroundColor = '#e2e8f0';
-        delBtn.style.color = '#333';
-        delBtn.innerText = '- 학생 삭제';
+        delBtn.classList.remove('active');[cite: 3]
+        if (textWrap) textWrap.innerText = '학생삭제';
       }
-      // No. 헤더 뱃지 다시 렌더링
       const thead = document.getElementById('inputTableHeader');
       let htmlTheadFirstRow = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>`;
       currentStudentsList.forEach((st, sIdx) => {
@@ -1201,7 +1219,7 @@
           showLoading(false);
           if (res.success) {
             showAlert(`✔ [${studentName}] 학생이 명단에서 삭제되었습니다.`);
-            loadGradesData(); // 명단 새로고침
+            loadGradesData(); 
           } else {
             showAlert("에러: " + res.error);
           }
@@ -1255,7 +1273,6 @@
        executeSaveGrades();
     }
 
-    /* 🟢 DB 저장 시 학교, 학년, 석차 데이터 함께 전송 */
     function executeSaveGrades() {
       const tt = getTermAndTest('main');
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
@@ -1324,7 +1341,6 @@
 
       students.forEach((st, idx) => {
         
-        // --- 단원 데이터가 부족할 경우 최소 4칸까지 '-'로 채우기 ---
         let unitsDataPadded = [...st.unitsData];
         while (unitsDataPadded.length < 4) {
             unitsDataPadded.push({ name: '-', max: 0, score: 0, avg: 0, pct: 0, avgPct: 0 });
@@ -1341,7 +1357,6 @@
         let unitAvgs = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.avg}</td>`).join('');
         let unitPcts = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.avgPct + '%'}</td>`).join(''); 
 
-        // --- 난이도 데이터 빈칸 '-' 채우기 (기준만점이 0인 경우) ---
         let diffsDataPadded = [...st.diffsData];
         let diffCols = diffsDataPadded.map(d => `<th style="width:${100/diffsDataPadded.length}%;">${d.max === 0 ? '-' : d.name}</th>`).join('');
         let diffMaxs = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.max}</td>`).join('');
@@ -1354,7 +1369,6 @@
         let diffAvgs = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.avg}</td>`).join('');
         let diffPcts = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.avgPct + '%'}</td>`).join('');
 
-        // 차트 데이터에 빈칸을 null로 주입하여 표 레이아웃과 너비를 1:1로 일치시킴
         let unitLabels = unitsDataPadded.map(u => u.max === 0 ? '-' : u.name);
         let unitMyData = unitsDataPadded.map(u => u.max === 0 ? null : u.pct);
         let unitAvgData = unitsDataPadded.map(u => u.max === 0 ? null : u.avgPct);
@@ -1366,7 +1380,6 @@
         let calcTopPct = examInfo.totalCount > 0 ? Math.round((st.rank / examInfo.totalCount) * 100) : 100;
         calcTopPct = Math.max(1, calcTopPct); 
 
-        // 파란색이 그려지는 시작 각도 역산 (1%일때 파란색이 99% 꽉 차게, 반시계로 그려지도록 설정)
         let bluePct = 100 - calcTopPct;
         let startAngle = 360 - (bluePct * 3.6);
 
@@ -1420,7 +1433,6 @@
               </div>
               
               <div class="summary-col">
-                <!-- 🟢 전체평균 | 기준만점 수직 2열 + 중앙 바 레이아웃 -->
                 <div class="kpi-card-white" style="justify-content: space-around; padding: 12px 10px;">
                   <div class="kpi-icon" style="margin-right: 2px;">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-5 5"/></svg>
