@@ -13,9 +13,9 @@
     * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
-    /* 🟢 브라우저 창 전체 세로 스크롤 허용: min-height 100% 및 overflow-y: auto 적용 */
+    /* 🟢 브라우저 창 전체 스크롤: 윈도우가 가로/세로 스크롤과 하단 스크롤바를 전담 */
     html, body { min-height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow-y: auto; overflow-x: auto; }
-    .app-container { min-height: 100vh; height: auto; display: flex; flex-direction: column; padding: 20px 25px; overflow: visible; }
+    .app-container { min-height: 100vh; height: auto; display: flex; flex-direction: column; padding: 20px 25px; overflow: visible; min-width: max-content; width: 100%; }
     
     .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; overflow: visible; }
     .page-content.active { display: flex; }
@@ -42,7 +42,7 @@
     .icon-btn { background-color: #fff; border: 1px solid #dee2e6; color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; margin-left: 10px; }
     .icon-btn:hover { background-color: #e9ecef; color: #111; }
 
-    /* 🟢 검색 필터 바: 페이지 전체 스크롤 시 화면 맨 위(top:0)에 고정 */
+    /* 🟢 검색 필터 바: 스크롤 시 화면 맨 위(top:0)에 고정 */
     .filter-card { flex-shrink: 0; height: 56px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 0 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; overflow-x: auto; position: sticky; top: 0; left: 0; z-index: 200; }
     .filter-card.admin-mode { border-left: 6px solid #495057; } 
     .filter-divider { width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px; flex-shrink: 0; }
@@ -62,13 +62,12 @@
     .btn-primary:hover { background-color: #0f52a8; }
     .filter-card .btn-primary { min-width: 135px; justify-content: center; }
     
-    /* 🟢 뷰 컨테이너: overflow 해제 및 height: auto로 내용물 키만큼 자동 확장 */
     #view_input { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: visible; height: auto; }
     #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: visible; height: auto; }
     #view_data { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: visible; height: auto; }
 
-    /* 🟢 표 래퍼: 독립 세로 스크롤 컨테이너 속성 제거 (overflow: visible), 가로 스크롤만 허용 */
-    .table-wrapper { width: 100%; overflow-x: auto; overflow-y: visible; height: auto; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    /* 🟢 표 래퍼: overflow: visible로 독립 스크롤 컨테이너 해제 -> 표 밀림 100% 제거 및 틀 고정 완벽 작동 */
+    .table-wrapper { width: 100%; overflow: visible; height: auto; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     table.data-table { border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; min-width: 100%; }
     table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; box-sizing: border-box; }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
@@ -121,7 +120,7 @@
     .dash-value { font-size: 32px; font-weight: 900; color: #1366ce; }
     .dash-chart-basic { width: 100%; height: 250px; position: relative; }
 
-    /* 🟢 스마트 플로팅 바: 평소엔 좌측 하단에 떠 있다가 맨 아래 도달 시 표 아래 안착 */
+    /* 🟢 스마트 플로팅 버튼 바: 평소엔 좌측 하단에 떠 있다가 맨 아래 도달 시 표 아래 안착 */
     .sticky-fab-bar {
       position: sticky;
       bottom: 15px;
@@ -381,6 +380,7 @@
             <thead id="inputTableHeader"></thead>
             <tbody id="inputTableBody"></tbody>
           </table>
+          <!-- 🟢 스마트 플로팅 버튼 바 -->
           <div class="sticky-fab-bar" id="inputBottomControls" style="display: none;">
             <button class="btn-roster-add-main" onclick="openAddStudentModal()"><span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">학생추가</span></button>
             <button class="btn-roster-delete-main" id="toggleDeleteBtn" onclick="toggleStudentDeleteMode()"><span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">학생삭제</span></button>
