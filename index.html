@@ -56,8 +56,10 @@
     .select-group input { height: 30px; padding: 4px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; }
     .select-group select:focus, input:focus { border-color: #1366ce; }
     
+    /* 🟢 버튼 기본 스타일 + 필터바 내부 버튼 최소 너비 135px 지정 */
     .btn-primary { height: 32px; padding: 0 16px; border: none; border-radius: 50px; font-weight: bold; font-size: 13px; background-color: #1366ce; color: white; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap; }
     .btn-primary:hover { background-color: #0f52a8; }
+    .filter-card .btn-primary { min-width: 135px; justify-content: center; }
     
     #view_input { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
     #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
@@ -132,9 +134,9 @@
     .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
 
     .student-del-badge {
-      display: inline-block; width: 18px; height: 18px; line-height: 14px; text-align: center;
-      background-color: #dc3545; color: white; border-radius: 50%; font-size: 12px; font-weight: bold;
-      cursor: pointer; border: none; margin-left: 4px; vertical-align: middle;
+      display: inline-block; width: 20px; height: 20px; line-height: 18px; text-align: center;
+      background-color: #dc3545; color: white; border-radius: 50%; font-size: 13px; font-weight: bold;
+      cursor: pointer; border: none; vertical-align: middle; margin: 0 auto;
     }
     .student-del-badge:hover { background-color: #a71d2a; }
 
@@ -152,9 +154,10 @@
     
     .report-info { display: flex; gap: 10px; align-items: stretch; justify-content: flex-end; }
     
+    /* 상단 정보 박스: 요청하신 대로 155px 통일 (테스트/과정명은 260px 유지) */
     .info-badge { display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; }
-    .combined-badge { align-items: flex-start; text-align: left; width: 260px; }
-    .info-badge.small-badge { width: 105px; }
+    .combined-badge { align-items: flex-start; text-align: left; width: 260px; min-width: 260px; max-width: 260px; }
+    .info-badge.small-badge { width: 155px; min-width: 155px; max-width: 155px; }
     
     .info-badge span { font-size: 11px; color: #64748b; font-weight: 600; }
     .info-badge strong { font-size: 13px; color: #0f172a; font-weight: 800; }
@@ -239,22 +242,22 @@
     </div>
   </div>
 
-  <!-- 🟢 신규 학생 추가 모달 -->
+  <!-- 🟢 신규 학생 추가 모달: ex. 1, ex. 동탄초, (선택) 문구 삭제 반영 -->
   <div class="modal-overlay" id="addStudentModal">
     <div class="modal-box" style="width: 360px; padding: 25px; text-align: left;">
       <div style="font-size: 16px; font-weight: 900; background-color: #28a745; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 20px; text-align: center;">신규 학생 추가</div>
       <div style="margin-bottom: 12px;">
          <label style="font-size:13px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">학생명 <span style="color:#dc3545;">*</span></label>
-         <input type="text" id="newStudentName" placeholder="홍길동" style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
+         <input type="text" id="newStudentName" placeholder="ex. 홍길동" style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
       </div>
       <div style="display: flex; gap: 10px; margin-bottom: 20px;">
          <div style="flex:1;">
-            <label style="font-size:13px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">학교명 (선택)</label>
-            <input type="text" id="newStudentSchool" placeholder="예: 동탄초" style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
+            <label style="font-size:13px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">학교명</label>
+            <input type="text" id="newStudentSchool" placeholder="ex. 동탄초" style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
          </div>
          <div style="flex:1;">
-            <label style="font-size:13px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">학년 (선택)</label>
-            <input type="text" id="newStudentGrade" placeholder="예: 초5" style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
+            <label style="font-size:13px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">학년</label>
+            <input type="text" id="newStudentGrade" placeholder="ex. 1" style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
          </div>
       </div>
       <div style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -344,17 +347,18 @@
         <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
         <div class="select-group" id="mainClassGroup"><label>반명</label><select id="mainClass" required></select></div>
         
-        <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: auto; align-items: center;">
+        <!-- 🟢 버튼 영역: margin-left: 12px로 선택 목록 쪽으로 붙이고 최소 너비(135px) 통일 -->
+        <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: 12px; align-items: center;">
           <button class="btn-primary" style="background-color: #6c757d;" onclick="loadGradesData()">명단 불러오기</button>
           <button class="btn-primary" style="background-color: #d32f2f;" onclick="saveGrades()">결과 저장</button>
         </div>
 
-        <div id="actionBtn_report" style="display: none; gap: 10px; margin-left: auto;">
+        <div id="actionBtn_report" style="display: none; gap: 8px; margin-left: 12px; align-items: center;">
           <button class="btn-primary" style="background-color: #68488e;" onclick="generateReports()">성적표 렌더링</button>
           <button class="btn-primary" style="background-color: #333;" onclick="executePrint()">일괄 인쇄 (PDF)</button>
         </div>
 
-        <div id="actionBtn_data" style="display: none; gap: 10px; margin-left: auto;">
+        <div id="actionBtn_data" style="display: none; gap: 8px; margin-left: 12px; align-items: center;">
           <button class="btn-primary" style="background-color: #17a2b8;" onclick="generateDashboard()">데이터 조회</button>
         </div>
       </div>
@@ -367,7 +371,7 @@
           </table>
         </div>
         
-        <!-- 🟢 체크리스트 스타일 애니메이션 확장 버튼: 표 좌측 하단에 위치 -->
+        <!-- 🟢 체크리스트 애니메이션 버튼 영역: 표 하단 좌측으로 위치 -->
         <div class="bottom-controls" id="inputBottomControls" style="display: none;">
           <div class="left-controls">
             <button class="btn-roster-add-main" onclick="openAddStudentModal()"><span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">학생추가</span></button>
@@ -695,6 +699,7 @@
     dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#fff'; if (e.dataTransfer.files.length) processExcel(e.dataTransfer.files[0]); });
     fileInput.addEventListener('change', (e) => { if (e.target.files.length) processExcel(e.target.files[0]); });
 
+    /* 🟢 엑셀 업로드 시 "학교명" 열을 우선 추출하도록 로직 강화 */
     function processExcel(file) {
       showLoading(true, "분석 중...");
       let reader = new FileReader();
@@ -710,7 +715,12 @@
               headerRowIdx = i;
               for (let c = 0; c < row.length; c++) {
                 let h = String(row[c] || '').replace(/\s+/g, '');
-                if (h === '반명') colMap.ban = c; else if (h === '학생명') colMap.name = c; else if (h === '학교명' || h === '학교') colMap.school = c; else if (h === '학년') colMap.grade = c; else if (h === '담임' || h === '담임명') colMap.teacher = c;
+                if (h === '반명') colMap.ban = c; 
+                else if (h === '학생명') colMap.name = c; 
+                else if (h === '학교명') colMap.school = c; 
+                else if (h === '학교' && colMap.school === -1) colMap.school = c; 
+                else if (h === '학년') colMap.grade = c; 
+                else if (h === '담임' || h === '담임명') colMap.teacher = c;
               } break;
             }
           }
@@ -915,7 +925,8 @@
       }).catch(handleError);
     }
 
-    function loadGradesData() {
+    /* 🟢 로딩 완료 후 알림창을 표출할 수 있도록 콜백 메시지 매개변수 지원 */
+    function loadGradesData(afterLoadMsg = null) {
       const tt = getTermAndTest('main');
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
@@ -935,10 +946,14 @@
         if(res.success) {
           currentGlobalOtherScores = res.data.globalOtherScores || []; 
           renderInputTable(res.data.setupData, res.data.students, res.data.grades); 
+          if (afterLoadMsg) {
+            setTimeout(() => showAlert(afterLoadMsg), 50);
+          }
         } else { showAlert("· Error: " + res.error); } 
       }).catch(handleError);
     }
 
+    /* 🟢 삭제 모드 시 번호를 대체하여 마이너스[-] 버튼만 단독 표시 */
     function renderInputTable(setupData, rawStudents, grades) {
       document.getElementById('inputEmptyState').style.display = 'none'; 
       const tableContainer = document.getElementById('inputTableContainer');
@@ -960,8 +975,11 @@
       
       let htmlThead = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>`;
       parsedStudents.forEach((st, sIdx) => { 
-        let delBadge = (!st.isEmpty && isDeleteMode) ? `<button class="student-del-badge" onclick="confirmDeleteStudent('${st.name}')" title="${st.name} 삭제">-</button>` : '';
-        htmlThead += `<th class="sticky-top-1 bg-gray" style="color:#6c757d;">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}${delBadge}</th>`; 
+        let headerContent = st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0');
+        if (!st.isEmpty && isDeleteMode) {
+          headerContent = `<button class="student-del-badge" onclick="confirmDeleteStudent('${st.name}')" title="${st.name} 삭제">-</button>`;
+        }
+        htmlThead += `<th class="sticky-top-1 bg-gray" style="color:#6c757d;">${headerContent}</th>`; 
       });
       
       htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-2 bg-gray" style="text-align:center; letter-spacing:1px;">총점</th>`;
@@ -1173,8 +1191,7 @@
         showLoading(false);
         if (res.success) {
           document.getElementById('addStudentModal').style.display = 'none';
-          showAlert(`✔ [${name}] 학생이 명단에 추가되었습니다.`);
-          loadGradesData(); 
+          loadGradesData(`✔ [${name}] 학생이 명단에 추가되었습니다.`);
         } else {
           showAlert("에러: " + res.error);
         }
@@ -1196,8 +1213,11 @@
       const thead = document.getElementById('inputTableHeader');
       let htmlTheadFirstRow = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>`;
       currentStudentsList.forEach((st, sIdx) => {
-        let delBadge = (!st.isEmpty && isDeleteMode) ? `<button class="student-del-badge" onclick="confirmDeleteStudent('${st.name}')" title="${st.name} 삭제">-</button>` : '';
-        htmlTheadFirstRow += `<th class="sticky-top-1 bg-gray" style="color:#6c757d;">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}${delBadge}</th>`;
+        let headerContent = st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0');
+        if (!st.isEmpty && isDeleteMode) {
+          headerContent = `<button class="student-del-badge" onclick="confirmDeleteStudent('${st.name}')" title="${st.name} 삭제">-</button>`;
+        }
+        htmlTheadFirstRow += `<th class="sticky-top-1 bg-gray" style="color:#6c757d;">${headerContent}</th>`;
       });
       thead.rows[0].innerHTML = htmlTheadFirstRow;
     }
@@ -1215,8 +1235,7 @@
         }).then(res => res.json()).then(res => {
           showLoading(false);
           if (res.success) {
-            showAlert(`✔ [${studentName}] 학생이 명단에서 삭제되었습니다.`);
-            loadGradesData(); 
+            loadGradesData(`✔ [${studentName}] 학생이 명단에서 삭제되었습니다.`);
           } else {
             showAlert("에러: " + res.error);
           }
