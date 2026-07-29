@@ -115,11 +115,20 @@
     .dash-value { font-size: 32px; font-weight: 900; color: #1366ce; }
     .dash-chart-basic { width: 100%; height: 250px; position: relative; }
 
+    /* 학생 삭제 버튼 뱃지 (No. 헤더용) */
+    .student-del-badge {
+      display: inline-block; width: 18px; height: 18px; line-height: 14px; text-align: center;
+      background-color: #dc3545; color: white; border-radius: 50%; font-size: 12px; font-weight: bold;
+      cursor: pointer; border: none; margin-left: 4px; vertical-align: middle;
+    }
+    .student-del-badge:hover { background-color: #a71d2a; }
+
     /* =========================================================
        🟢 성적표 출력 디자인: A4 사이즈 고정 및 모던 테마 완벽 이식
        ========================================================= */
     #view_report { padding-bottom: 50px; background: transparent; }
-    .report-container { width: 100%; overflow-x: auto; display: flex; flex-direction: column; gap: 30px; padding-bottom: 60px; align-items: center; }
+    /* 하단 스크롤 잘림 방지를 위해 100px 여백 확보 */
+    .report-container { width: 100%; overflow-x: auto; display: flex; flex-direction: column; gap: 30px; padding-bottom: 100px; align-items: center; }
     
     .report-page { position: relative; width: 297mm; height: 210mm; flex-shrink: 0; margin: 0 auto; box-sizing: border-box; border: 1px solid #e2e8f0; border-radius: 20px; padding: 35px; display: flex; flex-direction: column; background: #fdfdfd; box-shadow: 0 8px 30px rgba(0,0,0,0.04); overflow: hidden; }
     
@@ -129,12 +138,10 @@
     
     .report-info { display: flex; gap: 10px; align-items: stretch; justify-content: flex-end; }
     
-    /* 상단 정보 박스 가변 및 지정 너비 최적화 */
+    /* 상단 정보 박스: 요청하신 대로 155px 통일 */
     .info-badge { display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; }
-    /* 테스트/과정명 박스 너비 확대 */
     .combined-badge { align-items: flex-start; text-align: left; width: 260px; }
-    /* 반명, 담임명, 학생명 3개 박스 너비 아담하게 통일 */
-    .info-badge.small-badge { width: 155px; }
+    .info-badge.small-badge { width: 155px; min-width: 155px; max-width: 155px; }
     
     .info-badge span { font-size: 11px; color: #64748b; font-weight: 600; }
     .info-badge strong { font-size: 13px; color: #0f172a; font-weight: 800; }
@@ -150,7 +157,7 @@
     .card-title::before { content: ''; display: block; width: 4px; height: 16px; background: #3b82f6; border-radius: 2px; }
     .card-title-green::before { background: #10b981 !important; }
     
-    /* 표 테두리 세팅 수정 (좌우 겉 테두리 삭제) */
+    /* 표 테두리 세팅: 좌우 바깥쪽 테두리 제거 */
     table.willow-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; border-top: 2px solid; border-bottom: 2px solid; border-left: none; border-right: none; }
     table.willow-table th, table.willow-table td { padding: 6px 2px; height: 36px; white-space: normal; word-break: keep-all; line-height: 1.3; vertical-align: middle; border: 1px solid; }
     table.willow-table td { font-size: 13px !important; }
@@ -159,7 +166,6 @@
     table.willow-table th:last-child, table.willow-table td:last-child { border-right: none; }
     table.willow-table th { font-weight: 700; font-size: 11px; }
     
-    /* 표 헤더 및 내부 라인 색상 (파란계열/연두계열) */
     table.bg-head-blue { border-top-color: #60a5fa; border-bottom-color: #60a5fa; }
     table.bg-head-blue th, table.bg-head-blue td { border-color: #bfdbfe; }
     table.bg-head-blue th, table.bg-head-blue tr.bg-subhead td, table.bg-head-blue tr.bg-subhead th { background-color: #eff6ff !important; color: #1e3a8a; }
@@ -170,7 +176,7 @@
     
     .chart-container-report { position: relative; display: flex; justify-content: center; align-items: center; padding-top: 15px; }
     
-    /* 우측 요약정보 KPI 카드 레이아웃 수평(row) 유지 및 텍스트 중앙정렬 처리 */
+    /* 우측 요약정보 KPI 카드: 수평 레이아웃 */
     .kpi-card-white { background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 12px 15px; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .kpi-card-white .kpi-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .kpi-card-white .kpi-info { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 2px; }
@@ -181,7 +187,8 @@
     .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
     .doughnut-val { font-size: 18px; font-weight: 900; color: #111827; line-height: 1; }
     
-    .report-footer { margin-top: 15px; padding: 15px 20px; background-color: #f8fafc; border-radius: 12px; font-size: 11px; color: #6b7280; line-height: 1.6; flex-shrink: 0; border: 1px solid #f3f4f6; }
+    /* 하단 설명 박스 배경색 조금 더 진하게(#f1f5f9) 변경 */
+    .report-footer { margin-top: 15px; padding: 15px 20px; background-color: #f1f5f9; border-radius: 12px; font-size: 11px; color: #475569; line-height: 1.6; flex-shrink: 0; border: 1px solid #e2e8f0; }
 
     @media print {
       body * { visibility: hidden; }
@@ -193,7 +200,7 @@
       .top-nav-bar, .filter-card { display: none !important; }
       .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; background: #fff; margin: 0; flex-shrink: 1; }
       
-      /* 인쇄 시 가운데 박스 구분을 위해 테두리 두께만 1.5px로 살짝 강화 (info-badge 제외하여 상단은 원래대로) */
+      /* 인쇄 시 가운데 분석 박스 테두리만 1.5px로 살짝 강화 */
       .dash-card, .kpi-card-white, .doughnut-card { border: 1.5px solid #94a3b8 !important; box-shadow: none !important; }
       
       @page { size: A4 landscape; margin: 0; }
@@ -219,6 +226,31 @@
       <div style="display: flex; gap: 10px;">
         <button class="modal-btn" style="background-color: #6c757d;" onclick="closeConfirm(false)">아니오</button>
         <button class="modal-btn" style="background-color: #28a745;" onclick="closeConfirm(true)">예</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🟢 신규 학생 추가 모달 -->
+  <div class="modal-overlay" id="addStudentModal">
+    <div class="modal-box" style="width: 360px; padding: 25px; text-align: left;">
+      <div style="font-size: 16px; font-weight: 900; background-color: #28a745; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 20px; text-align: center;">신규 학생 추가</div>
+      <div style="margin-bottom: 12px;">
+         <label style="font-size:13px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">학생명 <span style="color:#dc3545;">*</span></label>
+         <input type="text" id="newStudentName" placeholder="홍길동" style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
+      </div>
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+         <div style="flex:1;">
+            <label style="font-size:13px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">학교명 (선택)</label>
+            <input type="text" id="newStudentSchool" placeholder="예: 동탄초" style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
+         </div>
+         <div style="flex:1;">
+            <label style="font-size:13px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">학년 (선택)</label>
+            <input type="text" id="newStudentGrade" placeholder="예: 초5" style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
+         </div>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="modal-btn" style="background-color: #6c757d; width: 100px;" onclick="document.getElementById('addStudentModal').style.display='none'">취소</button>
+        <button class="modal-btn" style="background-color: #28a745; width: 120px;" onclick="saveNewStudent()">추가하기</button>
       </div>
     </div>
   </div>
@@ -303,7 +335,10 @@
         <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
         <div class="select-group" id="mainClassGroup"><label>반명</label><select id="mainClass" required></select></div>
         
-        <div id="actionBtn_input" style="display: flex; gap: 10px; margin-left: auto;">
+        <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: auto; align-items: center;">
+          <button class="btn-primary" style="background-color: #28a745;" onclick="openAddStudentModal()">+ 학생 추가</button>
+          <button class="btn-primary" style="background-color: #e2e8f0; color: #333; border: 1px solid #ced4da;" id="toggleDeleteBtn" onclick="toggleStudentDeleteMode()">- 학생 삭제</button>
+          <div style="width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px;"></div>
           <button class="btn-primary" style="background-color: #6c757d;" onclick="loadGradesData()">명단 불러오기</button>
           <button class="btn-primary" style="background-color: #d32f2f;" onclick="saveGrades()">결과 저장</button>
         </div>
@@ -413,6 +448,7 @@
     let currentStudentsList = [];
     let pendingNextStudentIdx = -1;
     let currentGlobalOtherScores = []; 
+    let isDeleteMode = false;
     
     let lastSelectedCampus = ""; 
     let confirmCallback = null;
@@ -424,8 +460,14 @@
         const alertModal = document.getElementById('customAlertModal');
         const settingsModal = document.getElementById('settingsModal');
         const confirmModal = document.getElementById('customConfirmModal');
+        const addModal = document.getElementById('addStudentModal');
 
         if (settingsModal && settingsModal.style.display === 'flex') return;
+        if (addModal && addModal.style.display === 'flex') {
+          e.preventDefault();
+          saveNewStudent();
+          return;
+        }
 
         if (nextModal && nextModal.style.display === 'flex') {
           e.preventDefault();
@@ -863,6 +905,10 @@
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
       
+      isDeleteMode = false;
+      const delBtn = document.getElementById('toggleDeleteBtn');
+      if(delBtn) { delBtn.style.backgroundColor = '#e2e8f0'; delBtn.style.color = '#333'; delBtn.innerText = '- 학생 삭제'; }
+
       showLoading(true, "데이터 불러오는 중...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, test, campus, course, teacher, className }) })
       .then(res => res.json()).then(res => { 
@@ -893,7 +939,10 @@
       const tbody = document.getElementById('inputTableBody');
       
       let htmlThead = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>`;
-      parsedStudents.forEach((st, sIdx) => { htmlThead += `<th class="sticky-top-1 bg-gray" style="color:#6c757d;">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}</th>`; });
+      parsedStudents.forEach((st, sIdx) => { 
+        let delBadge = (!st.isEmpty && isDeleteMode) ? `<button class="student-del-badge" onclick="confirmDeleteStudent('${st.name}')" title="${st.name} 삭제">-</button>` : '';
+        htmlThead += `<th class="sticky-top-1 bg-gray" style="color:#6c757d;">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}${delBadge}</th>`; 
+      });
       
       htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-2 bg-gray" style="text-align:center; letter-spacing:1px;">총점</th>`;
       parsedStudents.forEach((st, sIdx) => { 
@@ -943,7 +992,8 @@
               let stGrade = grades.find(g => g.name === st.name) || { answers: {} };
               let val = stGrade.answers[qNum] || "";
               let colorClass = val === 'O' ? 'val-o' : (val === 'X' ? 'val-x' : '');
-              htmlTbody += `<td class="bg-white"><input type="text" class="ox-input grid-nav ${colorClass}" data-q="${qIdx}" data-s="${sIdx}" maxlength="1" value="${val}" oninput="handleOxInput(event, ${qIdx}, ${sIdx})"></td>`;
+              // 🟢 클릭 시 해당 글자 드래그(전체선택) 되도록 onclick="this.select()" 추가
+              htmlTbody += `<td class="bg-white"><input type="text" class="ox-input grid-nav ${colorClass}" data-q="${qIdx}" data-s="${sIdx}" maxlength="1" value="${val}" onfocus="this.select()" onclick="this.select()" oninput="handleOxInput(event, ${qIdx}, ${sIdx})"></td>`;
             }
           });
           htmlTbody += `</tr>`;
@@ -955,20 +1005,24 @@
       attachKeyboardNavigationListeners();
     }
 
-    function focusNextCell(nextInput) {
-      if (nextInput) { 
-        nextInput.focus({ preventScroll: true }); 
-        nextInput.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); 
-        if (nextInput.value) nextInput.select(); 
-      }
-    }
-
+    /* 🟢 1, 2, o, x, O, X, ㅇ, ㅂ, ㅐ, ㅌ 입력 완벽 지원 */
     function handleOxInput(e, qIdx, sIdx) {
-      let inputEl = e.target; let val = inputEl.value.toLowerCase();
-      inputEl.classList.remove('val-o', 'val-x'); let isValidInput = false;
-      if (['1','o','ㅇ'].includes(val)) { inputEl.value = 'O'; inputEl.classList.add('val-o'); isValidInput = true; }
-      else if (['2','x','ㅂ'].includes(val)) { inputEl.value = 'X'; inputEl.classList.add('val-x'); isValidInput = true; }
-      else { inputEl.value = ''; }
+      let inputEl = e.target; 
+      let val = inputEl.value.trim().toLowerCase();
+      inputEl.classList.remove('val-o', 'val-x'); 
+      let isValidInput = false;
+      
+      if (['1', 'o', '0', 'ㅇ', 'ㅐ'].includes(val)) { 
+        inputEl.value = 'O'; 
+        inputEl.classList.add('val-o'); 
+        isValidInput = true; 
+      } else if (['2', 'x', 'ㅂ', 'ㅌ'].includes(val)) { 
+        inputEl.value = 'X'; 
+        inputEl.classList.add('val-x'); 
+        isValidInput = true; 
+      } else { 
+        inputEl.value = ''; 
+      }
       
       calculateStudentScore(sIdx);
       updateAllRanks();
@@ -986,6 +1040,14 @@
           let next = document.querySelector(`.grid-nav[data-q="${qIdx + 1}"][data-s="${sIdx}"]`);
           focusNextCell(next);
         }
+      }
+    }
+
+    function focusNextCell(nextInput) {
+      if (nextInput) { 
+        nextInput.focus({ preventScroll: true }); 
+        nextInput.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); 
+        if (nextInput.value) nextInput.select(); 
       }
     }
 
@@ -1063,6 +1125,90 @@
       });
     }
 
+    /* 🟢 학생 추가 / 학생 삭제 기능 구현 */
+    function openAddStudentModal() {
+      const tt = getTermAndTest('main');
+      if (!tt.term || !tt.test || !document.getElementById('mainCampus').value || !document.getElementById('mainClass').value) {
+        return showAlert("상단에서 테스트, 캠퍼스, 선생님, 반명을 모두 선택한 후 학생을 추가할 수 있습니다.");
+      }
+      document.getElementById('newStudentName').value = '';
+      document.getElementById('newStudentSchool').value = '';
+      document.getElementById('newStudentGrade').value = '';
+      document.getElementById('addStudentModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('newStudentName').focus(), 100);
+    }
+
+    function saveNewStudent() {
+      const tt = getTermAndTest('main');
+      const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value;
+      const teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
+      const name = document.getElementById('newStudentName').value.trim();
+      const school = document.getElementById('newStudentSchool').value.trim();
+      const grade = document.getElementById('newStudentGrade').value.trim();
+
+      if (!name) return showAlert("학생명은 필수 입력 항목입니다.");
+
+      showLoading(true, "학생 추가 중...");
+      fetch(document.getElementById('backendUrl').value.trim(), {
+        method: 'POST',
+        body: JSON.stringify({ action: 'addStudentToRoster', term, test, campus, teacher, className, name, school, grade })
+      }).then(res => res.json()).then(res => {
+        showLoading(false);
+        if (res.success) {
+          document.getElementById('addStudentModal').style.display = 'none';
+          showAlert(`✔ [${name}] 학생이 명단에 추가되었습니다.`);
+          loadGradesData(); // 명단 새로고침
+        } else {
+          showAlert("에러: " + res.error);
+        }
+      }).catch(handleError);
+    }
+
+    function toggleStudentDeleteMode() {
+      if (currentStudentsCount === 0) return showAlert("불러온 명단이 없습니다. 먼저 명단을 불러와 주세요.");
+      isDeleteMode = !isDeleteMode;
+      const delBtn = document.getElementById('toggleDeleteBtn');
+      if (isDeleteMode) {
+        delBtn.style.backgroundColor = '#dc3545';
+        delBtn.style.color = '#fff';
+        delBtn.innerText = '삭제 모드 종료';
+      } else {
+        delBtn.style.backgroundColor = '#e2e8f0';
+        delBtn.style.color = '#333';
+        delBtn.innerText = '- 학생 삭제';
+      }
+      // No. 헤더 뱃지 다시 렌더링
+      const thead = document.getElementById('inputTableHeader');
+      let htmlTheadFirstRow = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>`;
+      currentStudentsList.forEach((st, sIdx) => {
+        let delBadge = (!st.isEmpty && isDeleteMode) ? `<button class="student-del-badge" onclick="confirmDeleteStudent('${st.name}')" title="${st.name} 삭제">-</button>` : '';
+        htmlTheadFirstRow += `<th class="sticky-top-1 bg-gray" style="color:#6c757d;">${st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0')}${delBadge}</th>`;
+      });
+      thead.rows[0].innerHTML = htmlTheadFirstRow;
+    }
+
+    function confirmDeleteStudent(studentName) {
+      showConfirmModal(`[<b>${studentName}</b>] 학생을 현재 반 명단 및 성적 DB에서<br>완전히 삭제하시겠습니까?`, function() {
+        const tt = getTermAndTest('main');
+        const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value;
+        const teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
+        
+        showLoading(true, "학생 삭제 중...");
+        fetch(document.getElementById('backendUrl').value.trim(), {
+          method: 'POST',
+          body: JSON.stringify({ action: 'deleteStudentFromRoster', term, test, campus, teacher, className, name: studentName })
+        }).then(res => res.json()).then(res => {
+          showLoading(false);
+          if (res.success) {
+            showAlert(`✔ [${studentName}] 학생이 명단에서 삭제되었습니다.`);
+            loadGradesData(); // 명단 새로고침
+          } else {
+            showAlert("에러: " + res.error);
+          }
+        }).catch(handleError);
+      }, function() {});
+    }
+
     function saveGrades() {
       if (!currentExamSetup) return showAlert("명단을 먼저 불러와 주세요.");
       
@@ -1109,6 +1255,7 @@
        executeSaveGrades();
     }
 
+    /* 🟢 DB 저장 시 학교, 학년, 석차 데이터 함께 전송 */
     function executeSaveGrades() {
       const tt = getTermAndTest('main');
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
@@ -1116,15 +1263,24 @@
       let studentsData = [];
       for (let sIdx = 0; sIdx < currentStudentsCount; sIdx++) {
          let totalEl = document.getElementById(`totalScore_${sIdx}`);
+         let rankEl = document.getElementById(`rank_${sIdx}`);
          if (totalEl.dataset.valid === 'true') {
-             let name = currentStudentsList[sIdx].name;
+             let stObj = currentStudentsList[sIdx];
              let total = totalEl.innerText;
+             let rank = rankEl ? rankEl.innerText : '';
              let answers = {};
              document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => {
                 let qNum = currentExamSetup.startNum + parseInt(input.dataset.q);
                 answers[qNum] = input.value;
              });
-             studentsData.push({ name: name, totalScore: total, answers: answers });
+             studentsData.push({
+               name: stObj.name,
+               school: stObj.school || '',
+               grade: stObj.grade || '',
+               totalScore: total,
+               rank: rank,
+               answers: answers
+             });
          }
       }
 
@@ -1180,7 +1336,6 @@
             if (u.max === 0) return `<td>-</td>`;
             let diffIcon = '', color = '#111827';
             if (u.score > u.avg) { diffIcon = '▲'; color = '#3b82f6'; } else if (u.score < u.avg) { diffIcon = '▼'; color = '#ef4444'; }
-            // 요청하신 화살표 복구 및 폰트 굵기 처리
             return `<td style="position:relative; color:${color}; font-weight:800;"><span style="display:block; text-align:center;">${u.score}</span>${diffIcon ? `<span style="position:absolute; right:4px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span>` : ''}</td>`;
         }).join('');
         let unitAvgs = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.avg}</td>`).join('');
@@ -1194,7 +1349,6 @@
             if (d.max === 0) return `<td>-</td>`;
             let diffIcon = '', color = '#111827';
             if (d.score > d.avg) { diffIcon = '▲'; color = '#3b82f6'; } else if (d.score < d.avg) { diffIcon = '▼'; color = '#ef4444'; }
-            // 요청하신 화살표 복구 및 폰트 굵기 처리
             return `<td style="position:relative; color:${color}; font-weight:800;"><span style="display:block; text-align:center;">${d.score}</span>${diffIcon ? `<span style="position:absolute; right:4px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span>` : ''}</td>`;
         }).join('');
         let diffAvgs = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.avg}</td>`).join('');
@@ -1224,7 +1378,6 @@
               </div>
               <div class="report-info">
                 <div class="info-badge combined-badge">
-                   <!-- 텍스트 13px로 확대 적용 -->
                    <div style="font-size:13px; color:#0f172a; font-weight:800; line-height: 1.5; white-space: nowrap;">
                       <span style="color:#64748b; font-weight:600; margin-right:4px;">● 테스트 :</span> ${examInfo.term} ${examInfo.test}<br>
                       <span style="color:#64748b; font-weight:600; margin-right:4px;">● 과정명 :</span> ${examInfo.course}
@@ -1241,7 +1394,6 @@
               <div class="dash-card">
                 <div class="card-title">단원별 분석</div>
                 <div class="dash-card-content">
-                  <!-- 단원별 분석 색상 클래스(bg-head-blue) -->
                   <table class="willow-table bg-head-blue">
                     <tr><th>단원</th>${unitCols}</tr>
                     <tr class="bg-subhead"><th>기준만점</th>${unitMaxs}</tr>
@@ -1256,7 +1408,6 @@
               <div class="dash-card">
                 <div class="card-title card-title-green">난이도별 분석</div>
                 <div class="dash-card-content">
-                  <!-- 난이도별 분석 색상 클래스(bg-head-green) -->
                   <table class="willow-table bg-head-green">
                     <tr><th>난이도</th>${diffCols}</tr>
                     <tr class="bg-subhead"><th>기준만점</th>${diffMaxs}</tr>
@@ -1269,24 +1420,33 @@
               </div>
               
               <div class="summary-col">
-                <div class="kpi-card-white">
-                  <div class="kpi-icon">
+                <!-- 🟢 전체평균 | 기준만점 수직 2열 + 중앙 바 레이아웃 -->
+                <div class="kpi-card-white" style="justify-content: space-around; padding: 12px 10px;">
+                  <div class="kpi-icon" style="margin-right: 2px;">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-5 5"/></svg>
                   </div>
-                  <div class="kpi-info"><div class="kpi-label">전체평균 / 기준만점</div><div class="kpi-val">${Math.round(examInfo.totalAvg)} / ${maxTotalScore}</div></div>
+                  <div style="flex: 1; display: flex; align-items: center; justify-content: space-evenly; width: 100%;">
+                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                       <div class="kpi-label">전체평균</div>
+                       <div class="kpi-val">${Math.round(examInfo.totalAvg)}</div>
+                     </div>
+                     <div style="width: 1.5px; height: 32px; background-color: #cbd5e1; margin: 0 4px;"></div>
+                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                       <div class="kpi-label">기준만점</div>
+                       <div class="kpi-val">${maxTotalScore}</div>
+                     </div>
+                  </div>
                 </div>
                 <div class="kpi-card-white">
                   <div class="kpi-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
                   </div>
-                  <!-- 나의 실제 점수를 파란색으로 강조 -->
                   <div class="kpi-info"><div class="kpi-label">나의 점수</div><div class="kpi-val"><span style="color:#3b82f6;">${st.totalScore}</span></div></div>
                 </div>
                 <div class="kpi-card-white">
                   <div class="kpi-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
                   </div>
-                  <!-- 나의 실제 석차를 파란색으로 강조 -->
                   <div class="kpi-info"><div class="kpi-label">나의 석차</div><div class="kpi-val"><span style="color:#3b82f6;">${st.rank}</span> / ${examInfo.totalCount}</div></div>
                 </div>
                 <div class="doughnut-card">
@@ -1299,13 +1459,10 @@
                            <marker id="arrow_${idx}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
                              <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af" />
                            </marker>
-                           <!-- lower is better 곡면 맞춤. -->
                            <path id="innerCurve_${idx}" d="M 27,75 A 48,48 0 0,0 123,75" />
                         </defs>
-                        <!-- 12시에서 출발하여 9시, 6시를 거쳐 3시 쪽으로 이동하는 점선 화살표 -->
                         <path d="M 75,10 A 65,65 0 1,0 140,75" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow_${idx})" />
                         
-                        <!-- 도넛 표면 중앙 안착 (dy="5" 속성으로 아래로 미세조정) -->
                         <text style="font-size: 11px; fill: #ffffff; font-weight: 700; letter-spacing: 0.5px;" dy="5">
                            <textPath href="#innerCurve_${idx}" startOffset="50%" text-anchor="middle">lower is better</textPath>
                         </text>
@@ -1314,7 +1471,6 @@
                        <div class="doughnut-val">${calcTopPct}%</div>
                      </div>
                   </div>
-                  <!-- 도넛 박스 하단 문구 추가 -->
                   <div style="font-size: 12px; color: #64748b; font-weight: 700; margin-top: 15px; text-align: center;">동일과정 상위 %</div>
                 </div>
               </div>
@@ -1338,7 +1494,6 @@
             layout: { padding: { top: 15, bottom: 0, left: 0, right: 0 } }, 
             scales: { 
               x: { 
-                  // X축에 단원명, 난이도명이 출력되도록 display: true 설정
                   ticks: { display: true, font: { family: 'Pretendard', size: 10 }, color: '#64748b' }, 
                   grid: { display: false, drawBorder: false } 
               }, 
@@ -1362,9 +1517,7 @@
             data: { 
                 labels: ['내 비율', '나머지'], 
                 datasets: [{ 
-                    // % 작을수록 파란색(내 비율)이 커짐
                     data: [bluePct, calcTopPct], 
-                    // 도넛 회색 채도 조금 올림 (#d1d5db)
                     backgroundColor: ['#3b82f6', '#d1d5db'], 
                     borderWidth: 0 
                 }] 
@@ -1373,7 +1526,6 @@
                 responsive: true, 
                 maintainAspectRatio: false, 
                 cutout: '65%', 
-                // 12시에서 11시, 10시 방향으로 파란색이 채워지도록 동적 각도 설정
                 rotation: startAngle, 
                 plugins: { legend: { display: false }, tooltip: { enabled: false } } 
             } 
