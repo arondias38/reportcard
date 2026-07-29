@@ -13,11 +13,11 @@
     * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
-    /* 🟢 전체 페이지 세로 스크롤 레이아웃 (틀 고정 및 가로 스크롤 안쪽 제어 유지) */
-    html, body { min-height: 100%; height: auto; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow-y: auto; overflow-x: hidden; }
-    .app-container { min-height: 100vh; height: auto; display: flex; flex-direction: column; padding: 20px 25px; overflow: visible; }
+    /* 🟢 100vh 앱 뷰포트 레이아웃: 화면 전체 크기에 맞추고 상단 고정 + 내부 독립 스크롤 체계 */
+    html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow: hidden; }
+    .app-container { height: 100vh; display: flex; flex-direction: column; padding: 20px 25px; overflow: hidden; }
     
-    .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; overflow: visible; height: auto; }
+    .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; overflow: hidden; }
     .page-content.active { display: flex; }
 
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
@@ -61,17 +61,17 @@
     .btn-primary:hover { background-color: #0f52a8; }
     .filter-card .btn-primary { min-width: 135px; justify-content: center; }
     
-    #view_input { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: visible; height: auto; }
-    #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: visible; height: auto; padding-right: 5px; }
-    #view_data { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: visible; height: auto; padding-right: 5px; }
+    #view_input { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+    #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
+    #view_data { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
 
-    /* 🟢 표 래퍼: 전체 세로 스크롤 적용 시 표 세로 길이를 그대로 펴주고, 가로 스크롤 및 틀 고정만 제어 */
-    .table-wrapper { width: 100%; height: auto; max-height: none; overflow-x: auto; overflow-y: visible; position: relative; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    /* 🟢 표 래퍼: 남은 화면 높이를 빈틈없이 채우고 세로/가로 스크롤 및 틀 고정을 이 안에서 완벽 제어 */
+    .table-wrapper { flex: 1; min-height: 0; overflow: auto; position: relative; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     table.data-table { border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; min-width: 100%; }
     table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; box-sizing: border-box; }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
-    /* 🟢 틀 고정 좌표: 0, 28, 56, 84px 로직 변경 없이 브라우저 뷰포트 맨 위를 기준으로 고정 */
+    /* 🟢 틀 고정 좌표: 0, 28, 56, 84px로 완벽 원복하여 표 맨 위에 착 붙음 */
     .sticky-top-1 { position: sticky; top: 0; z-index: 80; }
     .sticky-top-2 { position: sticky; top: 28px; z-index: 80; }
     .sticky-top-3 { position: sticky; top: 56px; z-index: 80; }
@@ -379,6 +379,7 @@
             <thead id="inputTableHeader"></thead>
             <tbody id="inputTableBody"></tbody>
           </table>
+          <!-- 🟢 스마트 플로팅 버튼 바: 평소엔 화면 좌측 하단에 뜨고, 맨 아래 도달 시 표 바로 밑에 안착 -->
           <div class="sticky-fab-bar" id="inputBottomControls" style="display: none;">
             <button class="btn-roster-add-main" onclick="openAddStudentModal()"><span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">학생추가</span></button>
             <button class="btn-roster-delete-main" id="toggleDeleteBtn" onclick="toggleStudentDeleteMode()"><span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">학생삭제</span></button>
@@ -1093,7 +1094,7 @@
     function confirmNextStudent() {
       document.getElementById('nextStudentModal').style.display = 'none';
       if (pendingNextStudentIdx !== -1) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('inputTableContainer').scrollTop = 0;
         let nextInput = document.querySelector(`.grid-nav[data-q="0"][data-s="${pendingNextStudentIdx}"]`);
         focusNextCell(nextInput);
       }
@@ -1402,7 +1403,6 @@
         let bluePct = 100 - calcTopPct;
         let startAngle = 360 - (bluePct * 3.6);
 
-        /* 🟢 좌/우 레이아웃 변경 적용: summary-col(좌측) -> dash-card 단원별(우측1) -> dash-card 난이도별(우측2) */
         let html = `
           <div class="report-page">
             <div class="report-header">
