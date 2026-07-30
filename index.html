@@ -525,10 +525,11 @@
         <input type="text" id="pasteCatcher" style="opacity: 0; position: absolute; pointer-events: none;">
       </div>
 
+      <!-- 🟢 1. 표 머릿글 이름 변경: 문항 배점, 난이도 (자동입력) -->
       <div class="table-wrapper">
         <table class="data-table" style="text-align: left;">
           <thead>
-            <tr><th class="admin-sticky-top bg-gray" width="8%" style="text-align: center;">문항번호</th><th class="admin-sticky-top bg-gray" width="42%" style="text-align: center;">출제 단원명</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">배점 (난이도 자동)</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">난이도 (확인용)</th><th class="admin-sticky-top bg-gray" width="10%" style="text-align: center;">상태</th></tr>
+            <tr><th class="admin-sticky-top bg-gray" width="8%" style="text-align: center;">문항번호</th><th class="admin-sticky-top bg-gray" width="42%" style="text-align: center;">출제 단원명</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">문항 배점</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">난이도 (자동입력)</th><th class="admin-sticky-top bg-gray" width="10%" style="text-align: center;">상태</th></tr>
           </thead>
           <tbody id="setupTableBody"></tbody>
         </table>
@@ -930,6 +931,7 @@
       else sel.value = "";
     }
 
+    /* 🟢 1. 2,3,4,5 Placeholder 삭제 및 min="1" max="5" 입력 제한 적용 */
     function renderSetupTable() {
       const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
       const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
@@ -941,14 +943,30 @@
       
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i;
-        tbody.innerHTML += `<tr><td class="bg-gray" style="text-align:center; font-weight:bold;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" oninput="updateDiff(${qNum})" placeholder="2,3,4,5"></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:transparent; text-align:center; border:none; padding:0; color:#495057;"></td><td id="status_${qNum}" style="color:#adb5bd; text-align:center;">-</td></tr>`;
+        tbody.innerHTML += `<tr><td class="bg-gray" style="text-align:center; font-weight:bold;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" min="1" max="5" oninput="updateDiff(${qNum})" placeholder=""></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:transparent; text-align:center; border:none; padding:0; color:#495057;"></td><td id="status_${qNum}" style="color:#adb5bd; text-align:center;">-</td></tr>`;
       }
     }
+
+    /* 🟢 2. 1~5 정규식 필터링 제한 및 1 = 최하 매핑 규칙 추가 */
     function updateDiff(qNum) {
-      const score = document.getElementById(`score_${qNum}`).value, diffInput = document.getElementById(`diff_${qNum}`), statusCell = document.getElementById(`status_${qNum}`); let diff = "";
-      if (score == "2") diff = "하"; else if (score == "3") diff = "중"; else if (score == "4") diff = "상"; else if (score == "5") diff = "최상";
+      const scoreEl = document.getElementById(`score_${qNum}`);
+      let score = scoreEl.value.replace(/[^1-5]/g, '').slice(0, 1);
+      if (scoreEl.value !== score) scoreEl.value = score;
+
+      const diffInput = document.getElementById(`diff_${qNum}`), statusCell = document.getElementById(`status_${qNum}`); 
+      let diff = "";
+      if (score == "1") diff = "최하";
+      else if (score == "2") diff = "하";
+      else if (score == "3") diff = "중";
+      else if (score == "4") diff = "상";
+      else if (score == "5") diff = "최상";
+      
       diffInput.value = diff;
-      if (document.getElementById(`unit_${qNum}`).value.trim() && diff) { statusCell.innerHTML = "✔"; statusCell.style.color = "#28a745"; statusCell.style.fontWeight = "bold"; } else { statusCell.innerHTML = "-"; statusCell.style.color = "#adb5bd"; }
+      if (document.getElementById(`unit_${qNum}`).value.trim() && diff) { 
+        statusCell.innerHTML = "✔"; statusCell.style.color = "#28a745"; statusCell.style.fontWeight = "bold"; 
+      } else { 
+        statusCell.innerHTML = "-"; statusCell.style.color = "#adb5bd"; 
+      }
     }
     
     function checkExistingSetup() {
@@ -1581,7 +1599,6 @@
                         </defs>
                         <path d="M 72,11 A 64,64 0 1,0 139,72" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow_${idx})" />
                         
-                        <!-- 🟢 사용자가 수정한 fill: #ffffff (흰색 글자)를 완벽 반영 -->
                         <text style="font-size: 11px; fill: #ffffff; font-weight: 800; letter-spacing: 0.5px;" dy="-4">
                            <textPath href="#innerCurve_${idx}" startOffset="50%" text-anchor="middle">lower is better</textPath>
                         </text>
