@@ -20,14 +20,14 @@
     .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; overflow: hidden; }
     .page-content.active { display: flex; }
 
-    /* 🟢 부드러운 셀 깜빡임(Soft Blink Highlight) 시각 효과 애니메이션 */
+    /* 🟢 부드러운 셀 깜빡임(Soft Blink Highlight) 시각 효과 애니메이션: td/th 셀에 명확히 표출 */
     @keyframes softBlink {
-      0% { background-color: #d1e7dd !important; }
+      0% { background-color: #c8e6c9 !important; }
       50% { background-color: #fff3cd !important; }
       100% { background-color: transparent; }
     }
     .cell-blink {
-      animation: softBlink 0.75s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      animation: softBlink 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
@@ -71,7 +71,6 @@
     .btn-primary:hover { background-color: #0f52a8; }
     .filter-card .btn-primary { min-width: 135px; justify-content: center; }
 
-    /* 🟢 헤더 우측 확장 액션 버튼 ([결과 저장], [일괄 인쇄] 전용): 평소엔 원형 아이콘 -> 마우스오버 시 가로 확장 */
     .btn-expand-action {
       height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden;
       white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px;
@@ -97,13 +96,11 @@
     #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
     #view_data { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
 
-    /* 🟢 표 래퍼: 남은 화면 높이를 빈틈없이 채우고 세로/가로 스크롤 및 틀 고정을 이 안에서 완벽 제어 */
     .table-wrapper { flex: 1; min-height: 0; overflow: auto; position: relative; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     table.data-table { border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; min-width: 100%; }
     table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; box-sizing: border-box; }
     table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
     
-    /* 🟢 틀 고정 좌표: 0, 28, 56, 84px로 완벽 적용하여 표 맨 위에 착 붙음 */
     .sticky-top-1 { position: sticky; top: 0; z-index: 80; }
     .sticky-top-2 { position: sticky; top: 28px; z-index: 80; }
     .sticky-top-3 { position: sticky; top: 56px; z-index: 80; }
@@ -131,17 +128,14 @@
     .ox-input.val-o { color: #28a745; } 
     .ox-input.val-x { color: #dc3545; } 
 
-    /* 🟢 5. 시험 기본 세팅 입력창 우측 공백 제거: box-sizing 및 width 100% 적용 */
     .setup-input { width: 100%; padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; box-sizing: border-box; }
     .setup-input:focus { border-color: #1366ce; outline: none; }
 
-    /* 🟢 5. 시험 기본 세팅 1/5(업로드) : 4/5(세팅 표) 좌우 분할 그리드 */
     .admin-main-grid { display: flex; gap: 20px; flex: 1; min-height: 0; overflow: hidden; }
     .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 15px 12px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
     .paste-zone:hover { background-color: #e9ecef; }
     #setupUploadZone { flex: 0 0 20%; width: 20%; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow-y: auto; }
 
-    /* 🟢 1. 성적입력 학생별 하단 세로 일괄 입력([O], [X], [-], [↺]) 버튼 스타일 */
     .batch-btn-col { display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center; padding: 6px 2px; }
     .batch-btn { width: 26px; height: 22px; border: none; border-radius: 4px; font-weight: 900; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
     .batch-btn-o { background-color: #e8f5e9; color: #28a745; border: 1px solid #c8e6c9; }
@@ -155,13 +149,11 @@
 
     .settings-table-wrapper { max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px; }
     .settings-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: center; }
-    /* 🟢 4. 필수 환경설정 표 머릿글 세로 구분선(테두리) 추가 */
     .settings-table th { background: #e9ecef; padding: 10px; position: sticky; top: 0; z-index: 5; color: #1366ce; border-bottom: 2px solid #ced4da; border-right: 1px solid #ced4da; }
     .settings-table td { padding: 0; border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
     .set-input { width: 100%; border: none; padding: 8px; box-sizing: border-box; text-align: center; outline: none; background: transparent; }
     .set-input:focus { background-color: #e6f0ff; }
 
-    /* 🟢 대시보드 탭 전용 레이아웃 및 KPI 스타일 */
     #view_data { padding-bottom: 30px; }
     .dash-grid { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
     .dash-card-basic { flex: 1; min-width: 220px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); padding: 20px; display: flex; flex-direction: column; }
@@ -169,7 +161,6 @@
     .dash-value { font-size: 32px; font-weight: 900; color: #1366ce; }
     .dash-chart-basic { width: 100%; height: 250px; position: relative; }
 
-    /* 🟢 플로팅 버튼 바: 평소엔 좌측 하단에 떠 있다가 맨 아래 도달 시 표 바로 아래 정착 */
     .sticky-fab-bar {
       position: sticky;
       bottom: 15px;
@@ -340,7 +331,6 @@
     </div>
   </div>
 
-  <!-- 🟢 4. 필수 환경설정 모달 제목 및 문구 수정 & 닫기 버튼 130px 통일 -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box" style="width: 700px; padding: 25px; text-align: left;">
       <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">필수 환경설정</div>
@@ -358,7 +348,6 @@
     </div>
   </div>
 
-  <!-- 🟢 3. 학생명단 일괄 업로드 모달 닫기 버튼 1/4 너비(25%) 축소 및 우측 정렬 -->
   <div class="modal-overlay" id="rosterUploadModal">
     <div class="modal-box" style="width: 480px; padding: 25px;">
       <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">학생명단 일괄 업로드</div>
@@ -392,10 +381,11 @@
       </div>
 
       <div style="display: flex; align-items: center;">
+        <!-- 🟢 2. 앱 상단 우측 관리자 톱니바퀴 아이콘: 선 굵기(stroke-width="1.6") 적용하여 뭉침 없는 표준 SVG -->
         <button class="icon-btn" id="headerAdminBtn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
         </button>
         <button class="icon-btn" id="headerMainBtn" style="display: none;" onclick="switchPage('page-main')" title="뒤로가기">
@@ -449,7 +439,6 @@
           <table class="data-table">
             <thead id="inputTableHeader"></thead>
             <tbody id="inputTableBody"></tbody>
-            <!-- 🟢 1. 성적입력 학생별 하단 세로 일괄 입력([O], [X], [-], [↺]) 버튼이 담길 Footer -->
             <tfoot id="inputTableFooter"></tfoot>
           </table>
           <div class="sticky-fab-bar" id="inputBottomControls" style="display: none;">
@@ -514,7 +503,7 @@
 
     </div>
 
-    <!-- 🟢 관리자 화면: 5. 시험 기본 세팅 좌측 20%(1/5) 업로드 존 : 우측 80%(4/5) 문항 세팅 표 분할 레이아웃 -->
+    <!-- 🟢 관리자 화면: 시험 기본 세팅 1/5(업로드) : 4/5(세팅 표) 분할 레이아웃 -->
     <div id="page-admin" class="page-content">
       <div class="filter-card admin-mode">
         <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="checkExistingSetup()"></select></div>
@@ -533,10 +522,11 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v6h16v-6"></path><path d="M12 4v12"></path><path d="m17 9-5-5-5 5"></path></svg>
             학생명단 업로드
           </button>
+          <!-- 🟢 2. 관리자 툴바 필수 환경설정 버튼: 선 굵기(stroke-width="1.6") 적용된 표준 기어 SVG -->
           <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06-.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
             </svg>
             필수 환경설정
           </button>
@@ -577,7 +567,6 @@
     let currentGlobalOtherScores = []; 
     let isDeleteMode = false;
     
-    /* 🟢 1. 학생별 일괄 입력 직전 정답 상태를 기억하는 스냅샷 저장소 (`sIdx` -> `{ answers: {}, totalScore: '' }`) */
     let studentUndoSnapshots = {};
 
     let lastSelectedCampus = ""; 
@@ -585,18 +574,18 @@
     let confirmCallback = null;
     let cancelCallback = null;
 
-    /* 🟢 셀 깜빡임(Soft Blink Highlight) 재생 유틸리티 */
+    /* 🟢 1. 셀 깜빡임(Soft Blink Highlight) 재생 유틸리티: 부모 td/th 셀을 직접 타겟팅하여 민트색 하이라이트 보장 */
     function highlightCells(selectorOrElements) {
       let els = typeof selectorOrElements === 'string' ? document.querySelectorAll(selectorOrElements) : selectorOrElements;
       els.forEach(el => {
         if (!el) return;
-        el.classList.remove('cell-blink');
-        void el.offsetWidth; // reflow to restart css animation
-        el.classList.add('cell-blink');
+        let targetEl = (el.tagName === 'INPUT' && el.parentElement) ? el.parentElement : el;
+        targetEl.classList.remove('cell-blink');
+        void targetEl.offsetWidth; 
+        targetEl.classList.add('cell-blink');
       });
     }
 
-    /* 🟢 3. 키보드 Escape(ESC) 키 누름 감지 리스너: 열려 있는 모달을 즉시 종료 */
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         const modals = ['settingsModal', 'rosterUploadModal', 'addStudentModal', 'nextStudentModal', 'customAlertModal', 'customConfirmModal'];
@@ -647,7 +636,6 @@
       else if (!isConfirmed && cancelCallback) cancelCallback();
     }
 
-    /* 🟢 2. 테스트 목록 정렬 알고리즘: 연도 내림차순 > 학기(겨울-가을-여름-봄) > 고사(기말-중간) 순 */
     function sortTestNames(arr) {
       const seasonRank = { "겨울": 4, "가을": 3, "여름": 2, "봄": 1 };
       const examRank = { "기말": 2, "중간": 1 };
@@ -671,7 +659,6 @@
       });
     }
 
-    /* 🟢 2. 환경설정 시트 등록 순서 기반 정렬 알고리즘: Settings 순서를 최우선 존중 */
     function sortBySettingsOrder(arr, settingsList) {
       if (!settingsList || !settingsList.length) return arr;
       return arr.slice().sort((a, b) => {
@@ -844,7 +831,6 @@
          });
       }
       
-      /* 🟢 2. 테스트 목록: 연도-학기-고사 최신순 정렬 적용 */
       combinedArr = sortTestNames(combinedArr);
       
       const fillCombinedSelect = (id, placeholder) => {
@@ -942,6 +928,7 @@
       }; reader.readAsArrayBuffer(file);
     }
 
+    /* 🟢 3. 과정명 목록 정렬: 1순위=필수세팅 난이도 목록 순서 > 2순위=필수세팅 과정명 목록 순서 */
     function filterCourses(prefix, forceReset = false) {
       const tt = getTermAndTest(prefix);
       const term = tt.term; const test = tt.test;
@@ -953,9 +940,23 @@
       let optionsHtml = isDataMode ? '<option value="전체" style="color:#333;">전체 (All)</option>' : `<option value="" disabled selected hidden>과정 선택</option>`;
       
       if(term && test) { 
-        let courses = [...new Set(globalData.setups.filter(s => s.term === term && s.test === test).map(s => s.course))];
-        /* 🟢 2. 과정 목록: 환경설정 시트 입력 순서 그대로 정렬 */
-        courses = sortBySettingsOrder(courses, globalData.settings.courses);
+        let setupsForTest = globalData.setups.filter(s => s.term === term && s.test === test);
+        const levelOrder = globalData.settings.levels || [];
+        const courseOrder = globalData.settings.courses || [];
+        
+        setupsForTest.sort((a, b) => {
+          let idxLA = levelOrder.indexOf(a.level); if(idxLA === -1) idxLA = 9999;
+          let idxLB = levelOrder.indexOf(b.level); if(idxLB === -1) idxLB = 9999;
+          if(idxLA !== idxLB) return idxLA - idxLB;
+          
+          let idxCA = courseOrder.indexOf(a.course); if(idxCA === -1) idxCA = 9999;
+          let idxCB = courseOrder.indexOf(b.course); if(idxCB === -1) idxCB = 9999;
+          if(idxCA !== idxCB) return idxCA - idxCB;
+          
+          return a.course.localeCompare(b.course, 'ko');
+        });
+        
+        let courses = [...new Set(setupsForTest.map(s => s.course))];
         courses.forEach(c => optionsHtml += `<option value="${c}" style="color:#333;">${c}</option>`); 
       }
       sel.innerHTML = optionsHtml;
@@ -977,7 +978,6 @@
       
       if(term && test) { 
         let campuses = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test).map(r => r.campus))];
-        /* 🟢 2. 캠퍼스 목록: 환경설정 시트 입력 순서 그대로 정렬 */
         campuses = sortBySettingsOrder(campuses, globalData.settings.campuses);
         campuses.forEach(c => optionsHtml += `<option value="${c}" style="color:#333;">${c}</option>`); 
       }
@@ -988,6 +988,7 @@
       filterTeachers(prefix, forceReset);
     }
 
+    /* 🟢 3. 선생님 목록: 무조건 가나다 순으로 정렬 (.localeCompare('ko')) */
     function filterTeachers(prefix, forceReset = false) {
       const tt = getTermAndTest(prefix);
       const term = tt.term; const test = tt.test;
@@ -998,7 +999,8 @@
       sel.innerHTML = `<option value="" disabled selected hidden>선생님 선택</option>`;
       
       if(term && test && campus && campus !== "전체") { 
-        let teachers = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus).map(r => r.teacher))];
+        let teachers = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus).map(r => r.teacher))]
+          .sort((a, b) => a.localeCompare(b, 'ko'));
         teachers.forEach(t => sel.innerHTML += `<option value="${t}" style="color:#333;">${t}</option>`); 
       }
       if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
@@ -1061,7 +1063,6 @@
       }
     }
 
-    /* 🟢 TXT / 엑셀 통합 출제표 파일 업로드 영역 이벤트 리스너 및 로직 */
     const setupUploadZone = document.getElementById('setupUploadZone');
     const setupFileInput = document.getElementById('setupFileInput');
 
@@ -1335,7 +1336,6 @@
           if (afterLoadMsg) {
             setTimeout(() => showAlert(afterLoadMsg), 50);
           }
-          /* 🟢 방금 추가된 신규 학생 열 하이라이트 셀 깜빡임 시각 피드백 */
           if (highlightedStudentName) {
             let targetIdx = res.data.students.findIndex(s => s.name.trim() === highlightedStudentName.trim());
             if (targetIdx !== -1) {
@@ -1433,7 +1433,6 @@
       }
       tbody.innerHTML = htmlTbody;
 
-      /* 🟢 1. 성적입력 학생별 하단 세로 일괄 입력([O], [X], [-], [↺]) 버튼 생성 */
       let htmlTfoot = `<tr>
         <th colspan="3" class="sticky-col-all bg-gray" style="text-align:center; font-size:12px; color:#495057;">일괄 입력 / 삭제 / 복구</th>`;
       parsedStudents.forEach((st, sIdx) => {
@@ -1459,7 +1458,6 @@
       attachKeyboardNavigationListeners();
     }
 
-    /* 🟢 1. 학생별 일괄 입력 ([O], [X], [-]) 및 직전 스냅샷 저장 로직 + 셀 깜빡임 시각 피드백 */
     function batchSetStudentAnswers(sIdx, val) {
       if (!currentExamSetup) return;
       
@@ -1486,7 +1484,6 @@
       highlightCells(document.querySelectorAll(`.grid-nav[data-s="${sIdx}"], #totalScore_${sIdx}, #rank_${sIdx}`));
     }
 
-    /* 🟢 1. 학생별 직전 일괄 입력 되돌리기 (↺) 로직: 1인 한정으로 스냅샷 복구 + 셀 깜빡임 */
     function undoStudentAnswers(sIdx) {
       let snapshot = studentUndoSnapshots[sIdx];
       if (!snapshot) {
@@ -1656,7 +1653,6 @@
         showLoading(false);
         if (res.success) {
           document.getElementById('addStudentModal').style.display = 'none';
-          /* 🟢 방금 추가된 신규 학생 열 하이라이트 셀 깜빡임 시각 피드백 */
           loadGradesData(`✔ [${name}] 학생이 명단에 추가되었습니다.`, name);
         } else {
           showAlert("에러: " + res.error);
@@ -1843,7 +1839,6 @@
         let unitAvgs = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.avg}</td>`).join('');
         let unitPcts = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.avgPct + '%'}</td>`).join(''); 
 
-        /* 🟢 난이도별 분석: 배점/문항이 존재하는 유효 난이도(max > 0)만 좌측부터 배치하고, 4열 고정을 위해 남는 우측 열은 '-'로 채움 */
         let activeDiffs = st.diffsData.filter(d => d.max > 0);
         let diffsDataPadded = [...activeDiffs];
         while (diffsDataPadded.length < 4) {
