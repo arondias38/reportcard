@@ -134,9 +134,10 @@
     .set-input { width: 100%; border: none; padding: 8px; box-sizing: border-box; text-align: center; outline: none; background: transparent; }
     .set-input:focus { background-color: #e6f0ff; }
 
+    /* 🟢 대시보드 탭 전용 레이아웃 및 KPI 스타일 */
     #view_data { padding-bottom: 30px; }
     .dash-grid { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
-    .dash-card-basic { flex: 1; min-width: 250px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); padding: 20px; display: flex; flex-direction: column; }
+    .dash-card-basic { flex: 1; min-width: 220px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); padding: 20px; display: flex; flex-direction: column; }
     .dash-title { font-size: 14px; color: #6c757d; font-weight: bold; margin-bottom: 10px; }
     .dash-value { font-size: 32px; font-weight: 900; color: #1366ce; }
     .dash-chart-basic { width: 100%; height: 250px; position: relative; }
@@ -185,9 +186,9 @@
     /* 🟢 상단 헤더: 아래 그리드와 간격을 동일(gap: 20px)하게 맞추어 좌측 끝선을 1:1 일치시킴 */
     .report-header { display: flex; justify-content: flex-start; gap: 20px; align-items: center; margin-bottom: 25px; padding-bottom: 15px; flex-shrink: 0; }
     
-    /* 🟢 로고 영역: 아래의 summary-col(215px)과 너비를 1:1로 맞추고 중앙 정렬 */
-    .report-logo { width: 215px; min-width: 215px; max-width: 215px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
-    .report-logo img { height: 48px; max-width: 100%; object-fit: contain; } 
+    /* 🟢 로고 영역: 아래의 summary-col(172px, 20% 축소)과 너비를 1:1로 맞추고 중앙 정렬 */
+    .report-logo { width: 172px; min-width: 172px; max-width: 172px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+    .report-logo img { height: 42px; max-width: 100%; object-fit: contain; } 
     
     /* 🟢 상단 정보 박스 컨테이너: 좌측 끝선(단원별 분석 박스 시작점)부터 우측 끝선까지 비율로 가득 채움 */
     .report-info { display: flex; gap: 10px; align-items: stretch; flex: 1; min-width: 0; }
@@ -206,8 +207,8 @@
     .dash-card { flex: 1; display: flex; flex-direction: column; background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .dash-card-content { flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
 
-    /* 🟢 요약 박스 열: 상단 로고(215px)와 동일한 너비로 고정하여 완벽하게 수직 일치 */
-    .summary-col { width: 215px; min-width: 215px; max-width: 215px; flex: none; display: flex; flex-direction: column; gap: 15px; justify-content: space-between; }
+    /* 🟢 요약 박스 열: 상단 로고(172px, 20% 축소)와 동일한 너비로 고정하여 완벽하게 수직 일치 */
+    .summary-col { width: 172px; min-width: 172px; max-width: 172px; flex: none; display: flex; flex-direction: column; gap: 15px; justify-content: space-between; }
     
     .card-title { font-size: 15px; font-weight: 800; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
     .card-title::before { content: ''; display: block; width: 4px; height: 16px; background: #3b82f6; border-radius: 2px; }
@@ -231,6 +232,7 @@
     
     .chart-container-report { position: relative; display: flex; justify-content: center; align-items: center; padding-top: 15px; }
     
+    /* 🟢 모든 KPI 카드에 동일한 패딩(12px 15px)과 gap(15px)을 주어 좌측 아이콘이 100% 수직 일직선 정렬됨 */
     .kpi-card-white { background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 12px 15px; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .kpi-card-white .kpi-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .kpi-card-white .kpi-info { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 2px; }
@@ -389,29 +391,33 @@
         <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
         <div class="select-group" id="mainClassGroup"><label>반명</label><select id="mainClass" required></select></div>
         
-        <!-- 🟢 성적 입력 액션: margin-left: auto로 맨 우측에 밀착 + 결과저장 확장 마우스오버 애니메이션 -->
-        <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: auto; align-items: center;">
+        <!-- 🟢 1. 목록 박스 바로 옆에 조회/렌더링 버튼 밀착 (margin-left: 8px)
+             🟢 2. 화면 우측 끝(margin-left: auto)에 [결과 저장], [일괄 인쇄] 버튼 분리 배치 -->
+        <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #6c757d;" onclick="loadGradesData()">명단 불러오기</button>
-          <button class="btn-expand-action" style="background-color: #d32f2f;" onclick="saveGrades()" title="결과 저장">
-            <span class="btn-icon-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            </span>
-            <span class="btn-text-wrap">결과 저장</span>
-          </button>
+          <div style="margin-left: auto;">
+            <button class="btn-expand-action" style="background-color: #d32f2f;" onclick="saveGrades()" title="결과 저장">
+              <span class="btn-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              </span>
+              <span class="btn-text-wrap">결과 저장</span>
+            </button>
+          </div>
         </div>
 
-        <!-- 🟢 성적표 출력 액션: margin-left: auto로 맨 우측에 밀착 + 일괄인쇄 확장 마우스오버 애니메이션 -->
-        <div id="actionBtn_report" style="display: none; gap: 8px; margin-left: auto; align-items: center;">
+        <div id="actionBtn_report" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #68488e;" onclick="generateReports()">성적표 렌더링</button>
-          <button class="btn-expand-action" style="background-color: #333;" onclick="executePrint()" title="일괄 인쇄 (PDF)">
-            <span class="btn-icon-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            </span>
-            <span class="btn-text-wrap">일괄 인쇄</span>
-          </button>
+          <div style="margin-left: auto;">
+            <button class="btn-expand-action" style="background-color: #333;" onclick="executePrint()" title="일괄 인쇄 (PDF)">
+              <span class="btn-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              </span>
+              <span class="btn-text-wrap">일괄 인쇄</span>
+            </button>
+          </div>
         </div>
 
-        <div id="actionBtn_data" style="display: none; gap: 8px; margin-left: auto; align-items: center;">
+        <div id="actionBtn_data" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #17a2b8;" onclick="generateDashboard()">데이터 조회</button>
         </div>
       </div>
@@ -440,6 +446,7 @@
         </div>
       </div>
 
+      <!-- 🟢 데이터 확인 (Dashboard) 탭 고도화 UI: KPI 카드 4종 + 핵심 분석 차트 3종 -->
       <div id="view_data" style="display: none;">
         <div id="dashEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
           과정을 확인하고 [데이터 조회]를 누르면 통합 데이터를 확인합니다.
@@ -454,15 +461,29 @@
               <div class="dash-title">통합 평균 점수</div>
               <div class="dash-value" id="dashTotalAvg">0.0점</div>
             </div>
+            <div class="dash-card-basic">
+              <div class="dash-title">최고 점수 (Top Score)</div>
+              <div class="dash-value" id="dashTopScore" style="color: #28a745;">0점</div>
+            </div>
+            <div class="dash-card-basic">
+              <div class="dash-title">90점 이상 고득점 비율</div>
+              <div class="dash-value" id="dashOver90Rate" style="color: #8b5cf6;">0%</div>
+            </div>
           </div>
           <div class="dash-grid">
-            <div class="dash-card-basic" style="flex: 2;">
-              <div class="dash-title">점수대별 인원 분포</div>
+            <div class="dash-card-basic" style="flex: 1.2;">
+              <div class="dash-title">점수대별 인원 분포 (명)</div>
               <div class="dash-chart-basic"><canvas id="dashScoreDistChart"></canvas></div>
             </div>
-            <div class="dash-card-basic" style="flex: 1;" id="dashCampusCard">
-              <div class="dash-title">캠퍼스별 평균 점수</div>
-              <div class="dash-chart-basic"><canvas id="dashCampusAvgChart"></canvas></div>
+            <div class="dash-card-basic" style="flex: 1.2;">
+              <div class="dash-title" id="dashGroupTitle">캠퍼스별 / 반별 평균 점수 비교</div>
+              <div class="dash-chart-basic"><canvas id="dashGroupAvgChart"></canvas></div>
+            </div>
+          </div>
+          <div class="dash-grid">
+            <div class="dash-card-basic" style="flex: 1;">
+              <div class="dash-title">단원별 전체 정답률 분석 (%) - 취약 단원 파악</div>
+              <div class="dash-chart-basic" style="height: 260px;"><canvas id="dashUnitPctChart"></canvas></div>
             </div>
           </div>
         </div>
@@ -519,6 +540,7 @@
     let isDeleteMode = false;
     
     let lastSelectedCampus = ""; 
+    let lastSelectedCourse = "";
     let confirmCallback = null;
     let cancelCallback = null;
 
@@ -585,9 +607,19 @@
       document.getElementById(`view_${navId}`).style.display = 'flex';
 
       const mainCampus = document.getElementById('mainCampus');
+      const mainCourse = document.getElementById('mainCourse');
+      
       if (navId === 'data') {
         document.getElementById('mainTeacherGroup').style.display = 'none';
         document.getElementById('mainClassGroup').style.display = 'none';
+        
+        // 🟢 과정 목록에 '전체 (All)' 옵션 추가
+        if (!mainCourse.querySelector('option[value="전체"]')) {
+           lastSelectedCourse = mainCourse.value;
+           mainCourse.insertAdjacentHTML('afterbegin', '<option value="전체" style="color:#333;">전체 (All)</option>');
+           mainCourse.value = "전체";
+        }
+        // 🟢 캠퍼스 목록에 '전체 (All)' 옵션 추가
         if (!mainCampus.querySelector('option[value="전체"]')) {
            lastSelectedCampus = mainCampus.value; 
            mainCampus.insertAdjacentHTML('afterbegin', '<option value="전체" style="color:#333;">전체 (All)</option>');
@@ -596,9 +628,15 @@
       } else {
         document.getElementById('mainTeacherGroup').style.display = 'flex';
         document.getElementById('mainClassGroup').style.display = 'flex';
-        let optAll = mainCampus.querySelector('option[value="전체"]');
-        if(optAll) {
-            optAll.remove();
+        
+        let optAllCourse = mainCourse.querySelector('option[value="전체"]');
+        if(optAllCourse) {
+            optAllCourse.remove();
+            mainCourse.value = lastSelectedCourse || (mainCourse.options[1] ? mainCourse.options[1].value : ""); 
+        }
+        let optAllCampus = mainCampus.querySelector('option[value="전체"]');
+        if(optAllCampus) {
+            optAllCampus.remove();
             mainCampus.value = lastSelectedCampus || (mainCampus.options[1] ? mainCampus.options[1].value : ""); 
         }
       }
@@ -813,14 +851,18 @@
       const sel = document.getElementById(`${prefix}Course`); 
       if(!sel) return;
       const prevVal = forceReset ? "" : sel.value;
-      sel.innerHTML = `<option value="" disabled selected hidden>과정 선택</option>`;
+      
+      // 🟢 데이터 확인(data) 모드이거나 prefix가 main이고 현재 data 탭이 활성화되어 있을 경우 '전체' 옵션 추가
+      const isDataMode = (document.getElementById('view_data')?.style.display === 'flex');
+      let optionsHtml = isDataMode ? '<option value="전체" style="color:#333;">전체 (All)</option>' : `<option value="" disabled selected hidden>과정 선택</option>`;
       
       if(term && test) { 
         let courses = [...new Set(globalData.setups.filter(s => s.term === term && s.test === test).map(s => s.course))].sort(); 
-        courses.forEach(c => sel.innerHTML += `<option value="${c}" style="color:#333;">${c}</option>`); 
+        courses.forEach(c => optionsHtml += `<option value="${c}" style="color:#333;">${c}</option>`); 
       }
+      sel.innerHTML = optionsHtml;
       if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
-      else sel.value = "";
+      else sel.value = isDataMode ? "전체" : "";
       
       filterCampuses(prefix, forceReset);
     }
@@ -1410,10 +1452,15 @@
         
         let unitCols = unitsDataPadded.map(u => `<th style="width:${100/unitsDataPadded.length}%;">${u.max === 0 ? '-' : u.name}</th>`).join('');
         let unitMaxs = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.max}</td>`).join('');
+        
+        /* 🟢 단원별: 소수점 버림한 정수 평균(Math.floor(avg))을 기준으로 비교 (동일할 경우도 파란색 적용) */
         let unitScores = unitsDataPadded.map(u => {
             if (u.max === 0) return `<td>-</td>`;
+            let intAvg = Math.floor(u.avg);
             let diffIcon = '', color = '#111827';
-            if (u.score > u.avg) { diffIcon = '▲'; color = '#3b82f6'; } else if (u.score < u.avg) { diffIcon = '▼'; color = '#ef4444'; }
+            if (u.score > intAvg) { diffIcon = '▲'; color = '#3b82f6'; } 
+            else if (u.score === intAvg) { diffIcon = ''; color = '#3b82f6'; } 
+            else { diffIcon = '▼'; color = '#ef4444'; }
             return `<td style="position:relative; color:${color}; font-weight:800;"><span style="display:block; text-align:center;">${u.score}</span>${diffIcon ? `<span style="position:absolute; right:4px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span>` : ''}</td>`;
         }).join('');
         let unitAvgs = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.avg}</td>`).join('');
@@ -1422,10 +1469,15 @@
         let diffsDataPadded = [...st.diffsData];
         let diffCols = diffsDataPadded.map(d => `<th style="width:${100/diffsDataPadded.length}%;">${d.max === 0 ? '-' : d.name}</th>`).join('');
         let diffMaxs = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.max}</td>`).join('');
+        
+        /* 🟢 난이도별: 소수점 버림한 정수 평균(Math.floor(avg))을 기준으로 비교 (동일할 경우도 파란색 적용) */
         let diffScores = diffsDataPadded.map(d => {
             if (d.max === 0) return `<td>-</td>`;
+            let intAvg = Math.floor(d.avg);
             let diffIcon = '', color = '#111827';
-            if (d.score > d.avg) { diffIcon = '▲'; color = '#3b82f6'; } else if (d.score < d.avg) { diffIcon = '▼'; color = '#ef4444'; }
+            if (d.score > intAvg) { diffIcon = '▲'; color = '#3b82f6'; } 
+            else if (d.score === intAvg) { diffIcon = ''; color = '#3b82f6'; } 
+            else { diffIcon = '▼'; color = '#ef4444'; }
             return `<td style="position:relative; color:${color}; font-weight:800;"><span style="display:block; text-align:center;">${d.score}</span>${diffIcon ? `<span style="position:absolute; right:4px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span>` : ''}</td>`;
         }).join('');
         let diffAvgs = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.avg}</td>`).join('');
@@ -1445,7 +1497,6 @@
         let bluePct = 100 - calcTopPct;
         let startAngle = 360 - (bluePct * 3.6);
 
-        /* 🟢 도넛 차트 타이틀을 상단에 배치하고, 동일과정 상위% 글자를 '나의 석차'와 완전히 일치시킴 */
         let html = `
           <div class="report-page">
             <div class="report-header">
@@ -1477,7 +1528,8 @@
                        <div class="kpi-label">전체평균</div>
                        <div class="kpi-val">${Math.round(examInfo.totalAvg)}</div>
                      </div>
-                     <div style="width: 1.5px; height: 32px; background-color: #cbd5e1; margin: 0 4px;"></div>
+                     <!-- 🟢 전체평균과 기준만점 사이 구분선 상하 길이 20px로 축소 -->
+                     <div style="width: 1.5px; height: 20px; background-color: #cbd5e1; margin: 0 4px;"></div>
                      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
                        <div class="kpi-label">기준만점</div>
                        <div class="kpi-val">${maxTotalScore}</div>
@@ -1499,7 +1551,8 @@
                 <div class="doughnut-card">
                   <div class="kpi-label" style="font-size: 13px !important; color: #64748b !important; font-weight: 700 !important; margin-bottom: 8px; text-align: center;">동일과정 상위 %</div>
                   <div style="position: relative; width: 140px; height: 140px; margin: 0 auto;">
-                     <div style="position: absolute; top: 13px; left: 13px; width: 114px; height: 114px;">
+                     <!-- 🟢 도넛 캔버스를 108px로 살짝 줄여 외곽 점선 화살표와 넉넉하게 떨어지게 함 -->
+                     <div style="position: absolute; top: 16px; left: 16px; width: 108px; height: 108px;">
                          <canvas id="chart_doughnut_${idx}"></canvas>
                      </div>
                      <svg viewBox="0 0 150 150" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;">
@@ -1507,9 +1560,10 @@
                            <marker id="arrow_${idx}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
                              <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af" />
                            </marker>
-                           <path id="innerCurve_${idx}" d="M 27,75 A 48,48 0 0,0 123,75" />
+                           <!-- 🟢 원호 반지름을 R=67로 확장하여 시원하게 떨어지는 화살표 궤도 형성 -->
+                           <path id="innerCurve_${idx}" d="M 24,75 A 51,51 0 0,0 126,75" />
                         </defs>
-                        <path d="M 75,10 A 65,65 0 1,0 140,75" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow_${idx})" />
+                        <path d="M 70,3 A 67,67 0 1,0 137,70" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow_${idx})" />
                         
                         <text style="font-size: 11px; fill: #ffffff; font-weight: 700; letter-spacing: 0.5px;" dy="5">
                            <textPath href="#innerCurve_${idx}" startOffset="50%" text-anchor="middle">lower is better</textPath>
@@ -1528,7 +1582,8 @@
                   <table class="willow-table bg-head-blue">
                     <tr><th>단원</th>${unitCols}</tr>
                     <tr class="bg-subhead"><th>기준만점</th>${unitMaxs}</tr>
-                    <tr><th>${st.name}</th>${unitScores}</tr>
+                    <!-- 🟢 단원별 분석 내 학생명 파란색 폰트 적용 -->
+                    <tr><th style="color:#3b82f6;">${st.name}</th>${unitScores}</tr>
                     <tr><th>전체평균</th>${unitAvgs}</tr>
                     <tr><th>정답률</th>${unitPcts}</tr>
                   </table>
@@ -1542,7 +1597,8 @@
                   <table class="willow-table bg-head-green">
                     <tr><th>난이도</th>${diffCols}</tr>
                     <tr class="bg-subhead"><th>기준만점</th>${diffMaxs}</tr>
-                    <tr><th>${st.name}</th>${diffScores}</tr>
+                    <!-- 🟢 난이도별 분석 내 학생명 파란색 폰트 적용 -->
+                    <tr><th style="color:#3b82f6;">${st.name}</th>${diffScores}</tr>
                     <tr><th>전체평균</th>${diffAvgs}</tr>
                     <tr><th>정답률</th>${diffPcts}</tr>
                   </table>
@@ -1627,25 +1683,41 @@
           
           document.getElementById('dashTotalStudents').innerText = d.totalStudents + "명";
           document.getElementById('dashTotalAvg').innerText = d.totalAvg + "점";
+          document.getElementById('dashTopScore').innerText = d.topScore + "점";
+          document.getElementById('dashOver90Rate').innerText = d.over90Rate + "%";
+          document.getElementById('dashGroupTitle').innerText = d.groupLabel;
           
           dashChartInstances.forEach(c => c.destroy()); dashChartInstances = [];
           
+          // 1. 점수대별 분포 차트
           const ctxDist = document.getElementById('dashScoreDistChart').getContext('2d');
           dashChartInstances.push(new Chart(ctxDist, {
             type: 'bar',
-            data: { labels: ['90점 이상', '80점대', '70점대', '60점대', '60점 미만'], datasets: [{ label: '인원(명)', data: [d.dist.over90, d.dist.over80, d.dist.over70, d.dist.over60, d.dist.under60], backgroundColor: '#17a2b8' }] },
+            data: { labels: ['90점 이상', '80점대', '70점대', '60점대', '60점 미만'], datasets: [{ label: '인원(명)', data: [d.dist.over90, d.dist.over80, d.dist.over70, d.dist.over60, d.dist.under60], backgroundColor: '#17a2b8', borderRadius: 6 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
           }));
 
-          const ctxCam = document.getElementById('dashCampusAvgChart').getContext('2d');
+          // 2. 캠퍼스별/반별 평균 비교 차트
+          const ctxCam = document.getElementById('dashGroupAvgChart').getContext('2d');
           dashChartInstances.push(new Chart(ctxCam, {
             type: 'bar',
-            data: { labels: d.campuses, datasets: [{ label: '평균 점수', data: d.campusAvgs, backgroundColor: '#68488e' }] },
+            data: { labels: d.groups, datasets: [{ label: '평균 점수', data: d.groupAvgs, backgroundColor: '#68488e', borderRadius: 6 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
           }));
 
-          if(campus !== "전체") document.getElementById('dashCampusCard').style.display = 'none';
-          else document.getElementById('dashCampusCard').style.display = 'block';
+          // 3. 단원별 전체 정답률 분석 가로 차트
+          const ctxUnit = document.getElementById('dashUnitPctChart').getContext('2d');
+          dashChartInstances.push(new Chart(ctxUnit, {
+            type: 'bar',
+            data: { labels: d.units, datasets: [{ label: '평균 정답률(%)', data: d.unitPcts, backgroundColor: '#28a745', borderRadius: 6 }] },
+            options: { 
+              indexAxis: 'y',
+              responsive: true, 
+              maintainAspectRatio: false, 
+              plugins: { legend: { display: false } }, 
+              scales: { x: { beginAtZero: true, max: 100, ticks: { stepSize: 20 } } } 
+            }
+          }));
 
         } else { showAlert("· Error: " + res.error); }
       }).catch(handleError);
