@@ -613,13 +613,11 @@
         document.getElementById('mainTeacherGroup').style.display = 'none';
         document.getElementById('mainClassGroup').style.display = 'none';
         
-        // 🟢 과정 목록에 '전체 (All)' 옵션 추가
         if (!mainCourse.querySelector('option[value="전체"]')) {
            lastSelectedCourse = mainCourse.value;
            mainCourse.insertAdjacentHTML('afterbegin', '<option value="전체" style="color:#333;">전체 (All)</option>');
            mainCourse.value = "전체";
         }
-        // 🟢 캠퍼스 목록에 '전체 (All)' 옵션 추가
         if (!mainCampus.querySelector('option[value="전체"]')) {
            lastSelectedCampus = mainCampus.value; 
            mainCampus.insertAdjacentHTML('afterbegin', '<option value="전체" style="color:#333;">전체 (All)</option>');
@@ -852,7 +850,6 @@
       if(!sel) return;
       const prevVal = forceReset ? "" : sel.value;
       
-      // 🟢 데이터 확인(data) 모드이거나 prefix가 main이고 현재 data 탭이 활성화되어 있을 경우 '전체' 옵션 추가
       const isDataMode = (document.getElementById('view_data')?.style.display === 'flex');
       let optionsHtml = isDataMode ? '<option value="전체" style="color:#333;">전체 (All)</option>' : `<option value="" disabled selected hidden>과정 선택</option>`;
       
@@ -1453,7 +1450,6 @@
         let unitCols = unitsDataPadded.map(u => `<th style="width:${100/unitsDataPadded.length}%;">${u.max === 0 ? '-' : u.name}</th>`).join('');
         let unitMaxs = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.max}</td>`).join('');
         
-        /* 🟢 단원별: 소수점 버림한 정수 평균(Math.floor(avg))을 기준으로 비교 (동일할 경우도 파란색 적용) */
         let unitScores = unitsDataPadded.map(u => {
             if (u.max === 0) return `<td>-</td>`;
             let intAvg = Math.floor(u.avg);
@@ -1470,7 +1466,6 @@
         let diffCols = diffsDataPadded.map(d => `<th style="width:${100/diffsDataPadded.length}%;">${d.max === 0 ? '-' : d.name}</th>`).join('');
         let diffMaxs = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.max}</td>`).join('');
         
-        /* 🟢 난이도별: 소수점 버림한 정수 평균(Math.floor(avg))을 기준으로 비교 (동일할 경우도 파란색 적용) */
         let diffScores = diffsDataPadded.map(d => {
             if (d.max === 0) return `<td>-</td>`;
             let intAvg = Math.floor(d.avg);
@@ -1483,11 +1478,28 @@
         let diffAvgs = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.avg}</td>`).join('');
         let diffPcts = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.avgPct + '%'}</td>`).join('');
 
-        let unitLabels = unitsDataPadded.map(u => u.max === 0 ? '-' : u.name);
+        /* 🟢 단원명/난이도명이 6자를 초과할 경우 2줄(배열)로 나누어 가로 정렬 및 가독성 향상 */
+        let unitLabels = unitsDataPadded.map(u => {
+          if (u.max === 0) return '-';
+          let str = String(u.name);
+          if (str.length > 6) {
+             let mid = Math.ceil(str.length / 2);
+             return [str.slice(0, mid), str.slice(mid)];
+          }
+          return str;
+        });
         let unitMyData = unitsDataPadded.map(u => u.max === 0 ? null : u.pct);
         let unitAvgData = unitsDataPadded.map(u => u.max === 0 ? null : u.avgPct);
 
-        let diffLabels = diffsDataPadded.map(d => d.max === 0 ? '-' : d.name);
+        let diffLabels = diffsDataPadded.map(d => {
+          if (d.max === 0) return '-';
+          let str = String(d.name);
+          if (str.length > 6) {
+             let mid = Math.ceil(str.length / 2);
+             return [str.slice(0, mid), str.slice(mid)];
+          }
+          return str;
+        });
         let diffMyData = diffsDataPadded.map(d => d.max === 0 ? null : d.pct);
         let diffAvgData = diffsDataPadded.map(d => d.max === 0 ? null : d.avgPct);
 
@@ -1528,7 +1540,6 @@
                        <div class="kpi-label">전체평균</div>
                        <div class="kpi-val">${Math.round(examInfo.totalAvg)}</div>
                      </div>
-                     <!-- 🟢 전체평균과 기준만점 사이 구분선 상하 길이 20px로 축소 -->
                      <div style="width: 1.5px; height: 20px; background-color: #cbd5e1; margin: 0 4px;"></div>
                      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
                        <div class="kpi-label">기준만점</div>
@@ -1551,7 +1562,6 @@
                 <div class="doughnut-card">
                   <div class="kpi-label" style="font-size: 13px !important; color: #64748b !important; font-weight: 700 !important; margin-bottom: 8px; text-align: center;">동일과정 상위 %</div>
                   <div style="position: relative; width: 140px; height: 140px; margin: 0 auto;">
-                     <!-- 🟢 도넛 캔버스를 108px로 살짝 줄여 외곽 점선 화살표와 넉넉하게 떨어지게 함 -->
                      <div style="position: absolute; top: 16px; left: 16px; width: 108px; height: 108px;">
                          <canvas id="chart_doughnut_${idx}"></canvas>
                      </div>
@@ -1560,12 +1570,14 @@
                            <marker id="arrow_${idx}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
                              <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af" />
                            </marker>
-                           <!-- 🟢 원호 반지름을 R=67로 확장하여 시원하게 떨어지는 화살표 궤도 형성 -->
-                           <path id="innerCurve_${idx}" d="M 24,75 A 51,51 0 0,0 126,75" />
+                           <!-- 🟢 dy="-4"로 올린 텍스트가 도넛 바 중앙에 오도록 내부 반경 최적화 -->
+                           <path id="innerCurve_${idx}" d="M 21,75 A 54,54 0 0,0 129,75" />
                         </defs>
-                        <path d="M 70,3 A 67,67 0 1,0 137,70" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow_${idx})" />
+                        <!-- 🟢 M 72,11 A 64,64로 변경하여 중심 좌표를 정중앙(75, 75)으로 우측하단 이동시킴 -->
+                        <path d="M 72,11 A 64,64 0 1,0 139,72" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow_${idx})" />
                         
-                        <text style="font-size: 11px; fill: #ffffff; font-weight: 700; letter-spacing: 0.5px;" dy="5">
+                        <!-- 🟢 dy="-4" 적용 및 글자색을 파란색(#3b82f6)으로 일치시켜 상단 위로 이동 -->
+                        <text style="font-size: 11px; fill: #3b82f6; font-weight: 800; letter-spacing: 0.5px;" dy="-4">
                            <textPath href="#innerCurve_${idx}" startOffset="50%" text-anchor="middle">lower is better</textPath>
                         </text>
                      </svg>
@@ -1582,7 +1594,6 @@
                   <table class="willow-table bg-head-blue">
                     <tr><th>단원</th>${unitCols}</tr>
                     <tr class="bg-subhead"><th>기준만점</th>${unitMaxs}</tr>
-                    <!-- 🟢 단원별 분석 내 학생명 파란색 폰트 적용 -->
                     <tr><th style="color:#3b82f6;">${st.name}</th>${unitScores}</tr>
                     <tr><th>전체평균</th>${unitAvgs}</tr>
                     <tr><th>정답률</th>${unitPcts}</tr>
@@ -1597,7 +1608,6 @@
                   <table class="willow-table bg-head-green">
                     <tr><th>난이도</th>${diffCols}</tr>
                     <tr class="bg-subhead"><th>기준만점</th>${diffMaxs}</tr>
-                    <!-- 🟢 난이도별 분석 내 학생명 파란색 폰트 적용 -->
                     <tr><th style="color:#3b82f6;">${st.name}</th>${diffScores}</tr>
                     <tr><th>전체평균</th>${diffAvgs}</tr>
                     <tr><th>정답률</th>${diffPcts}</tr>
@@ -1625,7 +1635,8 @@
             layout: { padding: { top: 15, bottom: 0, left: 0, right: 0 } }, 
             scales: { 
               x: { 
-                  ticks: { display: true, font: { family: 'Pretendard', size: 10 }, color: '#64748b' }, 
+                  /* 🟢 maxRotation: 0 적용으로 단원명/난이도명 대각선 회전 금지 및 2줄 가로 정렬 고정 */
+                  ticks: { display: true, font: { family: 'Pretendard', size: 10 }, color: '#64748b', maxRotation: 0, minRotation: 0 }, 
                   grid: { display: false, drawBorder: false } 
               }, 
               y: { 
@@ -1689,7 +1700,6 @@
           
           dashChartInstances.forEach(c => c.destroy()); dashChartInstances = [];
           
-          // 1. 점수대별 분포 차트
           const ctxDist = document.getElementById('dashScoreDistChart').getContext('2d');
           dashChartInstances.push(new Chart(ctxDist, {
             type: 'bar',
@@ -1697,7 +1707,6 @@
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
           }));
 
-          // 2. 캠퍼스별/반별 평균 비교 차트
           const ctxCam = document.getElementById('dashGroupAvgChart').getContext('2d');
           dashChartInstances.push(new Chart(ctxCam, {
             type: 'bar',
@@ -1705,7 +1714,6 @@
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
           }));
 
-          // 3. 단원별 전체 정답률 분석 가로 차트
           const ctxUnit = document.getElementById('dashUnitPctChart').getContext('2d');
           dashChartInstances.push(new Chart(ctxUnit, {
             type: 'bar',
