@@ -20,16 +20,6 @@
     .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; overflow: hidden; }
     .page-content.active { display: flex; }
 
-    /* 🟢 부드러운 셀 깜빡임(Soft Blink Highlight) 시각 효과 애니메이션: td/th 셀에 명확히 표출 */
-    @keyframes softBlink {
-      0% { background-color: #c8e6c9 !important; }
-      50% { background-color: #fff3cd !important; }
-      100% { background-color: transparent; }
-    }
-    .cell-blink {
-      animation: softBlink 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    }
-
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1366ce; border-radius: 50%; animation: spin 1s linear infinite; }
     .spinner-text { margin-top: 15px; font-weight: bold; color: #1366ce; font-size: 15px; }
@@ -381,11 +371,11 @@
       </div>
 
       <div style="display: flex; align-items: center;">
-        <!-- 🟢 2. 앱 상단 우측 관리자 톱니바퀴 아이콘: 선 굵기(stroke-width="1.6") 적용하여 뭉침 없는 표준 SVG -->
+        <!-- 🟢 3. 상단 네비게이션 바 우측 톱니바퀴: 완벽한 표준 Feather Settings 24x24 SVG (stroke-width="2")로 고정 -->
         <button class="icon-btn" id="headerAdminBtn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
         </button>
         <button class="icon-btn" id="headerMainBtn" style="display: none;" onclick="switchPage('page-main')" title="뒤로가기">
@@ -522,11 +512,11 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v6h16v-6"></path><path d="M12 4v12"></path><path d="m17 9-5-5-5 5"></path></svg>
             학생명단 업로드
           </button>
-          <!-- 🟢 2. 관리자 툴바 필수 환경설정 버튼: 선 굵기(stroke-width="1.6") 적용된 표준 기어 SVG -->
+          <!-- 🟢 3. 관리자 툴바 필수 환경설정 버튼: 완벽한 표준 Feather Settings 24x24 SVG (stroke-width="2")로 고정 -->
           <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
             </svg>
             필수 환경설정
           </button>
@@ -573,18 +563,6 @@
     let lastSelectedCourse = "";
     let confirmCallback = null;
     let cancelCallback = null;
-
-    /* 🟢 1. 셀 깜빡임(Soft Blink Highlight) 재생 유틸리티: 부모 td/th 셀을 직접 타겟팅하여 민트색 하이라이트 보장 */
-    function highlightCells(selectorOrElements) {
-      let els = typeof selectorOrElements === 'string' ? document.querySelectorAll(selectorOrElements) : selectorOrElements;
-      els.forEach(el => {
-        if (!el) return;
-        let targetEl = (el.tagName === 'INPUT' && el.parentElement) ? el.parentElement : el;
-        targetEl.classList.remove('cell-blink');
-        void targetEl.offsetWidth; 
-        targetEl.classList.add('cell-blink');
-      });
-    }
 
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
@@ -667,6 +645,27 @@
         if (idxA === -1) idxA = 9999;
         if (idxB === -1) idxB = 9999;
         if (idxA !== idxB) return idxA - idxB;
+        return a.localeCompare(b, 'ko');
+      });
+    }
+
+    /* 🟢 1. 합쳐진 과정명("레벨 과정명") 맞춤형 2중 우선순위 정렬: 1순위=난이도 목록 순서, 2순위=과정명 목록 순서 */
+    function sortCombinedCourses(arr, levelsOrder = [], coursesOrder = []) {
+      return arr.slice().sort((a, b) => {
+        let levelA = levelsOrder.find(l => a.startsWith(l)) || "";
+        let levelB = levelsOrder.find(l => b.startsWith(l)) || "";
+        
+        let idxLA = levelA ? levelsOrder.indexOf(levelA) : 9999;
+        let idxLB = levelB ? levelsOrder.indexOf(levelB) : 9999;
+        if (idxLA !== idxLB) return idxLA - idxLB;
+
+        let courseA = levelA ? a.slice(levelA.length).trim() : a;
+        let courseB = levelB ? b.slice(levelB.length).trim() : b;
+        
+        let idxCA = coursesOrder.indexOf(courseA); if (idxCA === -1) idxCA = 9999;
+        let idxCB = coursesOrder.indexOf(courseB); if (idxCB === -1) idxCB = 9999;
+        if (idxCA !== idxCB) return idxCA - idxCB;
+
         return a.localeCompare(b, 'ko');
       });
     }
@@ -928,7 +927,7 @@
       }; reader.readAsArrayBuffer(file);
     }
 
-    /* 🟢 3. 과정명 목록 정렬: 1순위=필수세팅 난이도 목록 순서 > 2순위=필수세팅 과정명 목록 순서 */
+    /* 🟢 1. 합쳐진 과정명("레벨 과정명")을 1순위=난이도 목록 순서, 2순위=과정명 목록 순서로 엄격 정렬 */
     function filterCourses(prefix, forceReset = false) {
       const tt = getTermAndTest(prefix);
       const term = tt.term; const test = tt.test;
@@ -940,23 +939,8 @@
       let optionsHtml = isDataMode ? '<option value="전체" style="color:#333;">전체 (All)</option>' : `<option value="" disabled selected hidden>과정 선택</option>`;
       
       if(term && test) { 
-        let setupsForTest = globalData.setups.filter(s => s.term === term && s.test === test);
-        const levelOrder = globalData.settings.levels || [];
-        const courseOrder = globalData.settings.courses || [];
-        
-        setupsForTest.sort((a, b) => {
-          let idxLA = levelOrder.indexOf(a.level); if(idxLA === -1) idxLA = 9999;
-          let idxLB = levelOrder.indexOf(b.level); if(idxLB === -1) idxLB = 9999;
-          if(idxLA !== idxLB) return idxLA - idxLB;
-          
-          let idxCA = courseOrder.indexOf(a.course); if(idxCA === -1) idxCA = 9999;
-          let idxCB = courseOrder.indexOf(b.course); if(idxCB === -1) idxCB = 9999;
-          if(idxCA !== idxCB) return idxCA - idxCB;
-          
-          return a.course.localeCompare(b.course, 'ko');
-        });
-        
-        let courses = [...new Set(setupsForTest.map(s => s.course))];
+        let courses = [...new Set(globalData.setups.filter(s => s.term === term && s.test === test).map(s => s.course))];
+        courses = sortCombinedCourses(courses, globalData.settings.levels, globalData.settings.courses);
         courses.forEach(c => optionsHtml += `<option value="${c}" style="color:#333;">${c}</option>`); 
       }
       sel.innerHTML = optionsHtml;
@@ -988,7 +972,6 @@
       filterTeachers(prefix, forceReset);
     }
 
-    /* 🟢 3. 선생님 목록: 무조건 가나다 순으로 정렬 (.localeCompare('ko')) */
     function filterTeachers(prefix, forceReset = false) {
       const tt = getTermAndTest(prefix);
       const term = tt.term; const test = tt.test;
@@ -1313,7 +1296,7 @@
       }).catch(handleError);
     }
 
-    function loadGradesData(afterLoadMsg = null, highlightedStudentName = null) {
+    function loadGradesData(afterLoadMsg = null) {
       const tt = getTermAndTest('main');
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
@@ -1335,14 +1318,6 @@
           renderInputTable(res.data.setupData, res.data.students, res.data.grades); 
           if (afterLoadMsg) {
             setTimeout(() => showAlert(afterLoadMsg), 50);
-          }
-          if (highlightedStudentName) {
-            let targetIdx = res.data.students.findIndex(s => s.name.trim() === highlightedStudentName.trim());
-            if (targetIdx !== -1) {
-              setTimeout(() => {
-                highlightCells(document.querySelectorAll(`.grid-nav[data-s="${targetIdx}"], #totalScore_${targetIdx}, #rank_${targetIdx}`));
-              }, 150);
-            }
           }
         } else { showAlert("· Error: " + res.error); } 
       }).catch(handleError);
@@ -1481,7 +1456,6 @@
 
       calculateStudentScore(sIdx);
       updateAllRanks();
-      highlightCells(document.querySelectorAll(`.grid-nav[data-s="${sIdx}"], #totalScore_${sIdx}, #rank_${sIdx}`));
     }
 
     function undoStudentAnswers(sIdx) {
@@ -1501,7 +1475,6 @@
 
       calculateStudentScore(sIdx);
       updateAllRanks();
-      highlightCells(document.querySelectorAll(`.grid-nav[data-s="${sIdx}"], #totalScore_${sIdx}, #rank_${sIdx}`));
     }
 
     function handleOxInput(e, qIdx, sIdx) {
@@ -1653,7 +1626,7 @@
         showLoading(false);
         if (res.success) {
           document.getElementById('addStudentModal').style.display = 'none';
-          loadGradesData(`✔ [${name}] 학생이 명단에 추가되었습니다.`, name);
+          loadGradesData(`✔ [${name}] 학생이 명단에 추가되었습니다.`);
         } else {
           showAlert("에러: " + res.error);
         }
