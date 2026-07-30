@@ -391,10 +391,10 @@
         <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
         <div class="select-group" id="mainClassGroup"><label>반명</label><select id="mainClass" required></select></div>
         
-        <!-- 🟢 1. 목록 박스 바로 옆에 조회/렌더링 버튼 밀착 (margin-left: 8px)
+        <!-- 🟢 1. 목록 박스 바로 옆에 조회/렌더링 버튼 밀착 (margin-left: 8px) + 색상 통일 (#495057)
              🟢 2. 화면 우측 끝(margin-left: auto)에 [결과 저장], [일괄 인쇄] 버튼 분리 배치 -->
         <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
-          <button class="btn-primary" style="background-color: #6c757d;" onclick="loadGradesData()">명단 불러오기</button>
+          <button class="btn-primary" style="background-color: #495057;" onclick="loadGradesData()">명단 불러오기</button>
           <div style="margin-left: auto;">
             <button class="btn-expand-action" style="background-color: #d32f2f;" onclick="saveGrades()" title="결과 저장">
               <span class="btn-icon-wrap">
@@ -406,7 +406,7 @@
         </div>
 
         <div id="actionBtn_report" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
-          <button class="btn-primary" style="background-color: #68488e;" onclick="generateReports()">성적표 렌더링</button>
+          <button class="btn-primary" style="background-color: #495057;" onclick="generateReports()">성적표 렌더링</button>
           <div style="margin-left: auto;">
             <button class="btn-expand-action" style="background-color: #333;" onclick="executePrint()" title="일괄 인쇄 (PDF)">
               <span class="btn-icon-wrap">
@@ -418,7 +418,7 @@
         </div>
 
         <div id="actionBtn_data" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
-          <button class="btn-primary" style="background-color: #17a2b8;" onclick="generateDashboard()">데이터 조회</button>
+          <button class="btn-primary" style="background-color: #495057;" onclick="generateDashboard()">데이터 조회</button>
         </div>
       </div>
 
@@ -505,9 +505,17 @@
         
         <button class="btn-primary" style="margin-left: 5px; background-color: #495057;" onclick="saveExamSetup()">시험 정보 저장</button>
 
+        <!-- 🟢 1. 학생명단 업로드 버튼: 텍스트 앞 심플 획(Stroke) 업로드 화살표 SVG 아이콘 추가
+             🟢 2. 필수 환경설정 버튼: 버튼명 '필수 환경설정' 변경 및 헤더 동일 톱니바퀴 SVG 아이콘 추가 -->
         <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
-          <button class="btn-primary" style="background-color: #28a745;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">학생명단 업로드</button>
-          <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">환경설정 (필수)</button>
+          <button class="btn-primary" style="background-color: #28a745;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            학생명단 업로드
+          </button>
+          <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1-2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            필수 환경설정
+          </button>
         </div>
       </div>
 
@@ -1478,7 +1486,6 @@
         let diffAvgs = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.avg}</td>`).join('');
         let diffPcts = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.avgPct + '%'}</td>`).join('');
 
-        /* 🟢 단원명/난이도명이 6자를 초과할 경우 2줄(배열)로 나누어 가로 정렬 및 가독성 향상 */
         let unitLabels = unitsDataPadded.map(u => {
           if (u.max === 0) return '-';
           let str = String(u.name);
@@ -1570,16 +1577,13 @@
                            <marker id="arrow_${idx}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
                              <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af" />
                            </marker>
-                           <!-- 🟢 dy="-4"로 올린 텍스트가 도넛 바 중앙에 오도록 내부 반경 최적화 -->
                            <path id="innerCurve_${idx}" d="M 21,75 A 54,54 0 0,0 129,75" />
                         </defs>
-                        <!-- 🟢 M 72,11 A 64,64로 변경하여 중심 좌표를 정중앙(75, 75)으로 우측하단 이동시킴 -->
                         <path d="M 72,11 A 64,64 0 1,0 139,72" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow_${idx})" />
                         
-                        <!-- 🟢 dy="-4" 적용 및 상단 위로 이동 -->
-                        <text style="font-size: 11px; fill: #ffffff; font-weight: 800; letter-spacing: 0.5px;" dy="-4">
-   <textPath href="#innerCurve_${idx}" startOffset="50%" text-anchor="middle">lower is better</textPath>
-</text>
+                        <text style="font-size: 11px; fill: #3b82f6; font-weight: 800; letter-spacing: 0.5px;" dy="-4">
+                           <textPath href="#innerCurve_${idx}" startOffset="50%" text-anchor="middle">lower is better</textPath>
+                        </text>
                      </svg>
                      <div class="doughnut-text">
                        <div class="doughnut-val">${calcTopPct}%</div>
@@ -1635,7 +1639,6 @@
             layout: { padding: { top: 15, bottom: 0, left: 0, right: 0 } }, 
             scales: { 
               x: { 
-                  /* 🟢 maxRotation: 0 적용으로 단원명/난이도명 대각선 회전 금지 및 2줄 가로 정렬 고정 */
                   ticks: { display: true, font: { family: 'Pretendard', size: 10 }, color: '#64748b', maxRotation: 0, minRotation: 0 }, 
                   grid: { display: false, drawBorder: false } 
               }, 
