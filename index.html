@@ -151,7 +151,6 @@
     .dash-value { font-size: 32px; font-weight: 900; color: #1366ce; }
     .dash-chart-basic { width: 100%; height: 250px; position: relative; }
 
-    /* 🟢 80% 슬림 축소된 플로팅 버튼 바 (학생추가 / 학생삭제 30px 크기) */
     .sticky-fab-bar {
       position: sticky;
       bottom: 15px;
@@ -177,10 +176,11 @@
     .btn-text-wrap { opacity: 0; transition: opacity 0.1s ease-in; }
     .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
 
+    /* 🟢 4. 마이너스 뱃지(-) 가로 길이 확장을 위해 flex 레이아웃으로 설정 */
     .student-del-badge {
-      display: inline-block; width: 20px; height: 20px; line-height: 18px; text-align: center;
+      display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px;
       background-color: #dc3545; color: white; border-radius: 50%; font-size: 13px; font-weight: bold;
-      cursor: pointer; border: none; vertical-align: middle; margin: 0 auto;
+      cursor: pointer; border: none; vertical-align: middle; margin: 0 auto; padding: 0;
     }
     .student-del-badge:hover { background-color: #a71d2a; }
 
@@ -288,7 +288,6 @@
     </div>
   </div>
 
-  <!-- 🟢 1. 신규 학생 추가 모달: placeholder 문구 ex. ○○초, ○○중... / ex. 1, 2... 적용 -->
   <div class="modal-overlay" id="addStudentModal">
     <div class="modal-box" style="width: 360px; padding: 25px; text-align: left;">
       <div style="font-size: 16px; font-weight: 900; background-color: #28a745; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 20px; text-align: center;">신규 학생 추가</div>
@@ -313,7 +312,6 @@
     </div>
   </div>
 
-  <!-- 🟢 3. 채점 이어서 진행 팝업: 글자색 동일 파란색 심플 상반신 SVG + 70% 슬림 2줄 확인(Enter) 버튼 -->
   <div class="modal-overlay" id="nextStudentModal">
     <div class="modal-box" style="width: 340px; padding: 24px 20px;">
       <div style="margin-bottom: 10px; color: #1366ce; display: flex; justify-content: center;">
@@ -332,7 +330,6 @@
     </div>
   </div>
 
-  <!-- 🟢 2. 필수 환경설정 모달: 닫기 버튼 정중앙(justify-content: center) 배치 -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box" style="width: 700px; padding: 25px; text-align: left;">
       <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">필수 환경설정</div>
@@ -350,7 +347,6 @@
     </div>
   </div>
 
-  <!-- 🟢 2. 학생명단 일괄 업로드 모달: 닫기 버튼 정중앙(justify-content: center) 이동 -->
   <div class="modal-overlay" id="rosterUploadModal">
     <div class="modal-box" style="width: 480px; padding: 25px;">
       <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">학생명단 일괄 업로드</div>
@@ -442,7 +438,6 @@
             <tbody id="inputTableBody"></tbody>
             <tfoot id="inputTableFooter"></tfoot>
           </table>
-          <!-- 🟢 2. 학생추가 / 학생삭제 플로팅 버튼 80% 크기(30px) 축소 -->
           <div class="sticky-fab-bar" id="inputBottomControls" style="display: none;">
             <button class="btn-roster-add-main" onclick="openAddStudentModal()"><span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">학생추가</span></button>
             <button class="btn-roster-delete-main" id="toggleDeleteBtn" onclick="toggleStudentDeleteMode()"><span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">학생삭제</span></button>
@@ -505,7 +500,7 @@
 
     </div>
 
-    <!-- 🟢 관리자 화면: 시험 기본 세팅 1/5(업로드) : 4/5(세팅 표) 분할 레이아웃 -->
+    <!-- 🟢 관리자 화면 -->
     <div id="page-admin" class="page-content">
       <div class="filter-card admin-mode">
         <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="checkExistingSetup()"></select></div>
@@ -1331,7 +1326,7 @@
       }).catch(handleError);
     }
 
-    /* 🟢 1. 저장 후 반영(Deferred Save): isNew 학생과 isDeleted 학생 상태를 구분하여 렌더링 */
+    /* 🟢 1. 성적미입력 학생 0점 처리 방지: 실제 O/X 입력이 존재하는 학생만 valid=true 설정 */
     function renderInputTable(setupData, rawStudents, grades) {
       document.getElementById('inputEmptyState').style.display = 'none'; 
       const tableContainer = document.getElementById('inputTableContainer');
@@ -1356,9 +1351,15 @@
       parsedStudents.forEach((st, sIdx) => { 
         let headerContent = st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0');
         if (!st.isEmpty && st.isDeleted) {
-          headerContent = `<button class="student-del-badge" style="background-color:#6c757d;" onclick="restoreDeletedStudent(${sIdx})" title="${st.name} 삭제 취소(원상복구)">↺</button>`;
+          /* 🟢 3. 초록색 배경(#28a745) 원형 복구 버튼 + 흰색 화살표 SVG로 1:1 교체 */
+          headerContent = `<button class="student-del-badge" style="background-color:#28a745; width:22px; height:22px;" onclick="restoreDeletedStudent(${sIdx})" title="${st.name} 삭제 취소(원상복구)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+          </button>`;
         } else if (!st.isEmpty && isDeleteMode) {
-          headerContent = `<button class="student-del-badge" onclick="markDeleteStudent('${st.name}')" title="${st.name} 삭제 예고">-</button>`;
+          /* 🟢 4. 빨간 마이너스 버튼(-)의 가로 길이를 넓힌 시원한 SVG 선 삽입 */
+          headerContent = `<button class="student-del-badge" onclick="markDeleteStudent('${st.name}')" title="${st.name} 삭제 예고">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/></line></svg>
+          </button>`;
         }
         htmlThead += `<th class="sticky-top-1 bg-gray" style="color:#6c757d;">${headerContent}</th>`; 
       });
@@ -1368,7 +1369,8 @@
         if (st.isEmpty || st.isDeleted) htmlThead += `<th class="sticky-top-2 bg-light" style="color:#adb5bd;">-</th>`; 
         else {
           let stGrade = grades.find(g => g.name === st.name);
-          let hasData = stGrade && Object.keys(stGrade.answers).length > 0;
+          // 🟢 1. O 또는 X 값이 실제 존재하는 학생만 점수 및 valid=true 인정 (미입력 학생은 '-' 보호)
+          let hasData = stGrade && Object.values(stGrade.answers).some(v => v === 'O' || v === 'X');
           htmlThead += `<th class="sticky-top-2 bg-light" style="color:#1366ce; font-size:14px; font-weight:900;" id="totalScore_${sIdx}" data-valid="${hasData ? 'true' : 'false'}">${hasData ? stGrade.totalScore : '-'}</th>`; 
         }
       });
@@ -1385,7 +1387,6 @@
           <th class="sticky-col-3 sticky-top-4 bg-gray">배점</th>
       `;
       parsedStudents.forEach((st, sIdx) => { 
-        /* 🟢 1. 삭제 예정 학생 이름: 취소선 + 옅은 회색 폰트로 표기 */
         let nameStyle = st.isEmpty ? 'color:#adb5bd;' : (st.isDeleted ? 'color:#adb5bd; text-decoration:line-through; background-color:#f1f3f5 !important;' : 'font-weight:bold; color:#333;');
         htmlThead += `<th class="sticky-top-4 bg-light student-name-cell" style="${nameStyle}">${st.name}</th>`; 
       });
@@ -1410,7 +1411,6 @@
             if (st.isEmpty) {
               htmlTbody += `<td class="bg-white"><input type="text" class="ox-input" disabled value="-"></td>`;
             } else if (st.isDeleted) {
-              /* 🟢 1. 삭제 예정 학생 입력 셀: 회색 비활성화(disabled) 표기 */
               htmlTbody += `<td class="bg-white" style="background-color:#f8f9fa !important;"><input type="text" class="ox-input" disabled value="" style="color:#ced4da; cursor:not-allowed;"></td>`;
             } else {
               let stGrade = grades.find(g => g.name === st.name) || { answers: {} };
@@ -1424,8 +1424,9 @@
       }
       tbody.innerHTML = htmlTbody;
 
+      /* 🟢 5. 일괄 입력 / 삭제 / 복구 폰트: 상단 문항번호 머릿글(13px, bold, #333)과 완벽 동일하게 수정 */
       let htmlTfoot = `<tr>
-        <th colspan="3" class="sticky-col-all bg-gray" style="text-align:center; font-size:12px; color:#495057;">일괄 입력 / 삭제 / 복구</th>`;
+        <th colspan="3" class="sticky-col-all bg-gray" style="text-align:center; font-size:13px; font-weight:bold; color:#333;">일괄 입력 / 삭제 / 복구</th>`;
       parsedStudents.forEach((st, sIdx) => {
         if (st.isEmpty || st.isDeleted) {
           htmlTfoot += `<th class="bg-light" style="color:#adb5bd;">-</th>`;
@@ -1517,7 +1518,6 @@
 
       if (isValidInput) {
         if (qIdx === currentExamSetup.totalCount - 1) {
-          /* 🟢 1. 삭제 예정 학생(isDeleted: true)은 Enter 자동 이동에서 완전히 제외(건너뛰기) */
           let nextValidIdx = -1;
           for (let i = sIdx + 1; i < currentStudentsCount; i++) {
             if (!currentStudentsList[i].isEmpty && !currentStudentsList[i].isDeleted) {
@@ -1555,26 +1555,28 @@
       }
     }
 
+    /* 🟢 1. 실제 O 또는 X 입력 개수가 0개이면 총점/등수 '-' 및 data-valid="false" 유지 */
     function calculateStudentScore(sIdx) {
       if (currentStudentsList[sIdx].isDeleted) return;
       let totalScore = 0;
       let inputCount = 0;
       document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { 
-        if (input.value) inputCount++;
+        if (input.value === 'O' || input.value === 'X') inputCount++;
         if (input.value === 'O') totalScore += (currentExamSetup.items[parseInt(input.dataset.q)].score || 0);
       });
       
       let targetEl = document.getElementById(`totalScore_${sIdx}`);
+      let rankEl = document.getElementById(`rank_${sIdx}`);
       if (inputCount === 0) {
         targetEl.innerText = '-';
         targetEl.dataset.valid = 'false';
+        if (rankEl) rankEl.innerText = '-';
       } else {
         targetEl.innerText = totalScore;
         targetEl.dataset.valid = 'true';
       }
     }
 
-    /* 🟢 1. 삭제 예정 학생(isDeleted: true)은 등수 계산 및 석차 표기에서 완전히 제외 */
     function updateAllRanks() {
       if (currentStudentsCount === 0) return;
       let liveScores = [];
@@ -1641,7 +1643,7 @@
       setTimeout(() => document.getElementById('newStudentName').focus(), 100);
     }
 
-    /* 🟢 1. 학생 추가 시 Deferred Save 방식 적용: 중복 이름 차단 + 화면 표에 즉시 추가 (저장 버튼 클릭 시 최종 반영) */
+    /* 🟢 2. 학생 추가 시 명단 및 화면에 즉시 반영 (isNew 플래그) */
     function addStudentToUI() {
       const name = document.getElementById('newStudentName').value.trim();
       const school = document.getElementById('newStudentSchool').value.trim();
@@ -1652,7 +1654,6 @@
         return showAlert("이미 명단에 존재하는 학생 이름입니다.");
       }
 
-      // 현재까지 입력된 채점 내역 임시 스크래핑 보존
       let currentGrades = [];
       currentStudentsList.forEach((st, sIdx) => {
         if (!st.isEmpty) {
@@ -1666,7 +1667,6 @@
         }
       });
 
-      // 명단 목록에 신규 학생(isNew: true) 추가
       let emptyIdx = currentStudentsList.findIndex(s => s.isEmpty);
       let newStudentObj = { name: name, school: school, grade: grade, isEmpty: false, isNew: true, isDeleted: false };
       if (emptyIdx !== -1) {
@@ -1696,22 +1696,27 @@
       currentStudentsList.forEach((st, sIdx) => {
         let headerContent = st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0');
         if (!st.isEmpty && st.isDeleted) {
-          headerContent = `<button class="student-del-badge" style="background-color:#6c757d;" onclick="restoreDeletedStudent(${sIdx})" title="${st.name} 삭제 취소(원상복구)">↺</button>`;
+          /* 🟢 3. 초록색 배경(#28a745) 원형 복구 화살표 버튼 SVG 적용 */
+          headerContent = `<button class="student-del-badge" style="background-color:#28a745; width:22px; height:22px;" onclick="restoreDeletedStudent(${sIdx})" title="${st.name} 삭제 취소(원상복구)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+          </button>`;
         } else if (!st.isEmpty && isDeleteMode) {
-          headerContent = `<button class="student-del-badge" onclick="markDeleteStudent('${st.name}')" title="${st.name} 삭제 예고">-</button>`;
+          /* 🟢 4. 가로로 길게 뻗은 빨간 마이너스 SVG 선 적용 */
+          headerContent = `<button class="student-del-badge" onclick="markDeleteStudent('${st.name}')" title="${st.name} 삭제 예고">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/></line></svg>
+          </button>`;
         }
         htmlTheadFirstRow += `<th class="sticky-top-1 bg-gray" style="color:#6c757d;">${headerContent}</th>`;
       });
       thead.rows[0].innerHTML = htmlTheadFirstRow;
     }
 
-    /* 🟢 1. 삭제 예정 마킹(Deferred Delete): 시트에서 바로 지우지 않고 옅은 회색 + 취소선 처리 */
+    /* 🟢 3. 삭제 예고 문구: "(저장 후, 명단에서 최종 삭제됩니다.)"로 변경 */
     function markDeleteStudent(studentName) {
-      showConfirmModal(`[<b>${studentName}</b>] 학생을 삭제 예정 상태로 변경하시겠습니까?<br><span style="color:#dc3545; font-size:12px;">(우측 상단의 [결과 저장]을 눌러야 명단에서 최종 삭제됩니다.)</span>`, function() {
+      showConfirmModal(`[<b>${studentName}</b>] 학생을 삭제 예정 상태로 변경하시겠습니까?<br><span style="color:#dc3545; font-size:12px;">(저장 후, 명단에서 최종 삭제됩니다.)</span>`, function() {
         let stIdx = currentStudentsList.findIndex(s => s.name === studentName);
         if (stIdx !== -1) {
           if (currentStudentsList[stIdx].isNew) {
-            // 방금 추가했다가 저장 전 지우는 학생은 배열에서 완전 삭제
             currentStudentsList.splice(stIdx, 1);
             currentStudentsList.push({ name: '-', isEmpty: true, isNew: false, isDeleted: false });
           } else {
@@ -1735,7 +1740,6 @@
       }, function() {});
     }
 
-    /* 🟢 1. 삭제 예정 학생 원상 복구 (↺ 버튼) */
     function restoreDeletedStudent(sIdx) {
       if (currentStudentsList[sIdx]) {
         currentStudentsList[sIdx].isDeleted = false;
@@ -1755,6 +1759,7 @@
       }
     }
 
+    /* 🟢 1. 0개 입력 학생은 팝업 대상에서 완전히 건너뛰고, '일부만 채점한 학생'에 한해서만 X 채움 경고 작동 */
     function saveGrades() {
       if (!currentExamSetup) return showAlert("명단을 먼저 불러와 주세요.");
       
@@ -1763,15 +1768,16 @@
 
       for (let sIdx = 0; sIdx < currentStudentsCount; sIdx++) {
          if (currentStudentsList[sIdx].isDeleted) continue;
-         let totalEl = document.getElementById(`totalScore_${sIdx}`);
-         if (totalEl.dataset.valid !== 'true') continue; 
-
+         
+         let answeredCount = 0;
          let missingInputsInRow = [];
          document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => {
-            if (!input.value) missingInputsInRow.push(input);
+            if (input.value === 'O' || input.value === 'X') answeredCount++;
+            else missingInputsInRow.push(input);
          });
          
-         if (missingInputsInRow.length > 0) {
+         // 0 < answeredCount && answeredCount < totalCount (일부만 채점하다 만 학생)만 감지
+         if (answeredCount > 0 && missingInputsInRow.length > 0) {
             hasPartialMissing = true;
             if (!firstMissingInput) firstMissingInput = missingInputsInRow[0];
          }
@@ -1792,6 +1798,7 @@
        for (let sIdx = 0; sIdx < currentStudentsCount; sIdx++) {
            if (currentStudentsList[sIdx].isDeleted) continue;
            let totalEl = document.getElementById(`totalScore_${sIdx}`);
+           // 채점을 한두 문항이라도 시작한 학생만 빈칸 X 기입
            if (totalEl.dataset.valid === 'true') {
                document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => {
                    if (!input.value) { input.value = 'X'; input.classList.add('val-x'); }
@@ -1803,7 +1810,6 @@
        executeSaveGrades();
     }
 
-    /* 🟢 1. 저장 시 신규 추가/삭제 명단 정보(rosterUpdates)를 백엔드로 함께 발송하여 동기화 */
     function executeSaveGrades() {
       const tt = getTermAndTest('main');
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
@@ -1823,6 +1829,7 @@
 
          let totalEl = document.getElementById(`totalScore_${sIdx}`);
          let rankEl = document.getElementById(`rank_${sIdx}`);
+         // O 또는 X가 실제로 존재하는 학생만 성적DB 저장
          if (totalEl.dataset.valid === 'true') {
              let total = totalEl.innerText;
              let rank = rankEl ? rankEl.innerText : '';
@@ -1860,7 +1867,6 @@
         showLoading(false); 
         if(res.success) {
           showAlert("✔ 결과 및 명단 변경사항이 안전하게 저장되었습니다.");
-          // 저장 성공 후 isNew 플래그 해제
           currentStudentsList.forEach(s => s.isNew = false);
         } else { 
           showAlert("에러: " + res.error); 
