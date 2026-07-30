@@ -124,7 +124,8 @@
     .setup-input { width: 90%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
     .setup-input:focus { border-color: #1366ce; outline: none; }
 
-    .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+    /* 🟢 업로드 영역: 드래그 앤 드롭 및 클릭을 지원하는 모던 스타일 */
+    .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 12px 15px; text-align: center; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
     .paste-zone:hover { background-color: #e9ecef; }
 
     .settings-table-wrapper { max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px; }
@@ -371,7 +372,6 @@
       </div>
 
       <div style="display: flex; align-items: center;">
-        <!-- 🟢 1. 상단 네비게이션 바 우측 버튼: 완전한 360도 8-톱니바퀴 Feather/Lucide Settings SVG 코드로 교체 -->
         <button class="icon-btn" id="headerAdminBtn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
@@ -395,8 +395,6 @@
         <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
         <div class="select-group" id="mainClassGroup"><label>반명</label><select id="mainClass" required></select></div>
         
-        <!-- 🟢 1. 목록 박스 바로 옆에 조회/렌더링 버튼 밀착 (margin-left: 8px) + 색상 통일 (#495057)
-             🟢 2. 화면 우측 끝(margin-left: auto)에 [결과 저장], [일괄 인쇄] 버튼 분리 배치 -->
         <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #495057;" onclick="loadGradesData()">명단 불러오기</button>
           <div style="margin-left: auto;">
@@ -450,7 +448,6 @@
         </div>
       </div>
 
-      <!-- 🟢 데이터 확인 (Dashboard) 탭 고도화 UI: KPI 카드 4종 + 핵심 분석 차트 3종 -->
       <div id="view_data" style="display: none;">
         <div id="dashEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
           과정을 확인하고 [데이터 조회]를 누르면 통합 데이터를 확인합니다.
@@ -511,10 +508,9 @@
 
         <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
           <button class="btn-primary" style="background-color: #28a745;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             학생명단 업로드
           </button>
-          <!-- 🟢 2. 관리자 툴바 [필수 환경설정] 버튼: 불완전 SVG를 삭제하고 완전한 360도 8-톱니바퀴 SVG 코드로 완벽 교체 -->
           <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3"></circle>
@@ -525,10 +521,15 @@
         </div>
       </div>
 
-      <div class="paste-zone" id="hwpPasteZone">
-        <h4 style="margin-top: 0; color: #495057; margin-bottom: 8px;">📄 엑셀/한글 출제표 복사-붙여넣기 영역</h4>
-        <p style="color: #666; margin-bottom: 0; font-size: 13px;">답지 표(단원명, 배점)를 복사한 후 이곳을 클릭하고 <b>Ctrl + V</b>를 누르세요. 자동으로 매핑됩니다.</p>
-        <input type="text" id="pasteCatcher" style="opacity: 0; position: absolute; pointer-events: none;">
+      <!-- 🟢 복사-붙여넣기 창 삭제 ➔ TXT / 엑셀 출제표 파일 통합 업로드 영역으로 완전 교체 -->
+      <div class="paste-zone" id="setupUploadZone" style="padding: 24px 15px;">
+        <div style="font-size: 28px; margin-bottom: 8px;">📄</div>
+        <h4 style="margin: 0 0 6px 0; color: #495057; font-size: 15px;">시험 출제표 (TXT / 엑셀 파일) 일괄 업로드</h4>
+        <p style="color: #666; margin: 0; font-size: 13px;">
+          한글에서 저장한 <b>TXT 파일</b>이나 <b>엑셀 파일(.xlsx, .xls)</b>을 이곳에 끌어다 놓거나 클릭하여 선택하세요.<br>
+          설정한 <b>문항시작번호 ~ 종료번호</b> 범위에 맞게 출제 단원명과 배점이 자동으로 표에 적용됩니다.
+        </p>
+        <input type="file" id="setupFileInput" accept=".txt, .xlsx, .xls" style="display: none;">
       </div>
 
       <div class="table-wrapper">
@@ -971,6 +972,180 @@
         statusCell.innerHTML = "-"; statusCell.style.color = "#adb5bd"; 
       }
     }
+
+    /* 🟢 TXT / 엑셀 통합 출제표 파일 업로드 영역 이벤트 리스너 및 로직 */
+    const setupUploadZone = document.getElementById('setupUploadZone');
+    const setupFileInput = document.getElementById('setupFileInput');
+
+    setupUploadZone.addEventListener('click', () => setupFileInput.click());
+    setupUploadZone.addEventListener('dragover', (e) => { e.preventDefault(); setupUploadZone.style.backgroundColor = '#e6f0ff'; });
+    setupUploadZone.addEventListener('dragleave', (e) => { e.preventDefault(); setupUploadZone.style.backgroundColor = '#fff'; });
+    setupUploadZone.addEventListener('drop', (e) => { 
+      e.preventDefault(); 
+      setupUploadZone.style.backgroundColor = '#fff'; 
+      if (e.dataTransfer.files.length) processSetupFile(e.dataTransfer.files[0]); 
+    });
+    setupFileInput.addEventListener('change', (e) => { 
+      if (e.target.files.length) processSetupFile(e.target.files[0]); 
+    });
+
+    function processSetupFile(file) {
+      const ext = file.name.split('.').pop().toLowerCase();
+      showLoading(true, "출제표 파일 분석 중...");
+
+      if (ext === 'txt') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            parseTxtSetupData(e.target.result);
+            showLoading(false);
+            setupFileInput.value = '';
+            showAlert("✔ TXT 출제표 파싱 완료! 문항 단원명과 배점이 자동 기입되었습니다.");
+          } catch(err) {
+            showLoading(false);
+            setupFileInput.value = '';
+            showAlert("🚫 TXT 분석 에러: " + err.message);
+          }
+        };
+        reader.readAsText(file, "UTF-8");
+      } else if (ext === 'xlsx' || ext === 'xls') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            parseExcelSetupData(e.target.result);
+            showLoading(false);
+            setupFileInput.value = '';
+            showAlert("✔ 엑셀 출제표 파싱 완료! 문항 단원명과 배점이 자동 기입되었습니다.");
+          } catch(err) {
+            showLoading(false);
+            setupFileInput.value = '';
+            showAlert("🚫 엑셀 분석 에러: " + err.message);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        showLoading(false);
+        setupFileInput.value = '';
+        showAlert("지원하지 않는 파일 형식입니다. (.txt, .xlsx, .xls 파일만 가능합니다)");
+      }
+    }
+
+    /* 🟢 TXT 출제표 파서: 문제번호 감지 + 1616->16 아티팩트 정제 + 설정된 startNum~endNum 범위만 추출 */
+    function parseTxtSetupData(textData) {
+      const lines = textData.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '');
+      const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
+      const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
+      let parsedCount = 0;
+
+      for (let i = 0; i < lines.length; i++) {
+        const qMatch = lines[i].match(/^문제\s*(\d+)/);
+        if (qMatch) {
+          let rawNumStr = qMatch[1];
+          let qNum = (rawNumStr.length % 2 === 0 && rawNumStr.length >= 2)
+            ? parseInt(rawNumStr.slice(0, rawNumStr.length / 2), 10) 
+            : parseInt(rawNumStr, 10);
+          
+          if (qNum >= startNum && qNum <= endNum) {
+            const unitName = lines[i + 1] || '';
+            const scoreVal = lines[i + 2] || '';
+            
+            const unitInput = document.getElementById(`unit_${qNum}`);
+            const scoreInput = document.getElementById(`score_${qNum}`);
+            
+            if (unitInput && scoreInput && /^[1-5]$/.test(scoreVal)) {
+              unitInput.value = unitName;
+              scoreInput.value = scoreVal;
+              updateDiff(qNum);
+              parsedCount++;
+            }
+          }
+        }
+      }
+      if (parsedCount === 0) {
+        throw new Error("설정하신 문항 번호(" + startNum + " ~ " + endNum + "번) 범위에 해당하는 출제표 데이터를 찾지 못했습니다.");
+      }
+    }
+
+    /* 🟢 엑셀 출제표 파서: 열 머릿글 감지 및 startNum~endNum 범위 추출 */
+    function parseExcelSetupData(buffer) {
+      let data = new Uint8Array(buffer);
+      let workbook = XLSX.read(data, {type: 'array'});
+      let worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      let jsonArr = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+      
+      let headerRowIdx = -1;
+      let colMap = { num: -1, unit: -1, score: -1 };
+
+      for (let i = 0; i < Math.min(20, jsonArr.length); i++) {
+        let row = jsonArr[i]; if (!row) continue;
+        let strRow = row.map(cell => String(cell || '').replace(/\s+/g, '')).join(',');
+        if ((strRow.includes('단원') || strRow.includes('소단원')) && strRow.includes('배점')) {
+          headerRowIdx = i;
+          for (let c = 0; c < row.length; c++) {
+            let h = String(row[c] || '').replace(/\s+/g, '');
+            if (h.includes('번') || h.includes('문항')) colMap.num = c;
+            else if (h.includes('단원')) colMap.unit = c;
+            else if (h.includes('배점')) colMap.score = c;
+          }
+          break;
+        }
+      }
+      
+      const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
+      const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
+      let parsedCount = 0;
+
+      if (headerRowIdx === -1 || colMap.unit === -1 || colMap.score === -1) {
+        let rowOffset = 0;
+        for (let i = 0; i < jsonArr.length; i++) {
+          let row = jsonArr[i]; if (!row || row.length < 2) continue;
+          let qNum = startNum + rowOffset;
+          let unitVal = '', scoreVal = '';
+          if (row.length >= 3 && !isNaN(parseInt(row[0]))) {
+            qNum = parseInt(row[0]);
+            unitVal = String(row[1] || '').trim();
+            scoreVal = String(row[2] || '').replace(/[^1-5]/g, '').slice(0, 1);
+          } else {
+            unitVal = String(row[0] || '').trim();
+            scoreVal = String(row[1] || '').replace(/[^1-5]/g, '').slice(0, 1);
+          }
+          
+          if (qNum >= startNum && qNum <= endNum && unitVal && /^[1-5]$/.test(scoreVal)) {
+            let uInput = document.getElementById(`unit_${qNum}`);
+            let sInput = document.getElementById(`score_${qNum}`);
+            if (uInput && sInput) {
+              uInput.value = unitVal;
+              sInput.value = scoreVal;
+              updateDiff(qNum);
+              parsedCount++;
+            }
+          }
+          rowOffset++;
+        }
+      } else {
+        for (let i = headerRowIdx + 1; i < jsonArr.length; i++) {
+          let row = jsonArr[i]; if (!row || row.length === 0) continue;
+          let qNum = colMap.num !== -1 ? parseInt(row[colMap.num]) : (startNum + i - headerRowIdx - 1);
+          let unitVal = String(row[colMap.unit] || '').trim();
+          let scoreVal = String(row[colMap.score] || '').replace(/[^1-5]/g, '').slice(0, 1);
+          
+          if (qNum >= startNum && qNum <= endNum && unitVal && /^[1-5]$/.test(scoreVal)) {
+            let uInput = document.getElementById(`unit_${qNum}`);
+            let sInput = document.getElementById(`score_${qNum}`);
+            if (uInput && sInput) {
+              uInput.value = unitVal;
+              sInput.value = scoreVal;
+              updateDiff(qNum);
+              parsedCount++;
+            }
+          }
+        }
+      }
+
+      if (parsedCount === 0) {
+        throw new Error("설정하신 문항 번호(" + startNum + " ~ " + endNum + "번) 범위에 해당하는 엑셀 출제표 데이터를 찾지 못했습니다.");
+      }
+    }
     
     function checkExistingSetup() {
       const tt = getTermAndTest('setup');
@@ -989,28 +1164,6 @@
         } else { renderSetupTable(); }
       }).catch(err => { showLoading(false); handleError(err); });
     }
-
-    function documentPaste(e) {
-      e.preventDefault(); let htmlData = (e.clipboardData || window.clipboardData).getData('text/html'), textData = (e.clipboardData || window.clipboardData).getData('text/plain'), rows = [];
-      if(htmlData) { let t = document.createElement('div'); t.innerHTML = htmlData; let tbl = t.querySelector('table'); if(tbl) tbl.querySelectorAll('tr').forEach(tr => { let r = Array.from(tr.querySelectorAll('td,th')).map(c => c.innerText.replace(/<[^>]+>/g, '').trim()); if(r.join('')) rows.push(r); }); } 
-      else if(textData) { textData.split(/\r?\n/).forEach(l => { let r = l.split('\t').map(c => c.trim()); if(r.join('')) rows.push(r); }); }
-      if(rows.length===0) return showAlert("표 데이터가 아닙니다.");
-      let st = (rows[0].join('').includes('단원') || rows[0].join('').includes('난이도') || rows[0].join('').includes('배점')) ? 1 : 0;
-      
-      const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
-      const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
-      const totalCount = endNum - startNum + 1;
-      let c = 0;
-      
-      for(let i = st; i < rows.length && c < totalCount; i++) {
-        let u = rows[i].length >= 3 ? rows[i][1] : rows[i][0], d = rows[i].length >= 3 ? rows[i][2] : rows[i][1];
-        if(u && document.getElementById(`unit_${startNum+c}`)) document.getElementById(`unit_${startNum+c}`).value = u;
-        if(d && document.getElementById(`score_${startNum+c}`)) { let score = d.replace(/[^0-9]/g, ''); if(score) { document.getElementById(`score_${startNum+c}`).value = score; updateDiff(startNum+c); } } c++;
-      }
-    }
-    
-    document.getElementById('hwpPasteZone').addEventListener('click', function() { document.getElementById('pasteCatcher').focus(); this.style.backgroundColor = '#e9ecef'; setTimeout(() => this.style.backgroundColor = '#fff', 500); });
-    document.getElementById('pasteCatcher').addEventListener('paste', documentPaste);
 
     function saveExamSetup() {
       const tt = getTermAndTest('setup');
