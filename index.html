@@ -60,6 +60,28 @@
     .btn-primary { height: 32px; padding: 0 16px; border: none; border-radius: 50px; font-weight: bold; font-size: 13px; background-color: #1366ce; color: white; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap; }
     .btn-primary:hover { background-color: #0f52a8; }
     .filter-card .btn-primary { min-width: 135px; justify-content: center; }
+
+    /* 🟢 헤더 우측 확장 액션 버튼 ([결과 저장], [일괄 인쇄] 전용): 평소엔 원형 아이콘 -> 마우스오버 시 가로 확장 */
+    .btn-expand-action {
+      height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden;
+      white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px;
+      cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      display: inline-flex; align-items: center; justify-content: flex-start;
+      transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s;
+      flex-shrink: 0;
+    }
+    .btn-expand-action:hover {
+      max-width: 130px; padding-right: 14px;
+    }
+    .btn-expand-action .btn-icon-wrap {
+      width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0;
+    }
+    .btn-expand-action .btn-text-wrap {
+      opacity: 0; transition: opacity 0.15s ease-in; font-size: 13px;
+    }
+    .btn-expand-action:hover .btn-text-wrap {
+      opacity: 1; transition-delay: 0.05s;
+    }
     
     #view_input { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
     #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
@@ -160,17 +182,21 @@
     
     .report-page { position: relative; width: 297mm; height: 210mm; flex-shrink: 0; margin: 0 auto; box-sizing: border-box; border: 1px solid #e2e8f0; border-radius: 20px; padding: 35px; display: flex; flex-direction: column; background: #fdfdfd; box-shadow: 0 8px 30px rgba(0,0,0,0.04); overflow: hidden; }
     
-    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; flex-shrink: 0; }
+    /* 🟢 상단 헤더: 아래 그리드와 간격을 동일(gap: 20px)하게 맞추어 좌측 끝선을 1:1 일치시킴 */
+    .report-header { display: flex; justify-content: flex-start; gap: 20px; align-items: center; margin-bottom: 25px; padding-bottom: 15px; flex-shrink: 0; }
     
     /* 🟢 로고 영역: 아래의 summary-col(215px)과 너비를 1:1로 맞추고 중앙 정렬 */
     .report-logo { width: 215px; min-width: 215px; max-width: 215px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
     .report-logo img { height: 48px; max-width: 100%; object-fit: contain; } 
     
-    .report-info { display: flex; gap: 10px; align-items: stretch; justify-content: flex-end; flex: 1; }
+    /* 🟢 상단 정보 박스 컨테이너: 좌측 끝선(단원별 분석 박스 시작점)부터 우측 끝선까지 비율로 가득 채움 */
+    .report-info { display: flex; gap: 10px; align-items: stretch; flex: 1; min-width: 0; }
     
     .info-badge { display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; }
-    .combined-badge { align-items: flex-start; text-align: left; width: 260px; min-width: 260px; max-width: 260px; }
-    .info-badge.small-badge { width: 155px; min-width: 155px; max-width: 155px; }
+    
+    /* 🟢 테스트/과정명 및 반명 등 개별 박스들이 정해진 비율에 따라 유연하게 꽉 차게 변경 */
+    .combined-badge { align-items: flex-start; text-align: left; flex: 1.65; width: auto; min-width: 0; max-width: none; }
+    .info-badge.small-badge { flex: 1; width: auto; min-width: 0; max-width: none; }
     
     .info-badge span { font-size: 11px; color: #64748b; font-weight: 600; }
     .info-badge strong { font-size: 13px; color: #0f172a; font-weight: 800; }
@@ -211,7 +237,8 @@
     .kpi-card-white .kpi-label { font-size: 13px !important; color: #64748b !important; font-weight: 700 !important; }
     .kpi-card-white .kpi-val { font-size: 16px !important; font-weight: 800 !important; color: #64748b !important; line-height: 1 !important; }
     
-    .doughnut-card { flex: 1; display: flex; flex-direction: column; background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); align-items: center; justify-content: center; padding: 15px; position: relative; }
+    /* 🟢 도넛 카드: 테두리·그림자·배경을 제거하여 상위% 타이틀 + 도넛 영역만 깔끔하게 표시 */
+    .doughnut-card { flex: 1; display: flex; flex-direction: column; background: transparent !important; border: none !important; box-shadow: none !important; align-items: center; justify-content: center; padding: 5px 0; position: relative; }
     .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
     .doughnut-val { font-size: 18px; font-weight: 900; color: #111827; line-height: 1; }
     
@@ -227,7 +254,9 @@
       .top-nav-bar, .filter-card { display: none !important; }
       .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; background: #fff; margin: 0; flex-shrink: 1; }
       
-      .dash-card, .kpi-card-white, .doughnut-card { border: 1.5px solid #94a3b8 !important; box-shadow: none !important; }
+      /* 🟢 인쇄 시 도넛 카드는 테두리/배경이 인쇄되지 않도록 규칙에서 제외 */
+      .dash-card, .kpi-card-white { border: 1.5px solid #94a3b8 !important; box-shadow: none !important; }
+      .doughnut-card { border: none !important; box-shadow: none !important; background: transparent !important; }
       
       @page { size: A4 landscape; margin: 0; }
     }
@@ -360,17 +389,29 @@
         <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
         <div class="select-group" id="mainClassGroup"><label>반명</label><select id="mainClass" required></select></div>
         
-        <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: 12px; align-items: center;">
+        <!-- 🟢 성적 입력 액션: margin-left: auto로 맨 우측에 밀착 + 결과저장 확장 마우스오버 애니메이션 -->
+        <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: auto; align-items: center;">
           <button class="btn-primary" style="background-color: #6c757d;" onclick="loadGradesData()">명단 불러오기</button>
-          <button class="btn-primary" style="background-color: #d32f2f;" onclick="saveGrades()">결과 저장</button>
+          <button class="btn-expand-action" style="background-color: #d32f2f;" onclick="saveGrades()" title="결과 저장">
+            <span class="btn-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            </span>
+            <span class="btn-text-wrap">결과 저장</span>
+          </button>
         </div>
 
-        <div id="actionBtn_report" style="display: none; gap: 8px; margin-left: 12px; align-items: center;">
+        <!-- 🟢 성적표 출력 액션: margin-left: auto로 맨 우측에 밀착 + 일괄인쇄 확장 마우스오버 애니메이션 -->
+        <div id="actionBtn_report" style="display: none; gap: 8px; margin-left: auto; align-items: center;">
           <button class="btn-primary" style="background-color: #68488e;" onclick="generateReports()">성적표 렌더링</button>
-          <button class="btn-primary" style="background-color: #333;" onclick="executePrint()">일괄 인쇄 (PDF)</button>
+          <button class="btn-expand-action" style="background-color: #333;" onclick="executePrint()" title="일괄 인쇄 (PDF)">
+            <span class="btn-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            </span>
+            <span class="btn-text-wrap">일괄 인쇄</span>
+          </button>
         </div>
 
-        <div id="actionBtn_data" style="display: none; gap: 8px; margin-left: 12px; align-items: center;">
+        <div id="actionBtn_data" style="display: none; gap: 8px; margin-left: auto; align-items: center;">
           <button class="btn-primary" style="background-color: #17a2b8;" onclick="generateDashboard()">데이터 조회</button>
         </div>
       </div>
@@ -381,7 +422,6 @@
             <thead id="inputTableHeader"></thead>
             <tbody id="inputTableBody"></tbody>
           </table>
-          <!-- 🟢 스마트 플로팅 버튼 바 -->
           <div class="sticky-fab-bar" id="inputBottomControls" style="display: none;">
             <button class="btn-roster-add-main" onclick="openAddStudentModal()"><span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">학생추가</span></button>
             <button class="btn-roster-delete-main" id="toggleDeleteBtn" onclick="toggleStudentDeleteMode()"><span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">학생삭제</span></button>
@@ -1405,6 +1445,7 @@
         let bluePct = 100 - calcTopPct;
         let startAngle = 360 - (bluePct * 3.6);
 
+        /* 🟢 도넛 차트 타이틀을 상단에 배치하고, 동일과정 상위% 글자를 '나의 석차'와 완전히 일치시킴 */
         let html = `
           <div class="report-page">
             <div class="report-header">
@@ -1456,8 +1497,9 @@
                   <div class="kpi-info"><div class="kpi-label">나의 석차</div><div class="kpi-val"><span style="color:#3b82f6;">${st.rank}</span> / ${examInfo.totalCount}</div></div>
                 </div>
                 <div class="doughnut-card">
-                  <div style="position: relative; width: 150px; height: 150px; margin: 0 auto;">
-                     <div style="position: absolute; top: 15px; left: 15px; width: 120px; height: 120px;">
+                  <div class="kpi-label" style="font-size: 13px !important; color: #64748b !important; font-weight: 700 !important; margin-bottom: 8px; text-align: center;">동일과정 상위 %</div>
+                  <div style="position: relative; width: 140px; height: 140px; margin: 0 auto;">
+                     <div style="position: absolute; top: 13px; left: 13px; width: 114px; height: 114px;">
                          <canvas id="chart_doughnut_${idx}"></canvas>
                      </div>
                      <svg viewBox="0 0 150 150" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;">
@@ -1477,7 +1519,6 @@
                        <div class="doughnut-val">${calcTopPct}%</div>
                      </div>
                   </div>
-                  <div style="font-size: 12px; color: #64748b; font-weight: 700; margin-top: 15px; text-align: center;">동일과정 상위 %</div>
                 </div>
               </div>
 
