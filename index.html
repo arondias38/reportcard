@@ -121,16 +121,32 @@
     .ox-input.val-o { color: #28a745; } 
     .ox-input.val-x { color: #dc3545; } 
 
-    .setup-input { width: 90%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+    /* 🟢 5. 시험 기본 세팅 입력창 우측 공백 제거: box-sizing 및 width 100% 적용 */
+    .setup-input { width: 100%; padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; box-sizing: border-box; }
     .setup-input:focus { border-color: #1366ce; outline: none; }
 
-    /* 🟢 업로드 영역: 드래그 앤 드롭 및 클릭을 지원하는 모던 스타일 */
-    .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 12px 15px; text-align: center; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+    /* 🟢 5. 시험 기본 세팅 1/5(업로드) : 4/5(세팅 표) 좌우 분할 그리드 */
+    .admin-main-grid { display: flex; gap: 20px; flex: 1; min-height: 0; overflow: hidden; }
+    .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 15px 12px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
     .paste-zone:hover { background-color: #e9ecef; }
+    #setupUploadZone { flex: 0 0 20%; width: 20%; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow-y: auto; }
+
+    /* 🟢 1. 성적입력 학생별 하단 세로 일괄 입력([O], [X], [-], [↺]) 버튼 스타일 */
+    .batch-btn-col { display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center; padding: 6px 2px; }
+    .batch-btn { width: 26px; height: 22px; border: none; border-radius: 4px; font-weight: 900; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
+    .batch-btn-o { background-color: #e8f5e9; color: #28a745; border: 1px solid #c8e6c9; }
+    .batch-btn-o:hover { background-color: #28a745; color: #fff; }
+    .batch-btn-x { background-color: #ffebee; color: #dc3545; border: 1px solid #ffcdd2; }
+    .batch-btn-x:hover { background-color: #dc3545; color: #fff; }
+    .batch-btn-clear { background-color: #f1f3f5; color: #6c757d; border: 1px solid #dee2e6; }
+    .batch-btn-clear:hover { background-color: #6c757d; color: #fff; }
+    .batch-btn-undo { background-color: #e3f2fd; color: #1366ce; border: 1px solid #bbdefb; }
+    .batch-btn-undo:hover { background-color: #1366ce; color: #fff; }
 
     .settings-table-wrapper { max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px; }
     .settings-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: center; }
-    .settings-table th { background: #e9ecef; padding: 10px; position: sticky; top: 0; z-index: 5; color: #1366ce; border-bottom: 2px solid #ced4da; }
+    /* 🟢 4. 필수 환경설정 표 머릿글 세로 구분선(테두리) 추가 */
+    .settings-table th { background: #e9ecef; padding: 10px; position: sticky; top: 0; z-index: 5; color: #1366ce; border-bottom: 2px solid #ced4da; border-right: 1px solid #ced4da; }
     .settings-table td { padding: 0; border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
     .set-input { width: 100%; border: none; padding: 8px; box-sizing: border-box; text-align: center; outline: none; background: transparent; }
     .set-input:focus { background-color: #e6f0ff; }
@@ -184,19 +200,15 @@
     
     .report-page { position: relative; width: 297mm; height: 210mm; flex-shrink: 0; margin: 0 auto; box-sizing: border-box; border: 1px solid #e2e8f0; border-radius: 20px; padding: 35px; display: flex; flex-direction: column; background: #fdfdfd; box-shadow: 0 8px 30px rgba(0,0,0,0.04); overflow: hidden; }
     
-    /* 🟢 상단 헤더: 아래 그리드와 간격을 동일(gap: 20px)하게 맞추어 좌측 끝선을 1:1 일치시킴 */
     .report-header { display: flex; justify-content: flex-start; gap: 20px; align-items: center; margin-bottom: 25px; padding-bottom: 15px; flex-shrink: 0; }
     
-    /* 🟢 로고 영역: 아래의 summary-col(172px, 20% 축소)과 너비를 1:1로 맞추고 중앙 정렬 */
     .report-logo { width: 172px; min-width: 172px; max-width: 172px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
     .report-logo img { height: 42px; max-width: 100%; object-fit: contain; } 
     
-    /* 🟢 상단 정보 박스 컨테이너: 좌측 끝선(단원별 분석 박스 시작점)부터 우측 끝선까지 비율로 가득 채움 */
     .report-info { display: flex; gap: 10px; align-items: stretch; flex: 1; min-width: 0; }
     
     .info-badge { display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; }
     
-    /* 🟢 테스트/과정명 및 반명 등 개별 박스들이 정해진 비율에 따라 유연하게 꽉 차게 변경 */
     .combined-badge { align-items: flex-start; text-align: left; flex: 1.65; width: auto; min-width: 0; max-width: none; }
     .info-badge.small-badge { flex: 1; width: auto; min-width: 0; max-width: none; }
     
@@ -208,7 +220,6 @@
     .dash-card { flex: 1; display: flex; flex-direction: column; background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .dash-card-content { flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
 
-    /* 🟢 요약 박스 열: 상단 로고(172px, 20% 축소)와 동일한 너비로 고정하여 완벽하게 수직 일치 */
     .summary-col { width: 172px; min-width: 172px; max-width: 172px; flex: none; display: flex; flex-direction: column; gap: 15px; justify-content: space-between; }
     
     .card-title { font-size: 15px; font-weight: 800; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
@@ -233,14 +244,12 @@
     
     .chart-container-report { position: relative; display: flex; justify-content: center; align-items: center; padding-top: 15px; }
     
-    /* 🟢 모든 KPI 카드에 동일한 패딩(12px 15px)과 gap(15px)을 주어 좌측 아이콘이 100% 수직 일직선 정렬됨 */
     .kpi-card-white { background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 12px 15px; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .kpi-card-white .kpi-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .kpi-card-white .kpi-info { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 2px; }
     .kpi-card-white .kpi-label { font-size: 13px !important; color: #64748b !important; font-weight: 700 !important; }
     .kpi-card-white .kpi-val { font-size: 16px !important; font-weight: 800 !important; color: #64748b !important; line-height: 1 !important; }
     
-    /* 🟢 도넛 카드: 테두리·그림자·배경을 제거하여 상위% 타이틀 + 도넛 영역만 깔끔하게 표시 */
     .doughnut-card { flex: 1; display: flex; flex-direction: column; background: transparent !important; border: none !important; box-shadow: none !important; align-items: center; justify-content: center; padding: 5px 0; position: relative; }
     .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
     .doughnut-val { font-size: 18px; font-weight: 900; color: #111827; line-height: 1; }
@@ -257,7 +266,6 @@
       .top-nav-bar, .filter-card { display: none !important; }
       .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; background: #fff; margin: 0; flex-shrink: 1; }
       
-      /* 🟢 인쇄 시 도넛 카드는 테두리/배경이 인쇄되지 않도록 규칙에서 제외 */
       .dash-card, .kpi-card-white { border: 1.5px solid #94a3b8 !important; box-shadow: none !important; }
       .doughnut-card { border: none !important; box-shadow: none !important; background: transparent !important; }
       
@@ -322,23 +330,25 @@
     </div>
   </div>
 
+  <!-- 🟢 4. 필수 환경설정 모달 제목 및 문구 수정 & 닫기 버튼 130px 통일 -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box" style="width: 700px; padding: 25px; text-align: left;">
-      <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">환경설정 (필수)</div>
-      <p style="font-size: 13px; color: #666; margin-bottom: 15px;">항목을 차례대로 입력해 주세요. (마지막 줄에 입력하면 <b>자동으로 새 줄이 추가</b>됩니다.)</p>
+      <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">필수 환경설정</div>
+      <p style="font-size: 13px; color: #666; margin-bottom: 15px;">기본 세팅 항목을 차례대로 입력해 주세요.</p>
       <div class="settings-table-wrapper">
         <table class="settings-table">
-          <thead><tr><th width="20%" style="color:#495057;">캠퍼스 목록</th><th width="20%" style="color:#495057;">학기 목록</th><th width="20%" style="color:#495057;">테스트 목록</th><th width="20%" style="color:#495057;">난이도 목록</th><th width="20%" style="color:#495057; border-right: none;">과정명 목록</th></tr></thead>
+          <thead><tr><th width="20%">캠퍼스 목록</th><th width="20%">학기 목록</th><th width="20%">테스트 목록</th><th width="20%">난이도 목록</th><th width="20%" style="border-right: none;">과정명 목록</th></tr></thead>
           <tbody id="settingsGridBody"></tbody>
         </table>
       </div>
       <div style="display: flex; gap: 10px; justify-content: flex-end;">
-        <button class="modal-btn" style="background-color: #6c757d; width: 100px;" onclick="document.getElementById('settingsModal').style.display='none'">닫기</button>
+        <button class="modal-btn" style="background-color: #6c757d; width: 130px;" onclick="document.getElementById('settingsModal').style.display='none'">닫기</button>
         <button class="modal-btn" style="background-color: #28a745; width: 130px;" onclick="saveSettings()">설정 저장</button>
       </div>
     </div>
   </div>
 
+  <!-- 🟢 3. 학생명단 일괄 업로드 모달 닫기 버튼 1/4 너비(25%) 축소 및 우측 정렬 -->
   <div class="modal-overlay" id="rosterUploadModal">
     <div class="modal-box" style="width: 480px; padding: 25px;">
       <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">학생명단 일괄 업로드</div>
@@ -346,14 +356,14 @@
          <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">테스트 (학기+테스트)</label><select id="rosterCombinedTest" style="width:100%; height:30px; border-radius:4px; border:1px solid #ccc;"></select></div>
          <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">캠퍼스</label><select id="rosterCampus" style="width:100%; height:30px; border-radius:4px; border:1px solid #ccc;"></select></div>
       </div>
-      <div id="dropZone" class="paste-zone" style="padding: 40px 15px;">
+      <div id="dropZone" class="paste-zone" style="padding: 40px 15px; margin-bottom: 20px;">
          <div style="font-size:32px; margin-bottom:10px;">📂</div>
          <div style="font-size:15px; font-weight:bold; color:#28a745; margin-bottom:8px;">엑셀 파일을 이곳에 끌어다 놓거나 클릭하세요.</div>
          <div style="font-size:13px; color:#888; line-height: 1.4;">※ '담임명, 반명, 학생명, 학교, 학년' 열을 자동으로 추출합니다.</div>
          <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;">
       </div>
-      <div class="modal-buttons" style="margin-bottom: 5px; display: flex; width: 100%;">
-        <button class="modal-btn btn-no" style="flex:none; width: 100%; border-radius: 50px; padding: 10px 20px; background-color: #6c757d;" onclick="document.getElementById('rosterUploadModal').style.display='none'">닫기</button>
+      <div class="modal-buttons" style="display: flex; justify-content: flex-end; width: 100%;">
+        <button class="modal-btn btn-no" style="width: 25%; border-radius: 50px; padding: 10px 0; background-color: #6c757d;" onclick="document.getElementById('rosterUploadModal').style.display='none'">닫기</button>
       </div>
     </div>
   </div>
@@ -429,6 +439,8 @@
           <table class="data-table">
             <thead id="inputTableHeader"></thead>
             <tbody id="inputTableBody"></tbody>
+            <!-- 🟢 1. 성적입력 학생별 하단 세로 일괄 입력([O], [X], [-], [↺]) 버튼이 담길 Footer -->
+            <tfoot id="inputTableFooter"></tfoot>
           </table>
           <div class="sticky-fab-bar" id="inputBottomControls" style="display: none;">
             <button class="btn-roster-add-main" onclick="openAddStudentModal()"><span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">학생추가</span></button>
@@ -492,7 +504,7 @@
 
     </div>
 
-    <!-- 관리자 화면 -->
+    <!-- 🟢 관리자 화면: 5. 시험 기본 세팅 좌측 20%(1/5) 업로드 존 : 우측 80%(4/5) 문항 세팅 표 분할 레이아웃 -->
     <div id="page-admin" class="page-content">
       <div class="filter-card admin-mode">
         <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="checkExistingSetup()"></select></div>
@@ -507,7 +519,6 @@
         <button class="btn-primary" style="margin-left: 5px; background-color: #495057;" onclick="saveExamSetup()">시험 정보 저장</button>
 
         <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
-          <!-- 🟢 1. 학생명단 업로드 버튼: 뭉치지 않는 직관적인 16px Upload 트레이 SVG 아이콘으로 교체 -->
           <button class="btn-primary" style="background-color: #28a745;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v6h16v-6"></path><path d="M12 4v12"></path><path d="m17 9-5-5-5 5"></path></svg>
             학생명단 업로드
@@ -522,23 +533,25 @@
         </div>
       </div>
 
-      <div class="paste-zone" id="setupUploadZone" style="padding: 24px 15px;">
-        <div style="font-size: 28px; margin-bottom: 8px;">📄</div>
-        <h4 style="margin: 0 0 6px 0; color: #495057; font-size: 15px;">시험 출제표 (TXT / 엑셀 파일) 일괄 업로드</h4>
-        <p style="color: #666; margin: 0; font-size: 13px;">
-          한글에서 저장한 <b>TXT 파일</b>이나 <b>엑셀 파일(.xlsx, .xls)</b>을 이곳에 끌어다 놓거나 클릭하여 선택하세요.<br>
-          설정한 <b>문항시작번호 ~ 종료번호</b> 범위에 맞게 출제 단원명과 배점이 자동으로 표에 적용됩니다.
-        </p>
-        <input type="file" id="setupFileInput" accept=".txt, .xlsx, .xls" style="display: none;">
-      </div>
+      <div class="admin-main-grid">
+        <div class="paste-zone" id="setupUploadZone" style="padding: 24px 15px; margin-bottom: 0;">
+          <div style="font-size: 28px; margin-bottom: 8px;">📄</div>
+          <h4 style="margin: 0 0 6px 0; color: #495057; font-size: 15px;">시험 출제표 (TXT/엑셀) 일괄 업로드</h4>
+          <p style="color: #666; margin: 0; font-size: 13px;">
+            한글에서 저장한 <b>TXT 파일</b>이나 <b>엑셀 파일(.xlsx, .xls)</b>을 이곳에 끌어다 놓거나 클릭하세요.<br>
+            설정한 <b>문항시작번호 ~ 종료번호</b> 범위에 맞게 출제 단원명과 배점이 자동으로 표에 적용됩니다.
+          </p>
+          <input type="file" id="setupFileInput" accept=".txt, .xlsx, .xls" style="display: none;">
+        </div>
 
-      <div class="table-wrapper">
-        <table class="data-table" style="text-align: left;">
-          <thead>
-            <tr><th class="admin-sticky-top bg-gray" width="8%" style="text-align: center;">문항번호</th><th class="admin-sticky-top bg-gray" width="42%" style="text-align: center;">출제 단원명</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">문항 배점</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">난이도 (자동입력)</th><th class="admin-sticky-top bg-gray" width="10%" style="text-align: center;">상태</th></tr>
-          </thead>
-          <tbody id="setupTableBody"></tbody>
-        </table>
+        <div class="table-wrapper">
+          <table class="data-table" style="text-align: left;">
+            <thead>
+              <tr><th class="admin-sticky-top bg-gray" width="8%" style="text-align: center;">문항번호</th><th class="admin-sticky-top bg-gray" width="42%" style="text-align: center;">출제 단원명</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">문항 배점</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">난이도 (자동입력)</th><th class="admin-sticky-top bg-gray" width="10%" style="text-align: center;">상태</th></tr>
+            </thead>
+            <tbody id="setupTableBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -554,13 +567,23 @@
     let currentGlobalOtherScores = []; 
     let isDeleteMode = false;
     
+    /* 🟢 1. 학생별 일괄 입력 직전 정답 상태를 기억하는 스냅샷 저장소 (`sIdx` -> `{ answers: {}, totalScore: '' }`) */
+    let studentUndoSnapshots = {};
+
     let lastSelectedCampus = ""; 
     let lastSelectedCourse = "";
     let confirmCallback = null;
     let cancelCallback = null;
 
+    /* 🟢 3. 키보드 Escape(ESC) 키 누름 감지 리스너: 열려 있는 모달을 즉시 종료 */
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
+      if (e.key === 'Escape') {
+        const modals = ['settingsModal', 'rosterUploadModal', 'addStudentModal', 'nextStudentModal', 'customAlertModal', 'customConfirmModal'];
+        modals.forEach(id => {
+          let el = document.getElementById(id);
+          if (el && el.style.display === 'flex') el.style.display = 'none';
+        });
+      } else if (e.key === 'Enter') {
         const nextModal = document.getElementById('nextStudentModal');
         const alertModal = document.getElementById('customAlertModal');
         const settingsModal = document.getElementById('settingsModal');
@@ -601,6 +624,43 @@
       document.getElementById('customConfirmModal').style.display = 'none';
       if (isConfirmed && confirmCallback) confirmCallback();
       else if (!isConfirmed && cancelCallback) cancelCallback();
+    }
+
+    /* 🟢 2. 테스트 목록 정렬 알고리즘: 연도 내림차순 > 학기(겨울-가을-여름-봄) > 고사(기말-중간) 순 */
+    function sortTestNames(arr) {
+      const seasonRank = { "겨울": 4, "가을": 3, "여름": 2, "봄": 1 };
+      const examRank = { "기말": 2, "중간": 1 };
+      return arr.slice().sort((a, b) => {
+        const getYear = s => { const m = s.match(/(\d{4})/); return m ? parseInt(m[1], 10) : 0; };
+        const getSeason = s => {
+          for (let k in seasonRank) if (s.includes(k)) return seasonRank[k];
+          return 0;
+        };
+        const getExam = s => {
+          for (let k in examRank) if (s.includes(k)) return examRank[k];
+          return 0;
+        };
+        const yDiff = getYear(b) - getYear(a);
+        if (yDiff !== 0) return yDiff;
+        const sDiff = getSeason(b) - getSeason(a);
+        if (sDiff !== 0) return sDiff;
+        const eDiff = getExam(b) - getExam(a);
+        if (eDiff !== 0) return eDiff;
+        return b.localeCompare(a, 'ko');
+      });
+    }
+
+    /* 🟢 2. 환경설정 시트 등록 순서 기반 정렬 알고리즘: Settings 순서를 최우선 존중 */
+    function sortBySettingsOrder(arr, settingsList) {
+      if (!settingsList || !settingsList.length) return arr;
+      return arr.slice().sort((a, b) => {
+        let idxA = settingsList.indexOf(a);
+        let idxB = settingsList.indexOf(b);
+        if (idxA === -1) idxA = 9999;
+        if (idxB === -1) idxB = 9999;
+        if (idxA !== idxB) return idxA - idxB;
+        return a.localeCompare(b, 'ko');
+      });
     }
 
     function getTermAndTest(prefix) {
@@ -763,6 +823,9 @@
          });
       }
       
+      /* 🟢 2. 테스트 목록: 연도-학기-고사 최신순 정렬 적용 */
+      combinedArr = sortTestNames(combinedArr);
+      
       const fillCombinedSelect = (id, placeholder) => {
         let el = document.getElementById(id); if(!el) return; 
         el.innerHTML = `<option value="" disabled selected hidden>${placeholder}</option>`; 
@@ -869,7 +932,9 @@
       let optionsHtml = isDataMode ? '<option value="전체" style="color:#333;">전체 (All)</option>' : `<option value="" disabled selected hidden>과정 선택</option>`;
       
       if(term && test) { 
-        let courses = [...new Set(globalData.setups.filter(s => s.term === term && s.test === test).map(s => s.course))].sort(); 
+        let courses = [...new Set(globalData.setups.filter(s => s.term === term && s.test === test).map(s => s.course))];
+        /* 🟢 2. 과정 목록: 환경설정 시트 입력 순서 그대로 정렬 */
+        courses = sortBySettingsOrder(courses, globalData.settings.courses);
         courses.forEach(c => optionsHtml += `<option value="${c}" style="color:#333;">${c}</option>`); 
       }
       sel.innerHTML = optionsHtml;
@@ -890,7 +955,9 @@
       let optionsHtml = keepAll ? '<option value="전체" style="color:#333;">전체 (All)</option>' : `<option value="" disabled selected hidden>캠퍼스 선택</option>`;
       
       if(term && test) { 
-        let campuses = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test).map(r => r.campus))].sort(); 
+        let campuses = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test).map(r => r.campus))];
+        /* 🟢 2. 캠퍼스 목록: 환경설정 시트 입력 순서 그대로 정렬 */
+        campuses = sortBySettingsOrder(campuses, globalData.settings.campuses);
         campuses.forEach(c => optionsHtml += `<option value="${c}" style="color:#333;">${c}</option>`); 
       }
       sel.innerHTML = optionsHtml;
@@ -910,7 +977,7 @@
       sel.innerHTML = `<option value="" disabled selected hidden>선생님 선택</option>`;
       
       if(term && test && campus && campus !== "전체") { 
-        let teachers = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus).map(r => r.teacher))].sort(); 
+        let teachers = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus).map(r => r.teacher))];
         teachers.forEach(t => sel.innerHTML += `<option value="${t}" style="color:#333;">${t}</option>`); 
       }
       if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
@@ -930,7 +997,7 @@
       sel.innerHTML = `<option value="" disabled selected hidden>반 선택</option>`;
       
       if(term && test && campus && teacher) { 
-        let classes = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus && r.teacher === teacher).map(r => r.className))].sort(); 
+        let classes = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus && r.teacher === teacher).map(r => r.className))];
         classes.forEach(c => sel.innerHTML += `<option value="${c}" style="color:#333;">${c}</option>`); 
       }
       if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
@@ -973,7 +1040,6 @@
       }
     }
 
-    /* 🟢 TXT / 엑셀 통합 출제표 파일 업로드 영역 이벤트 리스너 및 로직 */
     const setupUploadZone = document.getElementById('setupUploadZone');
     const setupFileInput = document.getElementById('setupFileInput');
 
@@ -989,7 +1055,6 @@
       if (e.target.files.length) processSetupFile(e.target.files[0]); 
     });
 
-    /* 🟢 1. 인코딩 안전 디코더: 윈도우 HWP TXT(CP949/EUC-KR/UTF-16) 한글 깨짐을 완벽 방지 */
     function decodeTextBuffer(buffer) {
       const uint8 = new Uint8Array(buffer);
       if (uint8.length >= 2 && uint8[0] === 0xFF && uint8[1] === 0xFE) {
@@ -1008,7 +1073,6 @@
       }
     }
 
-    /* 🟢 2. 번호 판별 로직: 11->1, 1616->16 중복 번호와 16->16 일반 번호를 100% 식별 */
     function parseQuestionNumber(rawStr) {
       const len = rawStr.length;
       if (len % 2 === 0 && len >= 2) {
@@ -1063,7 +1127,6 @@
       }
     }
 
-    /* 🟢 TXT 출제표 파서: 문제번호 감지 + 중복 숫자 정제 + 설정된 startNum~endNum 범위만 추출 */
     function parseTxtSetupData(textData) {
       const lines = textData.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '');
       const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
@@ -1100,7 +1163,6 @@
       }
     }
 
-    /* 🟢 엑셀 출제표 파서: 열 머릿글 감지 및 startNum~endNum 범위 추출 */
     function parseExcelSetupData(buffer) {
       let data = new Uint8Array(buffer);
       let workbook = XLSX.read(data, {type: 'array'});
@@ -1273,6 +1335,7 @@
 
       const thead = document.getElementById('inputTableHeader');
       const tbody = document.getElementById('inputTableBody');
+      const tfoot = document.getElementById('inputTableFooter');
       
       let htmlThead = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>`;
       parsedStudents.forEach((st, sIdx) => { 
@@ -1339,8 +1402,76 @@
       }
       tbody.innerHTML = htmlTbody;
 
+      /* 🟢 1. 성적입력 학생별 하단 세로 일괄 입력([O], [X], [-], [↺]) 버튼 생성 */
+      let htmlTfoot = `<tr>
+        <th colspan="3" class="sticky-col-all bg-gray" style="text-align:center; font-size:12px; color:#495057;">일괄 입력 / 되돌리기</th>`;
+      parsedStudents.forEach((st, sIdx) => {
+        if (st.isEmpty) {
+          htmlTfoot += `<th class="bg-light" style="color:#adb5bd;">-</th>`;
+        } else {
+          htmlTfoot += `<th class="bg-white">
+            <div class="batch-btn-col">
+              <button class="batch-btn batch-btn-o" onclick="batchSetStudentAnswers(${sIdx}, 'O')" title="${st.name} 전체 O 처리">O</button>
+              <button class="batch-btn batch-btn-x" onclick="batchSetStudentAnswers(${sIdx}, 'X')" title="${st.name} 전체 X 처리">X</button>
+              <button class="batch-btn batch-btn-clear" onclick="batchSetStudentAnswers(${sIdx}, '')" title="${st.name} 입력 전체 삭제">-</button>
+              <button class="batch-btn batch-btn-undo" onclick="undoStudentAnswers(${sIdx})" title="${st.name} 직전 일괄 입력 되돌리기">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+              </button>
+            </div>
+          </th>`;
+        }
+      });
+      htmlTfoot += `</tr>`;
+      tfoot.innerHTML = htmlTfoot;
+
       if(currentStudentsCount > 0) updateAllRanks();
       attachKeyboardNavigationListeners();
+    }
+
+    /* 🟢 1. 학생별 일괄 입력 ([O], [X], [-]) 및 직전 스냅샷 저장 로직 */
+    function batchSetStudentAnswers(sIdx, val) {
+      if (!currentExamSetup) return;
+      
+      let snapshot = { answers: {}, totalScoreText: '', valid: '' };
+      let totalEl = document.getElementById(`totalScore_${sIdx}`);
+      snapshot.totalScoreText = totalEl ? totalEl.innerText : '-';
+      snapshot.valid = totalEl ? totalEl.dataset.valid : 'false';
+
+      document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => {
+        let qIdx = input.dataset.q;
+        snapshot.answers[qIdx] = input.value;
+      });
+      studentUndoSnapshots[sIdx] = snapshot;
+
+      document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => {
+        input.value = val;
+        input.classList.remove('val-o', 'val-x');
+        if (val === 'O') input.classList.add('val-o');
+        else if (val === 'X') input.classList.add('val-x');
+      });
+
+      calculateStudentScore(sIdx);
+      updateAllRanks();
+    }
+
+    /* 🟢 1. 학생별 직전 일괄 입력 되돌리기 (↺) 로직: 1인 한정으로 스냅샷 복구 */
+    function undoStudentAnswers(sIdx) {
+      let snapshot = studentUndoSnapshots[sIdx];
+      if (!snapshot) {
+        return showAlert("해당 학생의 되돌릴 직전 일괄 입력 기록이 없습니다.");
+      }
+
+      document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => {
+        let qIdx = input.dataset.q;
+        let prevVal = snapshot.answers[qIdx] || '';
+        input.value = prevVal;
+        input.classList.remove('val-o', 'val-x');
+        if (prevVal === 'O') input.classList.add('val-o');
+        else if (prevVal === 'X') input.classList.add('val-x');
+      });
+
+      calculateStudentScore(sIdx);
+      updateAllRanks();
     }
 
     function handleOxInput(e, qIdx, sIdx) {
