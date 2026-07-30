@@ -1,618 +1,1756 @@
-/**
- * 학원 성적표 통합 시스템 - 백엔드 API (학교/학년/석차 자동 저장, 학생 추가/삭제, 5단계 난이도 및 고도화 대시보드 지원)
- */
-
-function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({ status: "Running" })).setMimeType(ContentService.MimeType.JSON);
-}
-
-function doPost(e) {
-  let result = {};
-  try {
-    let payload = JSON.parse(e.postData.contents);
-    let action = payload.action;
-
-    if (action === 'getDropdownData') result = { success: true, data: getDropdownData() };
-    else if (action === 'saveSettings') result = { success: true, data: saveSettings(payload) };
-    else if (action === 'getExamSetup') result = { success: true, data: getExamSetup(payload) };
-    else if (action === 'saveExamSetup') result = { success: true, data: saveExamSetup(payload) };
-    else if (action === 'uploadRoster') result = { success: true, data: uploadRoster(payload) }; 
-    else if (action === 'loadInputWorkflow') result = { success: true, data: loadInputWorkflow(payload) };
-    else if (action === 'saveStudentGrades') result = { success: true, data: saveStudentGrades(payload) };
-    else if (action === 'getReportData') result = { success: true, data: getReportData(payload) };
-    else if (action === 'getDashboardData') result = { success: true, data: getDashboardData(payload) };
-    else if (action === 'addStudentToRoster') result = { success: true, data: addStudentToRoster(payload) };
-    else if (action === 'deleteStudentFromRoster') result = { success: true, data: deleteStudentFromRoster(payload) };
-    else result = { success: false, error: "알 수 없는 요청입니다." };
-  } catch (err) {
-    result = { success: false, error: err.toString() };
-  }
-  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
-}
-
-// -------------------------------------------------------------
-// 🟢 전체 시트 탭 완벽 자동 정렬 
-// -------------------------------------------------------------
-function sortAllSheets() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheets = ss.getSheets();
-  const seasonRank = {"봄":1, "여름":2, "가을":3, "겨울":4};
-
-  let sheetInfos = sheets.map(sheet => {
-    let name = sheet.getName();
-    let rank = name === "환경설정" ? 0 : (name === "시험세팅" ? 1 : 2);
-    let year = 9999, season = 9, type = 9; 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학원 성적표 통합 시스템</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
     
-    let match = name.match(/(\d{4})-(봄|여름|가을|겨울)학기\s*(명단|성적DB)/);
-    if (match) {
-      year = parseInt(match[1]);
-      season = seasonRank[match[2]];
-      type = match[3] === "명단" ? 1 : 2;
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
+    
+    /* 🟢 100vh 앱 뷰포트 레이아웃: 화면 전체 크기에 맞추고 상단 고정 + 내부 독립 스크롤 체계 */
+    html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow: hidden; }
+    .app-container { height: 100vh; display: flex; flex-direction: column; padding: 20px 25px; overflow: hidden; }
+    
+    .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; overflow: hidden; }
+    .page-content.active { display: flex; }
+
+    .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
+    .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1366ce; border-radius: 50%; animation: spin 1s linear infinite; }
+    .spinner-text { margin-top: 15px; font-weight: bold; color: #1366ce; font-size: 15px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center; }
+    .modal-box { background: white; border-radius: 12px; padding: 25px 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; background-color: #1366ce; color: white; transition: 0.2s; }
+    .modal-btn:hover { background-color: #0f52a8; }
+
+    .top-nav-bar { flex-shrink: 0; background-color: #fff; border-radius: 50px; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 20px; position: relative; }
+    .main-title { font-size: 18px; font-weight: normal; color: #111; margin: 0; display: flex; align-items: center; letter-spacing: -0.5px; }
+    .main-title img { height: 26px; margin-right: 10px; }
+
+    .nav-tabs { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+    .nav-btn { width: 130px; background-color: #f1f3f5; color: #6c757d; border: none; border-radius: 50px; padding: 10px 0; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; text-align: center; }
+    .nav-btn:hover { background-color: #e9ecef; }
+    .nav-btn.active { background: linear-gradient(180deg, #1366ce 0%, #3a82e0 100%); color: white; box-shadow: 0 2px 6px rgba(19,102,206,0.3); }
+
+    .icon-btn { background-color: #fff; border: 1px solid #dee2e6; color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; margin-left: 10px; }
+    .icon-btn:hover { background-color: #e9ecef; color: #111; }
+
+    .filter-card { flex-shrink: 0; height: 56px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 0 20px; border-left: 6px solid #1366ce; margin-bottom: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: nowrap; overflow-x: auto; z-index: 200; }
+    .filter-card.admin-mode { border-left: 6px solid #495057; } 
+    .filter-divider { width: 1px; height: 20px; background-color: #dee2e6; margin: 0 4px; flex-shrink: 0; }
+    
+    .select-group { display: flex; align-items: center; gap: 6px; }
+    .select-group label { font-weight: bold; font-size: 13px; color: #1366ce; white-space: nowrap; }
+    .admin-mode .select-group label { color: #495057; }
+    
+    .select-group select { width: 185px; height: 30px; padding: 4px 30px 4px 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 16px; color: #333; }
+    .select-group select:invalid { color: #888; } 
+    .select-group select option { color: #333; }
+    
+    .select-group input { height: 30px; padding: 4px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; }
+    .select-group select:focus, input:focus { border-color: #1366ce; }
+    
+    .btn-primary { height: 32px; padding: 0 16px; border: none; border-radius: 50px; font-weight: bold; font-size: 13px; background-color: #1366ce; color: white; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap; }
+    .btn-primary:hover { background-color: #0f52a8; }
+    .filter-card .btn-primary { min-width: 135px; justify-content: center; }
+
+    /* 🟢 헤더 우측 확장 액션 버튼 ([결과 저장], [일괄 인쇄] 전용): 평소엔 원형 아이콘 -> 마우스오버 시 가로 확장 */
+    .btn-expand-action {
+      height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden;
+      white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px;
+      cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      display: inline-flex; align-items: center; justify-content: flex-start;
+      transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s;
+      flex-shrink: 0;
     }
-    return { sheet: sheet, name: name, rank: rank, year: year, season: season, type: type };
-  });
-
-  sheetInfos.sort((a, b) => {
-    if (a.rank !== b.rank) return a.rank - b.rank; 
-    if (a.rank === 2 && b.rank === 2) { 
-      if (a.year !== b.year) return a.year - b.year; 
-      if (a.season !== b.season) return a.season - b.season; 
-      if (a.type !== b.type) return a.type - b.type; 
-      return a.name.localeCompare(b.name);
+    .btn-expand-action:hover {
+      max-width: 130px; padding-right: 14px;
     }
-    return a.name.localeCompare(b.name);
-  });
+    .btn-expand-action .btn-icon-wrap {
+      width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0;
+    }
+    .btn-expand-action .btn-text-wrap {
+      opacity: 0; transition: opacity 0.15s ease-in; font-size: 13px;
+    }
+    .btn-expand-action:hover .btn-text-wrap {
+      opacity: 1; transition-delay: 0.05s;
+    }
+    
+    #view_input { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+    #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
+    #view_data { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
 
-  sheetInfos.forEach((info, idx) => {
-    ss.setActiveSheet(info.sheet);
-    ss.moveActiveSheet(idx + 1);
-  });
-}
+    /* 🟢 표 래퍼: 남은 화면 높이를 빈틈없이 채우고 세로/가로 스크롤 및 틀 고정을 이 안에서 완벽 제어 */
+    .table-wrapper { flex: 1; min-height: 0; overflow: auto; position: relative; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    table.data-table { border-collapse: separate; border-spacing: 0; font-size: 13px; text-align: center; white-space: nowrap; background-color: #fff; min-width: 100%; }
+    table.data-table th, table.data-table td { border-bottom: 1px solid #dee2e6; border-right: 1px solid #dee2e6; padding: 2px 4px; height: 28px; vertical-align: middle; box-sizing: border-box; }
+    table.data-table td:last-child, table.data-table th:last-child { border-right: none; }
+    
+    /* 🟢 틀 고정 좌표: 0, 28, 56, 84px로 완벽 적용하여 표 맨 위에 착 붙음 */
+    .sticky-top-1 { position: sticky; top: 0; z-index: 80; }
+    .sticky-top-2 { position: sticky; top: 28px; z-index: 80; }
+    .sticky-top-3 { position: sticky; top: 56px; z-index: 80; }
+    .sticky-top-4 { position: sticky; top: 84px; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
+    .admin-sticky-top { position: sticky; top: 0; z-index: 80; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-bottom: 1px solid #ced4da !important; } 
+    
+    .sticky-col-1 { position: sticky; left: 0; min-width: 60px; max-width: 60px; z-index: 60; }
+    .sticky-col-2 { position: sticky; left: 60px; min-width: 140px; max-width: 140px; z-index: 60; }
+    .sticky-col-3 { position: sticky; left: 200px; min-width: 60px; max-width: 60px; z-index: 60; border-right: 1px solid #ced4da !important; box-shadow: 2px 0 4px rgba(0,0,0,0.04); }
+    .sticky-col-all { position: sticky; left: 0; z-index: 60; border-right: 1px solid #ced4da !important; box-shadow: 2px 0 4px rgba(0,0,0,0.04); }
+    
+    table.data-table thead th { font-weight: bold; color: #333; }
+    table.data-table thead th.sticky-top-1, table.data-table thead th.sticky-top-2, table.data-table thead th.sticky-top-3, table.data-table thead th.sticky-top-4, table.data-table thead th.admin-sticky-top { z-index: 90; }
+    table.data-table thead th.sticky-col-1, table.data-table thead th.sticky-col-2, table.data-table thead th.sticky-col-3, table.data-table thead th.sticky-col-all { z-index: 100; }
+    
+    .bg-gray { background-color: #e9ecef !important; color: #333; }
+    .bg-light { background-color: #f8f9fa !important; color: #333; }
+    .bg-white { background-color: #ffffff !important; }
+    
+    .student-name-cell { min-width: 60px; max-width: 60px; overflow: hidden; text-overflow: clip; letter-spacing: -0.5px; }
 
-// -------------------------------------------------------------
-// 🟢 환경설정
-// -------------------------------------------------------------
-function saveSettings(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let envSheet = ss.getSheetByName("환경설정");
-  if (!envSheet) envSheet = ss.insertSheet("환경설정", 0);
-  
-  envSheet.clear();
-  
-  const headers = ["캠퍼스목록", "학기목록", "테스트목록", "난이도목록", "과정명목록"];
-  envSheet.appendRow(headers);
-  envSheet.getRange(1, 1, 1, headers.length).setBackground("#e9ecef").setFontWeight("bold");
+    .ox-input { width: 100%; height: 100%; border: none; text-align: center; font-weight: 900; font-size: 14px; padding: 0; background-color: transparent; outline: none; cursor: pointer; color: #dee2e6; }
+    .ox-input:focus { background-color: #e6f0ff; color: #333; }
+    .ox-input:disabled { background-color: transparent; color: #ccc; cursor: default; }
+    .ox-input.val-o { color: #28a745; } 
+    .ox-input.val-x { color: #dc3545; } 
 
-  let maxRows = Math.max(payload.campuses.length, payload.terms.length, payload.tests.length, payload.levels.length, payload.courses.length);
-  let records = [];
-  for (let i = 0; i < maxRows; i++) {
-    records.push([
-      payload.campuses[i] || "",
-      payload.terms[i] || "",
-      payload.tests[i] || "",
-      payload.levels[i] || "",
-      payload.courses[i] || ""
-    ]);
-  }
-  
-  if (records.length > 0) envSheet.getRange(2, 1, records.length, 5).setValues(records);
-  
-  SpreadsheetApp.flush(); 
-  sortAllSheets();
-  return true;
-}
+    .setup-input { width: 90%; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+    .setup-input:focus { border-color: #1366ce; outline: none; }
 
-function getDropdownData() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let settings = { campuses: [], terms: [], tests: [], levels: [], courses: [] };
+    .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+    .paste-zone:hover { background-color: #e9ecef; }
+
+    .settings-table-wrapper { max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px; margin-bottom: 20px; }
+    .settings-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: center; }
+    .settings-table th { background: #e9ecef; padding: 10px; position: sticky; top: 0; z-index: 5; color: #1366ce; border-bottom: 2px solid #ced4da; }
+    .settings-table td { padding: 0; border-bottom: 1px solid #eee; border-right: 1px solid #eee; }
+    .set-input { width: 100%; border: none; padding: 8px; box-sizing: border-box; text-align: center; outline: none; background: transparent; }
+    .set-input:focus { background-color: #e6f0ff; }
+
+    /* 🟢 대시보드 탭 전용 레이아웃 및 KPI 스타일 */
+    #view_data { padding-bottom: 30px; }
+    .dash-grid { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+    .dash-card-basic { flex: 1; min-width: 220px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); padding: 20px; display: flex; flex-direction: column; }
+    .dash-title { font-size: 14px; color: #6c757d; font-weight: bold; margin-bottom: 10px; }
+    .dash-value { font-size: 32px; font-weight: 900; color: #1366ce; }
+    .dash-chart-basic { width: 100%; height: 250px; position: relative; }
+
+    /* 🟢 플로팅 버튼 바: 평소엔 좌측 하단에 떠 있다가 맨 아래 도달 시 표 바로 아래 정착 */
+    .sticky-fab-bar {
+      position: sticky;
+      bottom: 15px;
+      left: 15px;
+      width: max-content;
+      display: flex;
+      gap: 10px;
+      z-index: 70;
+      margin-top: 20px;
+      margin-bottom: 15px;
+      pointer-events: auto;
+    }
+
+    .btn-roster-add-main, .btn-roster-delete-main {
+      height: 38px; max-width: 38px; border-radius: 19px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: inline-flex; align-items: center; justify-content: flex-start; transition: max-width 0.15s cubic-bezier(0.4, 0, 0.2, 1), padding 0.15s ease, background-color 0.2s;
+    }
+    .btn-roster-add-main { background-color: #28a745; }
+    .btn-roster-delete-main { background-color: #dc3545; }
+    .btn-roster-add-main:hover, .btn-roster-delete-main:hover, .btn-roster-delete-main.active { max-width: 145px; padding-right: 18px; }
+    .btn-roster-delete-main.active { background-color: #8b0000; box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
+
+    .btn-icon-wrap { width: 38px; height: 38px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; font-style: normal; font-size: 1.4em; font-weight: 900; line-height: 0; padding-bottom: 2px; }
+    .btn-text-wrap { opacity: 0; transition: opacity 0.1s ease-in; }
+    .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
+
+    .student-del-badge {
+      display: inline-block; width: 20px; height: 20px; line-height: 18px; text-align: center;
+      background-color: #dc3545; color: white; border-radius: 50%; font-size: 13px; font-weight: bold;
+      cursor: pointer; border: none; vertical-align: middle; margin: 0 auto;
+    }
+    .student-del-badge:hover { background-color: #a71d2a; }
+
+    /* =========================================================
+       🟢 성적표 출력 디자인: A4 사이즈 고정 및 모던 테마
+       ========================================================= */
+    #view_report { padding-bottom: 50px; background: transparent; }
+    .report-container { width: 100%; overflow: visible; display: flex; flex-direction: column; gap: 30px; padding-bottom: 60px; align-items: center; }
+    
+    .report-page { position: relative; width: 297mm; height: 210mm; flex-shrink: 0; margin: 0 auto; box-sizing: border-box; border: 1px solid #e2e8f0; border-radius: 20px; padding: 35px; display: flex; flex-direction: column; background: #fdfdfd; box-shadow: 0 8px 30px rgba(0,0,0,0.04); overflow: hidden; }
+    
+    /* 🟢 상단 헤더: 아래 그리드와 간격을 동일(gap: 20px)하게 맞추어 좌측 끝선을 1:1 일치시킴 */
+    .report-header { display: flex; justify-content: flex-start; gap: 20px; align-items: center; margin-bottom: 25px; padding-bottom: 15px; flex-shrink: 0; }
+    
+    /* 🟢 로고 영역: 아래의 summary-col(172px, 20% 축소)과 너비를 1:1로 맞추고 중앙 정렬 */
+    .report-logo { width: 172px; min-width: 172px; max-width: 172px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+    .report-logo img { height: 42px; max-width: 100%; object-fit: contain; } 
+    
+    /* 🟢 상단 정보 박스 컨테이너: 좌측 끝선(단원별 분석 박스 시작점)부터 우측 끝선까지 비율로 가득 채움 */
+    .report-info { display: flex; gap: 10px; align-items: stretch; flex: 1; min-width: 0; }
+    
+    .info-badge { display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; }
+    
+    /* 🟢 테스트/과정명 및 반명 등 개별 박스들이 정해진 비율에 따라 유연하게 꽉 차게 변경 */
+    .combined-badge { align-items: flex-start; text-align: left; flex: 1.65; width: auto; min-width: 0; max-width: none; }
+    .info-badge.small-badge { flex: 1; width: auto; min-width: 0; max-width: none; }
+    
+    .info-badge span { font-size: 11px; color: #64748b; font-weight: 600; }
+    .info-badge strong { font-size: 13px; color: #0f172a; font-weight: 800; }
+    .badge-divider { width: 1px; background-color: #e2e8f0; margin: 0 5px; flex-shrink: 0; height: 35px; align-self: center; }
+    
+    .report-grid { display: flex; gap: 20px; flex: 1; min-height: 0; }
+    .dash-card { flex: 1; display: flex; flex-direction: column; background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    .dash-card-content { flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
+
+    /* 🟢 요약 박스 열: 상단 로고(172px, 20% 축소)와 동일한 너비로 고정하여 완벽하게 수직 일치 */
+    .summary-col { width: 172px; min-width: 172px; max-width: 172px; flex: none; display: flex; flex-direction: column; gap: 15px; justify-content: space-between; }
+    
+    .card-title { font-size: 15px; font-weight: 800; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
+    .card-title::before { content: ''; display: block; width: 4px; height: 16px; background: #3b82f6; border-radius: 2px; }
+    .card-title-green::before { background: #10b981 !important; }
+    
+    table.willow-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; border-top: 2px solid; border-bottom: 2px solid; border-left: none; border-right: none; }
+    table.willow-table th, table.willow-table td { padding: 6px 2px; height: 36px; white-space: normal; word-break: keep-all; line-height: 1.3; vertical-align: middle; border: 1px solid; }
+    table.willow-table td { font-size: 13px !important; }
+    
+    table.willow-table th:first-child, table.willow-table td:first-child { width: 55px; min-width: 55px; max-width: 55px; font-weight: 700; text-align: center; border-left: none; font-size: 11px !important; }
+    table.willow-table th:last-child, table.willow-table td:last-child { border-right: none; }
+    table.willow-table th { font-weight: 700; font-size: 11px; }
+    
+    table.bg-head-blue { border-top-color: #60a5fa; border-bottom-color: #60a5fa; }
+    table.bg-head-blue th, table.bg-head-blue td { border-color: #bfdbfe; }
+    table.bg-head-blue th, table.bg-head-blue tr.bg-subhead td, table.bg-head-blue tr.bg-subhead th { background-color: #eff6ff !important; color: #1e3a8a; }
+    
+    table.bg-head-green { border-top-color: #34d399; border-bottom-color: #34d399; }
+    table.bg-head-green th, table.bg-head-green td { border-color: #a7f3d0; }
+    table.bg-head-green th, table.bg-head-green tr.bg-subhead td, table.bg-head-green tr.bg-subhead th { background-color: #ecfdf5 !important; color: #065f46; }
+    
+    .chart-container-report { position: relative; display: flex; justify-content: center; align-items: center; padding-top: 15px; }
+    
+    /* 🟢 모든 KPI 카드에 동일한 패딩(12px 15px)과 gap(15px)을 주어 좌측 아이콘이 100% 수직 일직선 정렬됨 */
+    .kpi-card-white { background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 12px 15px; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    .kpi-card-white .kpi-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .kpi-card-white .kpi-info { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 2px; }
+    .kpi-card-white .kpi-label { font-size: 13px !important; color: #64748b !important; font-weight: 700 !important; }
+    .kpi-card-white .kpi-val { font-size: 16px !important; font-weight: 800 !important; color: #64748b !important; line-height: 1 !important; }
+    
+    /* 🟢 도넛 카드: 테두리·그림자·배경을 제거하여 상위% 타이틀 + 도넛 영역만 깔끔하게 표시 */
+    .doughnut-card { flex: 1; display: flex; flex-direction: column; background: transparent !important; border: none !important; box-shadow: none !important; align-items: center; justify-content: center; padding: 5px 0; position: relative; }
+    .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
+    .doughnut-val { font-size: 18px; font-weight: 900; color: #111827; line-height: 1; }
+    
+    .report-footer { margin-top: 15px; padding: 15px 20px; background-color: #f1f5f9; border-radius: 12px; font-size: 11px; color: #475569; line-height: 1.6; flex-shrink: 0; border: 1px solid #e2e8f0; }
+
+    @media print {
+      body * { visibility: hidden; }
+      html, body { overflow: visible !important; height: auto !important; background: #fff !important; }
+      .app-container { padding: 0 !important; margin: 0 !important; height: auto !important; overflow: visible !important; display: block !important; }
+      .page-content, #view_report { display: block !important; overflow: visible !important; }
+      #reportContainer, #reportContainer * { visibility: visible; }
+      #reportContainer { position: absolute; left: 0; top: 0; width: 100%; margin-bottom: 0; }
+      .top-nav-bar, .filter-card { display: none !important; }
+      .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; background: #fff; margin: 0; flex-shrink: 1; }
+      
+      /* 🟢 인쇄 시 도넛 카드는 테두리/배경이 인쇄되지 않도록 규칙에서 제외 */
+      .dash-card, .kpi-card-white { border: 1.5px solid #94a3b8 !important; box-shadow: none !important; }
+      .doughnut-card { border: none !important; box-shadow: none !important; background: transparent !important; }
+      
+      @page { size: A4 landscape; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycbwvGxr_gp1L2e7L5D_1u8LZ0BP2K07LMtjuRsvqKEVyCnBikAEYpqztc0REuXmoNMHvtg/exec">
+
+  <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">처리 중입니다...</div></div>
   
-  let envSheet = ss.getSheetByName("환경설정");
-  if (envSheet && envSheet.getLastRow() > 1) {
-    const envData = envSheet.getRange(2, 1, envSheet.getLastRow() - 1, 5).getValues();
-    envData.forEach(row => {
-      if (String(row[0]).trim()) settings.campuses.push(String(row[0]).trim());
-      if (String(row[1]).trim()) settings.terms.push(String(row[1]).trim());
-      if (String(row[2]).trim()) settings.tests.push(String(row[2]).trim());
-      if (String(row[3]).trim()) settings.levels.push(String(row[3]).trim());
-      if (String(row[4]).trim()) settings.courses.push(String(row[4]).trim());
+  <div class="modal-overlay" id="customAlertModal">
+    <div class="modal-box" style="width: 320px;">
+      <div id="modalMessage" class="modal-message" style="text-align: center; margin: 25px 0;"></div>
+      <button class="modal-btn" onclick="document.getElementById('customAlertModal').style.display='none'">확인</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="customConfirmModal">
+    <div class="modal-box" style="width: 380px; padding: 25px;">
+      <div id="confirmMessage" class="modal-message" style="text-align: center; font-size: 15px; margin-bottom: 25px; font-weight:bold;"></div>
+      <div style="display: flex; gap: 10px;">
+        <button class="modal-btn" style="background-color: #6c757d;" onclick="closeConfirm(false)">아니오</button>
+        <button class="modal-btn" style="background-color: #28a745;" onclick="closeConfirm(true)">예</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="addStudentModal">
+    <div class="modal-box" style="width: 360px; padding: 25px; text-align: left;">
+      <div style="font-size: 16px; font-weight: 900; background-color: #28a745; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 20px; text-align: center;">신규 학생 추가</div>
+      <div style="margin-bottom: 12px;">
+         <label style="font-size:13px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">학생명 <span style="color:#dc3545;">*</span></label>
+         <input type="text" id="newStudentName" placeholder="ex. 홍길동" style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
+      </div>
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+         <div style="flex:1;">
+            <label style="font-size:13px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">학교명</label>
+            <input type="text" id="newStudentSchool" placeholder="ex. 동탄초" style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
+         </div>
+         <div style="flex:1;">
+            <label style="font-size:13px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">학년</label>
+            <input type="text" id="newStudentGrade" placeholder="ex. 1" style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
+         </div>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="modal-btn" style="background-color: #6c757d; width: 100px;" onclick="document.getElementById('addStudentModal').style.display='none'">취소</button>
+        <button class="modal-btn" style="background-color: #28a745; width: 120px;" onclick="saveNewStudent()">추가하기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="nextStudentModal">
+    <div class="modal-box" style="width: 340px; padding: 30px 20px;">
+      <div style="font-size: 32px; margin-bottom: 10px;">👤</div>
+      <div style="font-size: 16px; font-weight: bold; color: #333; margin-bottom: 25px;">
+        <span id="nextStudentName" style="color: #1366ce; font-size: 18px;"></span> 학생의<br>채점을 이어서 진행합니다.
+      </div>
+      <button class="modal-btn" onclick="confirmNextStudent()">확인 (Enter)</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-box" style="width: 700px; padding: 25px; text-align: left;">
+      <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">환경설정 (필수)</div>
+      <p style="font-size: 13px; color: #666; margin-bottom: 15px;">항목을 차례대로 입력해 주세요. (마지막 줄에 입력하면 <b>자동으로 새 줄이 추가</b>됩니다.)</p>
+      <div class="settings-table-wrapper">
+        <table class="settings-table">
+          <thead><tr><th width="20%" style="color:#495057;">캠퍼스 목록</th><th width="20%" style="color:#495057;">학기 목록</th><th width="20%" style="color:#495057;">테스트 목록</th><th width="20%" style="color:#495057;">난이도 목록</th><th width="20%" style="color:#495057; border-right: none;">과정명 목록</th></tr></thead>
+          <tbody id="settingsGridBody"></tbody>
+        </table>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="modal-btn" style="background-color: #6c757d; width: 100px;" onclick="document.getElementById('settingsModal').style.display='none'">닫기</button>
+        <button class="modal-btn" style="background-color: #28a745; width: 130px;" onclick="saveSettings()">설정 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="rosterUploadModal">
+    <div class="modal-box" style="width: 480px; padding: 25px;">
+      <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">학생명단 일괄 업로드</div>
+      <div style="display: flex; gap: 15px; margin-bottom: 20px; text-align: left;">
+         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">테스트 (학기+테스트)</label><select id="rosterCombinedTest" style="width:100%; height:30px; border-radius:4px; border:1px solid #ccc;"></select></div>
+         <div style="flex:1;"><label style="font-size:13px; color:#555; display:block; margin-bottom:4px;">캠퍼스</label><select id="rosterCampus" style="width:100%; height:30px; border-radius:4px; border:1px solid #ccc;"></select></div>
+      </div>
+      <div id="dropZone" class="paste-zone" style="padding: 40px 15px;">
+         <div style="font-size:32px; margin-bottom:10px;">📂</div>
+         <div style="font-size:15px; font-weight:bold; color:#28a745; margin-bottom:8px;">엑셀 파일을 이곳에 끌어다 놓거나 클릭하세요.</div>
+         <div style="font-size:13px; color:#888; line-height: 1.4;">※ '담임명, 반명, 학생명, 학교, 학년' 열을 자동으로 추출합니다.</div>
+         <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;">
+      </div>
+      <div class="modal-buttons" style="margin-bottom: 5px; display: flex; width: 100%;">
+        <button class="modal-btn btn-no" style="flex:none; width: 100%; border-radius: 50px; padding: 10px 20px; background-color: #6c757d;" onclick="document.getElementById('rosterUploadModal').style.display='none'">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container">
+    
+    <div class="top-nav-bar" id="mainHeaderBar">
+      <h2 class="main-title" id="mainHeaderTitle">
+        <img src="https://i.imgur.com/PQRrCSI.png" alt="SG청운학원"> 성적표 통합 시스템
+      </h2>
+      
+      <div class="nav-tabs" id="navTabs">
+        <button class="nav-btn active" onclick="switchNav('input')">성적 입력</button>
+        <button class="nav-btn" onclick="switchNav('report')">성적표 출력</button>
+        <button class="nav-btn" onclick="switchNav('data')">데이터 확인</button>
+      </div>
+
+      <div style="display: flex; align-items: center;">
+        <button class="icon-btn" id="headerAdminBtn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+        <button class="icon-btn" id="headerMainBtn" style="display: none;" onclick="switchPage('page-main')" title="뒤로가기">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 🟢 메인 화면 -->
+    <div id="page-main" class="page-content active">
+      
+      <div class="filter-card" id="mainFilterCard">
+        <div class="select-group"><label>테스트</label><select id="mainCombinedTest" required onchange="filterCourses('main', true)"></select></div>
+        <div class="select-group"><label>과정</label><select id="mainCourse" required onchange="filterCampuses('main', true)"></select></div>
+        <div class="filter-divider"></div>
+        <div class="select-group"><label>캠퍼스</label><select id="mainCampus" required onchange="filterTeachers('main', true)"></select></div>
+        <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
+        <div class="select-group" id="mainClassGroup"><label>반명</label><select id="mainClass" required></select></div>
+        
+        <!-- 🟢 1. 목록 박스 바로 옆에 조회/렌더링 버튼 밀착 (margin-left: 8px) + 색상 통일 (#495057)
+             🟢 2. 화면 우측 끝(margin-left: auto)에 [결과 저장], [일괄 인쇄] 버튼 분리 배치 -->
+        <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
+          <button class="btn-primary" style="background-color: #495057;" onclick="loadGradesData()">명단 불러오기</button>
+          <div style="margin-left: auto;">
+            <button class="btn-expand-action" style="background-color: #d32f2f;" onclick="saveGrades()" title="결과 저장">
+              <span class="btn-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              </span>
+              <span class="btn-text-wrap">결과 저장</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="actionBtn_report" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
+          <button class="btn-primary" style="background-color: #495057;" onclick="generateReports()">성적표 렌더링</button>
+          <div style="margin-left: auto;">
+            <button class="btn-expand-action" style="background-color: #333;" onclick="executePrint()" title="일괄 인쇄 (PDF)">
+              <span class="btn-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              </span>
+              <span class="btn-text-wrap">일괄 인쇄</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="actionBtn_data" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
+          <button class="btn-primary" style="background-color: #495057;" onclick="generateDashboard()">데이터 조회</button>
+        </div>
+      </div>
+
+      <div id="view_input">
+        <div class="table-wrapper" style="display: none;" id="inputTableContainer">
+          <table class="data-table">
+            <thead id="inputTableHeader"></thead>
+            <tbody id="inputTableBody"></tbody>
+          </table>
+          <div class="sticky-fab-bar" id="inputBottomControls" style="display: none;">
+            <button class="btn-roster-add-main" onclick="openAddStudentModal()"><span class="btn-icon-wrap">&plus;</span><span class="btn-text-wrap">학생추가</span></button>
+            <button class="btn-roster-delete-main" id="toggleDeleteBtn" onclick="toggleStudentDeleteMode()"><span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">학생삭제</span></button>
+          </div>
+        </div>
+
+        <div id="inputEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
+          상단의 조건을 확인하고 [명단 불러오기]를 눌러주세요.
+        </div>
+      </div>
+
+      <div id="view_report" style="display: none;">
+        <div class="report-container" id="reportContainer" style="display: none;"></div>
+        <div id="reportEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
+          반을 확인하고 [성적표 렌더링]을 누르면 성적표가 생성됩니다.
+        </div>
+      </div>
+
+      <!-- 🟢 데이터 확인 (Dashboard) 탭 고도화 UI: KPI 카드 4종 + 핵심 분석 차트 3종 -->
+      <div id="view_data" style="display: none;">
+        <div id="dashEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
+          과정을 확인하고 [데이터 조회]를 누르면 통합 데이터를 확인합니다.
+        </div>
+        <div id="dashContainer" style="display: none; flex-direction: column;">
+          <div class="dash-grid">
+            <div class="dash-card-basic">
+              <div class="dash-title">총 응시 인원</div>
+              <div class="dash-value" id="dashTotalStudents">0명</div>
+            </div>
+            <div class="dash-card-basic">
+              <div class="dash-title">통합 평균 점수</div>
+              <div class="dash-value" id="dashTotalAvg">0.0점</div>
+            </div>
+            <div class="dash-card-basic">
+              <div class="dash-title">최고 점수 (Top Score)</div>
+              <div class="dash-value" id="dashTopScore" style="color: #28a745;">0점</div>
+            </div>
+            <div class="dash-card-basic">
+              <div class="dash-title">90점 이상 고득점 비율</div>
+              <div class="dash-value" id="dashOver90Rate" style="color: #8b5cf6;">0%</div>
+            </div>
+          </div>
+          <div class="dash-grid">
+            <div class="dash-card-basic" style="flex: 1.2;">
+              <div class="dash-title">점수대별 인원 분포 (명)</div>
+              <div class="dash-chart-basic"><canvas id="dashScoreDistChart"></canvas></div>
+            </div>
+            <div class="dash-card-basic" style="flex: 1.2;">
+              <div class="dash-title" id="dashGroupTitle">캠퍼스별 / 반별 평균 점수 비교</div>
+              <div class="dash-chart-basic"><canvas id="dashGroupAvgChart"></canvas></div>
+            </div>
+          </div>
+          <div class="dash-grid">
+            <div class="dash-card-basic" style="flex: 1;">
+              <div class="dash-title">단원별 전체 정답률 분석 (%) - 취약 단원 파악</div>
+              <div class="dash-chart-basic" style="height: 260px;"><canvas id="dashUnitPctChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 관리자 화면 -->
+    <div id="page-admin" class="page-content">
+      <div class="filter-card admin-mode">
+        <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="checkExistingSetup()"></select></div>
+        <div class="select-group"><label>과정</label><select id="setupCourse" required onchange="checkExistingSetup()"></select></div>
+        <div class="filter-divider"></div>
+        <div class="select-group"><label>난이도</label><select id="setupLevel" required onchange="checkExistingSetup()"></select></div>
+        <div class="filter-divider"></div>
+        
+        <div class="select-group"><label>문항시작번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
+        <div class="select-group"><label>문항종료번호</label><input type="number" id="setupEndNum" value="45" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
+        
+        <button class="btn-primary" style="margin-left: 5px; background-color: #495057;" onclick="saveExamSetup()">시험 정보 저장</button>
+
+        <!-- 🟢 1. 학생명단 업로드 버튼: 텍스트 앞 심플 획(Stroke) 업로드 화살표 SVG 아이콘 추가
+             🟢 2. 필수 환경설정 버튼: 버튼명 '필수 환경설정' 변경 및 헤더 동일 톱니바퀴 SVG 아이콘(16px / stroke-width="2") 적용 -->
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+          <button class="btn-primary" style="background-color: #28a745;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            학생명단 업로드
+          </button>
+          <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22-.38a2 2 0 0 0 2.73-.73l-.15-.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            필수 환경설정
+          </button>
+        </div>
+      </div>
+
+      <div class="paste-zone" id="hwpPasteZone">
+        <h4 style="margin-top: 0; color: #495057; margin-bottom: 8px;">📄 엑셀/한글 출제표 복사-붙여넣기 영역</h4>
+        <p style="color: #666; margin-bottom: 0; font-size: 13px;">답지 표(단원명, 배점)를 복사한 후 이곳을 클릭하고 <b>Ctrl + V</b>를 누르세요. 자동으로 매핑됩니다.</p>
+        <input type="text" id="pasteCatcher" style="opacity: 0; position: absolute; pointer-events: none;">
+      </div>
+
+      <!-- 🟢 표 머릿글 이름 변경: 문항 배점, 난이도 (자동입력) -->
+      <div class="table-wrapper">
+        <table class="data-table" style="text-align: left;">
+          <thead>
+            <tr><th class="admin-sticky-top bg-gray" width="8%" style="text-align: center;">문항번호</th><th class="admin-sticky-top bg-gray" width="42%" style="text-align: center;">출제 단원명</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">문항 배점</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">난이도 (자동입력)</th><th class="admin-sticky-top bg-gray" width="10%" style="text-align: center;">상태</th></tr>
+          </thead>
+          <tbody id="setupTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let globalData = { settings: {}, setups: [], rosters: [] };
+    let currentExamSetup = null;
+    let chartInstances = []; 
+    let dashChartInstances = [];
+    let currentStudentsCount = 0; 
+    let currentStudentsList = [];
+    let pendingNextStudentIdx = -1;
+    let currentGlobalOtherScores = []; 
+    let isDeleteMode = false;
+    
+    let lastSelectedCampus = ""; 
+    let lastSelectedCourse = "";
+    let confirmCallback = null;
+    let cancelCallback = null;
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        const nextModal = document.getElementById('nextStudentModal');
+        const alertModal = document.getElementById('customAlertModal');
+        const settingsModal = document.getElementById('settingsModal');
+        const confirmModal = document.getElementById('customConfirmModal');
+        const addModal = document.getElementById('addStudentModal');
+
+        if (settingsModal && settingsModal.style.display === 'flex') return;
+        if (addModal && addModal.style.display === 'flex') {
+          e.preventDefault();
+          saveNewStudent();
+          return;
+        }
+
+        if (nextModal && nextModal.style.display === 'flex') {
+          e.preventDefault();
+          confirmNextStudent();
+        } else if (confirmModal && confirmModal.style.display === 'flex') {
+          e.preventDefault();
+          closeConfirm(true);
+        } else if (alertModal && alertModal.style.display === 'flex') {
+          e.preventDefault();
+          alertModal.style.display = 'none';
+        }
+      }
     });
-  }
 
-  let setups = [];
-  let setupSheet = ss.getSheetByName("시험세팅");
-  if (setupSheet && setupSheet.getLastRow() > 1) {
-    const sData = setupSheet.getDataRange().getValues();
-    for (let i = 1; i < sData.length; i++) {
-      if (sData[i][0]) setups.push({ term: String(sData[i][0]), test: String(sData[i][1]), course: String(sData[i][2]) + " " + String(sData[i][3]) });
+    function showAlert(msg) { document.getElementById('modalMessage').innerHTML = `<div style="margin: 25px 0;">${msg}</div>`; document.getElementById('customAlertModal').style.display = 'flex'; }
+    function showLoading(status, msg = "처리 중입니다...") { document.getElementById('spinnerText').innerText = msg; document.getElementById('globalSpinner').style.display = status ? 'flex' : 'none'; }
+    function handleError(err) { showLoading(false); showAlert("🚫 에러 발생: " + err.message); }
+
+    function showConfirmModal(msg, onConfirm, onCancel) {
+      document.getElementById('confirmMessage').innerHTML = msg;
+      document.getElementById('customConfirmModal').style.display = 'flex';
+      confirmCallback = onConfirm;
+      cancelCallback = onCancel;
     }
-  }
-
-  let rosters = [];
-  settings.terms.forEach(termName => {
-    let rosterSheetName = termName + " 명단";
-    let rosterSheet = ss.getSheetByName(rosterSheetName);
-    if (rosterSheet && rosterSheet.getLastRow() > 1) {
-      const rData = rosterSheet.getDataRange().getValues();
-      for (let i = 1; i < rData.length; i++) {
-        if (rData[i][0]) {
-          rosters.push({ term: String(rData[i][0]), test: String(rData[i][1]), campus: String(rData[i][2]), teacher: String(rData[i][3]), className: String(rData[i][4]) });
-        }
-      }
+    function closeConfirm(isConfirmed) {
+      document.getElementById('customConfirmModal').style.display = 'none';
+      if (isConfirmed && confirmCallback) confirmCallback();
+      else if (!isConfirmed && cancelCallback) cancelCallback();
     }
-  });
 
-  return { settings: settings, setups: setups, rosters: rosters };
-}
-
-// -------------------------------------------------------------
-// 명단 업로드 및 신규 학생 추가/삭제
-// -------------------------------------------------------------
-function uploadRoster(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let rosterSheetName = payload.term + " 명단"; 
-  let rosterSheet = ss.getSheetByName(rosterSheetName);
-  
-  if (!rosterSheet) rosterSheet = ss.insertSheet(rosterSheetName);
-  
-  if (rosterSheet.getLastRow() === 0) {
-    const rosterHeaders = ["학기명", "테스트명", "캠퍼스명", "담임명", "반명", "학생명", "학교명", "학년"];
-    rosterSheet.appendRow(rosterHeaders);
-    rosterSheet.getRange(1, 1, 1, rosterHeaders.length).setBackground("#6c757d").setFontColor("white").setFontWeight("bold").setHorizontalAlignment("center");
-    rosterSheet.setFrozenRows(1);
-  }
-  
-  const lastRow = rosterSheet.getLastRow();
-  let rowsToDelete = [];
-  if (lastRow > 1) {
-    const data = rosterSheet.getRange(2, 1, lastRow - 1, 3).getValues();
-    for (let i = data.length - 1; i >= 0; i--) {
-      if (String(data[i][0]).trim() === payload.term && String(data[i][1]).trim() === payload.test && String(data[i][2]).trim() === payload.campus) {
-        rowsToDelete.push(i + 2); 
-      }
+    function getTermAndTest(prefix) {
+      const val = document.getElementById(`${prefix}CombinedTest`)?.value;
+      if (!val || val.includes("선택하세요")) return { term: null, test: null };
+      const parts = val.split('|');
+      return { term: parts[0], test: parts[1] };
     }
-  }
-  rowsToDelete.forEach(r => rosterSheet.deleteRow(r));
-  
-  rosterSheet.getRange(rosterSheet.getLastRow() + 1, 1, payload.students.length, payload.students[0].length).setValues(payload.students);
-  
-  SpreadsheetApp.flush(); 
-  sortAllSheets(); 
-  return true;
-}
 
-function addStudentToRoster(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let rosterSheetName = payload.term + " 명단";
-  let rosterSheet = ss.getSheetByName(rosterSheetName);
-  if (!rosterSheet) throw new Error("해당 학기의 명단 시트가 존재하지 않습니다. 먼저 명단을 업로드해 주세요.");
-  
-  const record = [
-    payload.term,
-    payload.test,
-    payload.campus,
-    payload.teacher,
-    payload.className,
-    payload.name,
-    payload.school || "",
-    payload.grade || ""
-  ];
-  rosterSheet.appendRow(record);
-  SpreadsheetApp.flush();
-  return true;
-}
+    function switchNav(navId) {
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`button[onclick="switchNav('${navId}')"]`).classList.add('active');
 
-function deleteStudentFromRoster(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let rosterSheetName = payload.term + " 명단";
-  let rosterSheet = ss.getSheetByName(rosterSheetName);
-  if (!rosterSheet) throw new Error("명단 시트를 찾을 수 없습니다.");
-  
-  let rData = rosterSheet.getDataRange().getValues();
-  for (let i = rData.length - 1; i >= 1; i--) {
-    if (String(rData[i][1]).trim() === payload.test &&
-        String(rData[i][2]).trim() === payload.campus &&
-        String(rData[i][3]).trim() === payload.teacher &&
-        String(rData[i][4]).trim() === payload.className &&
-        String(rData[i][5]).trim() === payload.name) {
-      rosterSheet.deleteRow(i + 1);
-    }
-  }
-  
-  let dbSheetName = payload.term + " 성적DB";
-  let dbSheet = ss.getSheetByName(dbSheetName);
-  if (dbSheet && dbSheet.getLastRow() > 1) {
-    let dbData = dbSheet.getDataRange().getValues();
-    for (let i = dbData.length - 1; i >= 1; i--) {
-      if (String(dbData[i][2]).trim() === payload.test &&
-          String(dbData[i][3]).trim() === payload.campus &&
-          String(dbData[i][5]).trim() === payload.teacher &&
-          String(dbData[i][6]).trim() === payload.className &&
-          String(dbData[i][7]).trim() === payload.name) {
-        dbSheet.deleteRow(i + 1);
-      }
-    }
-  }
-  
-  SpreadsheetApp.flush();
-  return true;
-}
-
-// -------------------------------------------------------------
-// 시험 세팅
-// -------------------------------------------------------------
-function getExamSetup(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const setupSheet = ss.getSheetByName("시험세팅");
-  if (!setupSheet || setupSheet.getLastRow() < 2) return null;
-
-  const data = setupSheet.getDataRange().getValues();
-  for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]) === payload.term && String(data[i][1]) === payload.test && String(data[i][2]) === payload.level && String(data[i][3]) === payload.course) {
-      if(data[i][6]) return { totalCount: data[i][4], startNum: data[i][5], items: JSON.parse(data[i][6]).items };
-    }
-  }
-  return null;
-}
-
-function saveExamSetup(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let setupSheet = ss.getSheetByName("시험세팅");
-  if (!setupSheet) setupSheet = ss.insertSheet("시험세팅");
-
-  if (setupSheet.getLastRow() === 0) {
-    const setupHeaders = ["학기", "테스트", "난이도", "과정명", "문항수", "시작번호", "문항데이터(JSON압축)", "생성일시"];
-    setupSheet.appendRow(setupHeaders);
-    setupSheet.getRange(1, 1, 1, setupHeaders.length).setBackground("#28a745").setFontColor("white").setFontWeight("bold").setHorizontalAlignment("center");
-    setupSheet.setFrozenRows(1); setupSheet.setColumnWidth(7, 300);
-  }
-
-  const itemsJson = JSON.stringify({ items: payload.items }); 
-
-  let targetRow = -1;
-  const data = setupSheet.getDataRange().getValues();
-  for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]) === payload.term && String(data[i][1]) === payload.test && String(data[i][2]) === payload.level && String(data[i][3]) === payload.course) {
-      targetRow = i + 1; break; 
-    }
-  }
-
-  const record = [payload.term, payload.test, payload.level, payload.course, payload.totalCount, payload.startNum, itemsJson, new Date()];
-  if (targetRow !== -1) setupSheet.getRange(targetRow, 1, 1, record.length).setValues([record]);
-  else setupSheet.appendRow(record);
-  
-  SpreadsheetApp.flush(); 
-  sortAllSheets();
-  return true;
-}
-
-// -------------------------------------------------------------
-// 채점 입력 로드
-// -------------------------------------------------------------
-function loadInputWorkflow(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const setupSheet = ss.getSheetByName("시험세팅");
-  let rosterSheetName = payload.term + " 명단";
-  const rosterSheet = ss.getSheetByName(rosterSheetName);
-  let dbSheetName = payload.term + " 성적DB";
-  const dbSheet = ss.getSheetByName(dbSheetName);
-  
-  if (!setupSheet || !rosterSheet) throw new Error("시험 세팅 또는 명단이 없습니다.");
-  
-  let setupData = null;
-  const sData = setupSheet.getDataRange().getValues();
-  for (let i = 1; i < sData.length; i++) {
-    if (sData[i][0] === payload.term && sData[i][1] === payload.test && sData[i][2] + " " + sData[i][3] === payload.course) {
-      setupData = { totalCount: sData[i][4], startNum: sData[i][5], items: JSON.parse(sData[i][6]).items }; break;
-    }
-  }
-  if (!setupData) throw new Error("해당 조건의 시험 세팅 정보가 없습니다.");
-
-  let rosterStudents = [];
-  const rData = rosterSheet.getDataRange().getValues();
-  for (let i = 1; i < rData.length; i++) {
-    if (String(rData[i][1]).trim() === payload.test && String(rData[i][2]).trim() === payload.campus && String(rData[i][3]).trim() === payload.teacher && String(rData[i][4]).trim() === payload.className) {
-      rosterStudents.push({
-        name: String(rData[i][5]).trim(),
-        school: String(rData[i][6] || '').trim(),
-        grade: String(rData[i][7] || '').trim()
+      ['input', 'report', 'data'].forEach(id => {
+          document.getElementById(`actionBtn_${id}`).style.display = 'none';
+          document.getElementById(`view_${id}`).style.display = 'none';
       });
-    }
-  }
-  rosterStudents.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+      document.getElementById(`actionBtn_${navId}`).style.display = 'flex';
+      document.getElementById(`view_${navId}`).style.display = 'flex';
 
-  let grades = [];
-  let globalOtherScores = [];
-
-  if (dbSheet && dbSheet.getLastRow() > 1) {
-    const dbData = dbSheet.getDataRange().getValues();
-    for (let i = 1; i < dbData.length; i++) {
-      if (String(dbData[i][1]) === payload.term && String(dbData[i][2]) === payload.test && String(dbData[i][3]) === payload.campus && String(dbData[i][4]) === payload.course && String(dbData[i][5]) === payload.teacher && String(dbData[i][6]) === payload.className) {
-        let g = { name: String(dbData[i][7]).trim(), totalScore: dbData[i][10], rank: dbData[i][11], answers: {} };
-        for (let c = 0; c < setupData.totalCount; c++) {
-          let qNum = setupData.startNum + c;
-          g.answers[qNum] = dbData[i][11 + qNum] || ""; 
-        }
-        grades.push(g);
-      } 
-      else if (String(dbData[i][1]) === payload.term && String(dbData[i][2]) === payload.test && String(dbData[i][4]) === payload.course) {
-        globalOtherScores.push(parseInt(dbData[i][10]) || 0);
-      }
-    }
-  }
-
-  return { setupData: setupData, students: rosterStudents, grades: grades, globalOtherScores: globalOtherScores };
-}
-
-// -------------------------------------------------------------
-// 성적 저장
-// -------------------------------------------------------------
-function saveStudentGrades(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let dbSheetName = payload.term + " 성적DB"; 
-  let dbSheet = ss.getSheetByName(dbSheetName);
-  if (!dbSheet) {
-    dbSheet = ss.insertSheet(dbSheetName);
-    let dbHeaders = ["입력일시", "학기", "테스트", "캠퍼스", "과정", "담임명", "반명", "학생명", "학교", "학년", "총점", "석차"];
-    for (let i = 1; i <= 100; i++) dbHeaders.push(i + "번");
-    dbSheet.appendRow(dbHeaders);
-    dbSheet.getRange(1, 1, 1, dbHeaders.length).setBackground("#1a3978").setFontColor("white").setFontWeight("bold").setHorizontalAlignment("center");
-    dbSheet.setFrozenRows(1); dbSheet.setFrozenColumns(8);
-  } else {
-    if (dbSheet.getLastRow() >= 1) {
-      let headerL = dbSheet.getRange(1, 12).getValue();
-      if (headerL !== "석차") {
-        dbSheet.insertColumnAfter(11);
-        dbSheet.getRange(1, 12).setValue("석차").setBackground("#1a3978").setFontColor("white").setFontWeight("bold").setHorizontalAlignment("center");
-      }
-    }
-  }
-  
-  let rowsToDelete = [];
-  const existingData = dbSheet.getDataRange().getValues();
-  for (let i = existingData.length - 1; i >= 1; i--) {
-    if (String(existingData[i][1]) === payload.term && String(existingData[i][2]) === payload.test && String(existingData[i][3]) === payload.campus && String(existingData[i][4]) === payload.course && String(existingData[i][5]) === payload.teacher && String(existingData[i][6]) === payload.className) {
-      rowsToDelete.push(i + 1);
-    }
-  }
-  rowsToDelete.forEach(r => dbSheet.deleteRow(r));
-
-  let records = [];
-  const maxCols = dbSheet.getMaxColumns(); 
-  payload.students.forEach(st => {
-    let row = new Array(maxCols).fill(""); 
-    row[0] = new Date(); row[1] = payload.term; row[2] = payload.test; row[3] = payload.campus; row[4] = payload.course; 
-    row[5] = payload.teacher; row[6] = payload.className; row[7] = st.name; 
-    row[8] = st.school || ""; 
-    row[9] = st.grade || "";
-    row[10] = st.totalScore;
-    row[11] = st.rank || "";
-    for (let qNum in st.answers) {
-       let colIndex = 11 + parseInt(qNum); 
-       if (colIndex < maxCols) row[colIndex] = st.answers[qNum];
-    }
-    records.push(row);
-  });
-
-  if (records.length > 0) {
-      dbSheet.getRange(dbSheet.getLastRow() + 1, 1, records.length, maxCols).setValues(records);
+      const mainCampus = document.getElementById('mainCampus');
+      const mainCourse = document.getElementById('mainCourse');
       
-      dbSheet.getRange(2, 1, dbSheet.getLastRow() - 1, maxCols).sort([
-          {column: 2, ascending: true}, 
-          {column: 3, ascending: true}, 
-          {column: 4, ascending: true}, 
-          {column: 5, ascending: true}, 
-          {column: 6, ascending: true}, 
-          {column: 7, ascending: true}, 
-          {column: 8, ascending: true}  
-      ]);
-  }
-  
-  SpreadsheetApp.flush(); 
-  sortAllSheets();
-  return true;
-}
-
-// -------------------------------------------------------------
-// 🟢 성적표 데이터 조회 (5단계 난이도 체계: "최하" 추가 적용)
-// -------------------------------------------------------------
-function getReportData(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const setupSheet = ss.getSheetByName("시험세팅");
-  let dbSheetName = payload.term + " 성적DB";
-  const dbSheet = ss.getSheetByName(dbSheetName);
-
-  if (!setupSheet || !dbSheet) throw new Error("DB 시트가 없습니다.");
-
-  let setupData = null;
-  const sData = setupSheet.getDataRange().getValues();
-  for (let i = 1; i < sData.length; i++) {
-    if (sData[i][0] === payload.term && sData[i][1] === payload.test && sData[i][2] + " " + sData[i][3] === payload.course) {
-      setupData = { totalCount: sData[i][4], startNum: sData[i][5], items: JSON.parse(sData[i][6]).items }; break;
+      if (navId === 'data') {
+        document.getElementById('mainTeacherGroup').style.display = 'none';
+        document.getElementById('mainClassGroup').style.display = 'none';
+        
+        if (!mainCourse.querySelector('option[value="전체"]')) {
+           lastSelectedCourse = mainCourse.value;
+           mainCourse.insertAdjacentHTML('afterbegin', '<option value="전체" style="color:#333;">전체 (All)</option>');
+           mainCourse.value = "전체";
+        }
+        if (!mainCampus.querySelector('option[value="전체"]')) {
+           lastSelectedCampus = mainCampus.value; 
+           mainCampus.insertAdjacentHTML('afterbegin', '<option value="전체" style="color:#333;">전체 (All)</option>');
+           mainCampus.value = "전체";
+        }
+      } else {
+        document.getElementById('mainTeacherGroup').style.display = 'flex';
+        document.getElementById('mainClassGroup').style.display = 'flex';
+        
+        let optAllCourse = mainCourse.querySelector('option[value="전체"]');
+        if(optAllCourse) {
+            optAllCourse.remove();
+            mainCourse.value = lastSelectedCourse || (mainCourse.options[1] ? mainCourse.options[1].value : ""); 
+        }
+        let optAllCampus = mainCampus.querySelector('option[value="전체"]');
+        if(optAllCampus) {
+            optAllCampus.remove();
+            mainCampus.value = lastSelectedCampus || (mainCampus.options[1] ? mainCampus.options[1].value : ""); 
+        }
+      }
     }
-  }
-  if (!setupData) throw new Error("시험 세팅 정보가 없습니다.");
 
-  // 🟢 5단계 난이도 맵 구성
-  let unitsMap = {}; 
-  let diffsMap = { "최하":0, "하":0, "중":0, "상":0, "최상":0 };
-  
-  setupData.items.forEach(item => {
-    let u = item.unit || "미지정";
-    if (!unitsMap[u]) unitsMap[u] = 0;
-    unitsMap[u] += item.score;
-    if (diffsMap[item.diff] !== undefined) diffsMap[item.diff] += item.score;
-  });
-  let unitNames = Object.keys(unitsMap);
+    function switchPage(pageId) {
+      document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      
+      const adminBtn = document.getElementById('headerAdminBtn');
+      const mainBtn = document.getElementById('headerMainBtn');
+      const headerTitle = document.getElementById('mainHeaderTitle');
+      const navTabs = document.getElementById('navTabs');
 
-  let allStudents = [], totalSum = 0;
-  const dbData = dbSheet.getDataRange().getValues();
-  
-  for (let i = 1; i < dbData.length; i++) {
-    if (String(dbData[i][1]) === payload.term && String(dbData[i][2]) === payload.test && String(dbData[i][4]) === payload.course) {
-      let st = {
-        campus: String(dbData[i][3]).trim(),
-        teacher: String(dbData[i][5]).trim(), className: String(dbData[i][6]).trim(), name: String(dbData[i][7]).trim(),
-        totalScore: parseInt(dbData[i][10]) || 0, unitScores: {}, diffScores: { "최하":0, "하":0, "중":0, "상":0, "최상":0 }
+      if (pageId === 'page-main') {
+        adminBtn.style.display = 'flex';
+        mainBtn.style.display = 'none';
+        navTabs.style.display = 'flex';
+        headerTitle.innerHTML = `<img src="https://i.imgur.com/PQRrCSI.png" alt="로고"> 성적표 통합 시스템`;
+      } else {
+        adminBtn.style.display = 'none';
+        mainBtn.style.display = 'flex';
+        navTabs.style.display = 'none';
+        headerTitle.innerHTML = `<img src="https://i.imgur.com/PQRrCSI.png" alt="로고"> 시험 기본 세팅 (관리자)`;
+      }
+    }
+
+    window.onload = function() { fetchMetadata(); renderSetupTable(); };
+
+    function fetchMetadata(silent = false, preserveState = false) {
+      const url = document.getElementById('backendUrl').value.trim();
+      if (url.includes('YOUR_GAS_ID_HERE')) return;
+      if(!silent) showLoading(true, "시스템 로딩 중...");
+      fetch(url, { method: 'POST', body: JSON.stringify({ action: 'getDropdownData' }) })
+      .then(res => res.json()).then(res => {
+        if(!silent) showLoading(false);
+        if(res.success) { 
+            globalData = res.data; 
+            populateSettingsAndDropdowns(preserveState); 
+        } else { showAlert("에러: " + res.error); }
+      }).catch(handleError);
+    }
+
+    function openSettingsModal() { renderSettingsGrid(); document.getElementById('settingsModal').style.display = 'flex'; }
+    
+    function renderSettingsGrid() {
+      const tbody = document.getElementById('settingsGridBody'); tbody.innerHTML = ''; const s = globalData.settings;
+      const maxLen = Math.max(15, (s.campuses||[]).length+1, (s.terms||[]).length+1, (s.tests||[]).length+1, (s.levels||[]).length+1, (s.courses||[]).length+1);
+      for(let i=0; i<maxLen; i++) appendSettingsRow((s.campuses||[])[i] || '', (s.terms||[])[i] || '', (s.tests||[])[i] || '', (s.levels||[])[i] || '', (s.courses||[])[i] || '');
+    }
+    
+    function appendSettingsRow(c='', t='', ts='', l='', cr='') {
+      const tbody = document.getElementById('settingsGridBody'); const tr = document.createElement('tr');
+      tr.innerHTML = `<td><input type="text" class="set-input set-campus" value="${c}" onkeydown="handleSettingsKeydown(event, this, 0)"></td><td><input type="text" class="set-input set-term" value="${t}" onkeydown="handleSettingsKeydown(event, this, 1)"></td><td><input type="text" class="set-input set-test" value="${ts}" onkeydown="handleSettingsKeydown(event, this, 2)"></td><td><input type="text" class="set-input set-level" value="${l}" onkeydown="handleSettingsKeydown(event, this, 3)"></td><td style="border-right: none;"><input type="text" class="set-input set-course" value="${cr}" onkeydown="handleSettingsKeydown(event, this, 4)"></td>`;
+      tbody.appendChild(tr);
+    }
+    
+    function handleSettingsKeydown(e, input, colIdx) {
+      const tr = input.closest('tr'); const tbody = tr.parentElement; const rows = Array.from(tbody.children); const rowIdx = rows.indexOf(tr);
+      let nextInput = null;
+      if (e.key === "Enter" || e.key === "ArrowDown") {
+        e.preventDefault();
+        if (rowIdx < rows.length - 1) { nextInput = rows[rowIdx + 1].querySelectorAll('.set-input')[colIdx]; } 
+        else if (input.value.trim() !== '') { appendSettingsRow(); nextInput = rows[rowIdx + 1].querySelectorAll('.set-input')[colIdx]; tbody.parentElement.parentElement.scrollTop = tbody.parentElement.parentElement.scrollHeight; }
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault(); if (rowIdx > 0) nextInput = rows[rowIdx - 1].querySelectorAll('.set-input')[colIdx];
+      } else if (e.key === "ArrowRight" && input.selectionStart === input.value.length) {
+        e.preventDefault(); if (colIdx < 4) nextInput = tr.querySelectorAll('.set-input')[colIdx + 1];
+      } else if (e.key === "ArrowLeft" && input.selectionEnd === 0) {
+        e.preventDefault(); if (colIdx > 0) nextInput = tr.querySelectorAll('.set-input')[colIdx - 1];
+      }
+      if (nextInput) nextInput.focus();
+    }
+
+    function saveSettings() {
+      const extract = (className) => Array.from(document.querySelectorAll(className)).map(i => i.value.trim()).filter(v => v);
+      const payload = { action: 'saveSettings', campuses: extract('.set-campus'), terms: extract('.set-term'), tests: extract('.set-test'), levels: extract('.set-level'), courses: extract('.set-course') };
+      
+      if(payload.campuses.length === 0 || payload.terms.length === 0 || payload.tests.length === 0) return showAlert("캠퍼스, 학기, 테스트 목록은 최소 1개 이상 입력해야 합니다.");
+      
+      showLoading(true, "환경설정 저장 중...");
+      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify(payload) }).then(res => res.json()).then(res => {
+        if(res.success) { 
+           document.getElementById('settingsModal').style.display = 'none'; 
+           fetchMetadata(true); 
+           showLoading(false); 
+           showAlert("✔ 설정 저장 완료!"); 
+        } else { showLoading(false); showAlert("에러: " + res.error); }
+      }).catch(handleError);
+    }
+
+    function populateSettingsAndDropdowns(preserveState = false) {
+      const s = globalData.settings;
+      
+      let prevAdminTest = document.getElementById('setupCombinedTest')?.value;
+      let prevAdminLevel = document.getElementById('setupLevel')?.value;
+      let prevAdminCourse = document.getElementById('setupCourse')?.value;
+      
+      const fillSelect = (id, arr, placeholder) => { 
+        let el = document.getElementById(id); if(!el) return; 
+        el.innerHTML = `<option value="" disabled selected hidden>${placeholder}</option>`; 
+        (arr||[]).forEach(val => el.innerHTML += `<option value="${val}" style="color:#333;">${val}</option>`); 
       };
-      unitNames.forEach(u => st.unitScores[u] = 0);
+      
+      let combinedArr = [];
+      if (s.terms && s.tests) {
+         s.terms.forEach(term => {
+            s.tests.forEach(test => {
+                combinedArr.push(`${term}|${test}`);
+            });
+         });
+      }
+      
+      const fillCombinedSelect = (id, placeholder) => {
+        let el = document.getElementById(id); if(!el) return; 
+        el.innerHTML = `<option value="" disabled selected hidden>${placeholder}</option>`; 
+        combinedArr.forEach(val => {
+            let parts = val.split('|');
+            el.innerHTML += `<option value="${val}" style="color:#333;">${parts[0]} ${parts[1]}</option>`;
+        });
+      }
 
-      setupData.items.forEach(item => {
-        let cIndex = 11 + item.num; 
-        let val = dbData[i][cIndex];
-        if (['O','o','ㅇ'].includes(val)) {
-          st.unitScores[item.unit || "미지정"] += item.score;
-          if (st.diffScores[item.diff] !== undefined) st.diffScores[item.diff] += item.score;
+      fillCombinedSelect('setupCombinedTest', '테스트 선택');
+      fillSelect('setupLevel', s.levels, '난이도 선택'); 
+      fillSelect('setupCourse', s.courses, '과정 선택'); 
+      
+      fillCombinedSelect('rosterCombinedTest', '테스트 (학기+테스트)');
+      fillSelect('rosterCampus', s.campuses, '캠퍼스 선택');
+      
+      fillCombinedSelect('mainCombinedTest', '테스트 선택');
+      
+      if (preserveState) {
+          if (prevAdminTest && document.getElementById('setupCombinedTest').querySelector(`option[value="${prevAdminTest}"]`)) document.getElementById('setupCombinedTest').value = prevAdminTest;
+          if (prevAdminLevel && document.getElementById('setupLevel').querySelector(`option[value="${prevAdminLevel}"]`)) document.getElementById('setupLevel').value = prevAdminLevel;
+          if (prevAdminCourse && document.getElementById('setupCourse').querySelector(`option[value="${prevAdminCourse}"]`)) document.getElementById('setupCourse').value = prevAdminCourse;
+      } else {
+          document.getElementById('setupCombinedTest').value = "";
+          document.getElementById('mainCombinedTest').value = "";
+          filterCourses('main', true); 
+      }
+    }
+
+    const dropZone = document.getElementById('dropZone'); const fileInput = document.getElementById('fileInput');
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#e6f0ff'; });
+    dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#fff'; });
+    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.backgroundColor = '#fff'; if (e.dataTransfer.files.length) processExcel(e.dataTransfer.files[0]); });
+    fileInput.addEventListener('change', (e) => { if (e.target.files.length) processExcel(e.target.files[0]); });
+
+    function processExcel(file) {
+      showLoading(true, "분석 중...");
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          let data = new Uint8Array(e.target.result), workbook = XLSX.read(data, {type: 'array'}), worksheet = workbook.Sheets[workbook.SheetNames[0]], jsonArr = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+          let headerRowIdx = -1, colMap = { ban: -1, name: -1, school: -1, grade: -1, teacher: -1 };
+
+          for (let i = 0; i < Math.min(20, jsonArr.length); i++) {
+            let row = jsonArr[i]; if (!row) continue;
+            let strRow = row.map(cell => String(cell || '').replace(/\s+/g, '')).join(',');
+            if (strRow.includes('반명') && strRow.includes('학생명')) {
+              headerRowIdx = i;
+              for (let c = 0; c < row.length; c++) {
+                let h = String(row[c] || '').replace(/\s+/g, '');
+                if (h === '반명') colMap.ban = c; 
+                else if (h === '학생명') colMap.name = c; 
+                else if (h === '학교명') colMap.school = c; 
+                else if (h === '학교' && colMap.school === -1) colMap.school = c; 
+                else if (h === '학년') colMap.grade = c; 
+                else if (h === '담임' || h === '담임명') colMap.teacher = c;
+              } break;
+            }
+          }
+          if (headerRowIdx === -1 || colMap.ban === -1 || colMap.name === -1) throw new Error("머릿글(반명, 학생명)을 찾을 수 없습니다.");
+
+          let tt = getTermAndTest('roster');
+          let termName = tt.term; let testName = tt.test;
+          let campusName = document.getElementById('rosterCampus').value;
+          
+          if (!termName || !testName || !campusName) throw new Error("위쪽 팝업에서 테스트와 캠퍼스를 모두 선택해주세요.");
+
+          let parsedStudents = [];
+          for (let i = headerRowIdx + 1; i < jsonArr.length; i++) {
+            let row = jsonArr[i]; if (!row || row.length === 0) continue;
+            let ban = String(row[colMap.ban] || '').trim();
+            let name = String(row[colMap.name] || '').replace(/\([^)]*\)/g, '').trim(); 
+            if (!ban || !name) continue; 
+            let school = colMap.school !== -1 ? String(row[colMap.school] || '').trim() : '', grade = colMap.grade !== -1 ? String(row[colMap.grade] || '').trim() : '', teacher = colMap.teacher !== -1 ? String(row[colMap.teacher] || '').trim() : '';
+            parsedStudents.push([termName, testName, campusName, teacher, ban, name, school, grade]);
+          }
+          if(parsedStudents.length === 0) throw new Error("데이터가 없습니다.");
+
+          let isDuplicate = globalData.rosters.some(r => r.term === termName && r.test === testName && r.campus === campusName);
+          const executeUpload = () => {
+            showLoading(true, "저장 중...");
+            fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'uploadRoster', term: termName, test: testName, campus: campusName, students: parsedStudents }) })
+            .then(res => res.json()).then(result => {
+              showLoading(false); document.getElementById('fileInput').value = '';
+              if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showAlert(`✔ 업로드 완료!`); fetchMetadata(true, true); } else { showAlert("Error: " + result.error); }
+            }).catch(err => { document.getElementById('fileInput').value = ''; handleError(err); });
+          };
+
+          if (isDuplicate) { showLoading(false); setTimeout(() => { if (confirm(`해당 테스트의 명단이 이미 있습니다.\n기존 명단을 삭제하고 새로 덮어쓰시겠습니까?`)) executeUpload(); else document.getElementById('fileInput').value = ''; }, 50); 
+          } else { executeUpload(); }
+        } catch (err) { showLoading(false); document.getElementById('fileInput').value = ''; showAlert("Error: " + err.message); }
+      }; reader.readAsArrayBuffer(file);
+    }
+
+    function filterCourses(prefix, forceReset = false) {
+      const tt = getTermAndTest(prefix);
+      const term = tt.term; const test = tt.test;
+      const sel = document.getElementById(`${prefix}Course`); 
+      if(!sel) return;
+      const prevVal = forceReset ? "" : sel.value;
+      
+      const isDataMode = (document.getElementById('view_data')?.style.display === 'flex');
+      let optionsHtml = isDataMode ? '<option value="전체" style="color:#333;">전체 (All)</option>' : `<option value="" disabled selected hidden>과정 선택</option>`;
+      
+      if(term && test) { 
+        let courses = [...new Set(globalData.setups.filter(s => s.term === term && s.test === test).map(s => s.course))].sort(); 
+        courses.forEach(c => optionsHtml += `<option value="${c}" style="color:#333;">${c}</option>`); 
+      }
+      sel.innerHTML = optionsHtml;
+      if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
+      else sel.value = isDataMode ? "전체" : "";
+      
+      filterCampuses(prefix, forceReset);
+    }
+    
+    function filterCampuses(prefix, forceReset = false) {
+      const tt = getTermAndTest(prefix);
+      const term = tt.term; const test = tt.test;
+      const sel = document.getElementById(`${prefix}Campus`);
+      if(!sel) return;
+      
+      const prevVal = forceReset ? "" : sel.value;
+      const keepAll = sel.querySelector('option[value="전체"]');
+      let optionsHtml = keepAll ? '<option value="전체" style="color:#333;">전체 (All)</option>' : `<option value="" disabled selected hidden>캠퍼스 선택</option>`;
+      
+      if(term && test) { 
+        let campuses = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test).map(r => r.campus))].sort(); 
+        campuses.forEach(c => optionsHtml += `<option value="${c}" style="color:#333;">${c}</option>`); 
+      }
+      sel.innerHTML = optionsHtml;
+      if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
+      else sel.value = keepAll ? "전체" : "";
+      
+      filterTeachers(prefix, forceReset);
+    }
+
+    function filterTeachers(prefix, forceReset = false) {
+      const tt = getTermAndTest(prefix);
+      const term = tt.term; const test = tt.test;
+      const campus = document.getElementById(`${prefix}Campus`)?.value;
+      const sel = document.getElementById(`${prefix}Teacher`);
+      if(!sel) return; 
+      const prevVal = forceReset ? "" : sel.value;
+      sel.innerHTML = `<option value="" disabled selected hidden>선생님 선택</option>`;
+      
+      if(term && test && campus && campus !== "전체") { 
+        let teachers = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus).map(r => r.teacher))].sort(); 
+        teachers.forEach(t => sel.innerHTML += `<option value="${t}" style="color:#333;">${t}</option>`); 
+      }
+      if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
+      else sel.value = "";
+      
+      filterClasses(prefix, forceReset);
+    }
+
+    function filterClasses(prefix, forceReset = false) {
+      const tt = getTermAndTest(prefix);
+      const term = tt.term; const test = tt.test;
+      const campus = document.getElementById(`${prefix}Campus`)?.value;
+      const teacher = document.getElementById(`${prefix}Teacher`)?.value;
+      const sel = document.getElementById(`${prefix}Class`);
+      if(!sel) return; 
+      const prevVal = forceReset ? "" : sel.value;
+      sel.innerHTML = `<option value="" disabled selected hidden>반 선택</option>`;
+      
+      if(term && test && campus && teacher) { 
+        let classes = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus && r.teacher === teacher).map(r => r.className))].sort(); 
+        classes.forEach(c => sel.innerHTML += `<option value="${c}" style="color:#333;">${c}</option>`); 
+      }
+      if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
+      else sel.value = "";
+    }
+
+    /* 🟢 1. 2,3,4,5 Placeholder 삭제 및 min="1" max="5" 입력 제한 적용 */
+    function renderSetupTable() {
+      const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
+      const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
+      const totalCount = endNum - startNum + 1;
+      const tbody = document.getElementById('setupTableBody');
+      tbody.innerHTML = '';
+      
+      if (totalCount < 1) return; 
+      
+      for (let i = 0; i < totalCount; i++) {
+        let qNum = startNum + i;
+        tbody.innerHTML += `<tr><td class="bg-gray" style="text-align:center; font-weight:bold;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" min="1" max="5" oninput="updateDiff(${qNum})" placeholder=""></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:transparent; text-align:center; border:none; padding:0; color:#495057;"></td><td id="status_${qNum}" style="color:#adb5bd; text-align:center;">-</td></tr>`;
+      }
+    }
+
+    /* 🟢 2. 1~5 정규식 필터링 제한 및 1 = 최하 매핑 규칙 추가 */
+    function updateDiff(qNum) {
+      const scoreEl = document.getElementById(`score_${qNum}`);
+      let score = scoreEl.value.replace(/[^1-5]/g, '').slice(0, 1);
+      if (scoreEl.value !== score) scoreEl.value = score;
+
+      const diffInput = document.getElementById(`diff_${qNum}`), statusCell = document.getElementById(`status_${qNum}`); 
+      let diff = "";
+      if (score == "1") diff = "최하";
+      else if (score == "2") diff = "하";
+      else if (score == "3") diff = "중";
+      else if (score == "4") diff = "상";
+      else if (score == "5") diff = "최상";
+      
+      diffInput.value = diff;
+      if (document.getElementById(`unit_${qNum}`).value.trim() && diff) { 
+        statusCell.innerHTML = "✔"; statusCell.style.color = "#28a745"; statusCell.style.fontWeight = "bold"; 
+      } else { 
+        statusCell.innerHTML = "-"; statusCell.style.color = "#adb5bd"; 
+      }
+    }
+    
+    function checkExistingSetup() {
+      const tt = getTermAndTest('setup');
+      const t = tt.term; const ts = tt.test;
+      const l = document.getElementById('setupLevel').value; const cr = document.getElementById('setupCourse').value; 
+      if (!t || !ts || !l || !cr) return;
+      
+      showLoading(true, "기존 세팅 불러오는 중...");
+      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getExamSetup', term: t, test: ts, level: l, course: cr }) }).then(res => res.json()).then(res => {
+        showLoading(false);
+        if(res.success && res.data) { 
+           document.getElementById('setupStartNum').value = res.data.startNum; 
+           document.getElementById('setupEndNum').value = res.data.startNum + res.data.totalCount - 1; 
+           renderSetupTable();
+           res.data.items.forEach(item => { let u = document.getElementById(`unit_${item.num}`), s = document.getElementById(`score_${item.num}`); if(u) u.value = item.unit; if(s) { s.value = item.score; updateDiff(item.num); } }); 
+        } else { renderSetupTable(); }
+      }).catch(err => { showLoading(false); handleError(err); });
+    }
+
+    function documentPaste(e) {
+      e.preventDefault(); let htmlData = (e.clipboardData || window.clipboardData).getData('text/html'), textData = (e.clipboardData || window.clipboardData).getData('text/plain'), rows = [];
+      if(htmlData) { let t = document.createElement('div'); t.innerHTML = htmlData; let tbl = t.querySelector('table'); if(tbl) tbl.querySelectorAll('tr').forEach(tr => { let r = Array.from(tr.querySelectorAll('td,th')).map(c => c.innerText.replace(/<[^>]+>/g, '').trim()); if(r.join('')) rows.push(r); }); } 
+      else if(textData) { textData.split(/\r?\n/).forEach(l => { let r = l.split('\t').map(c => c.trim()); if(r.join('')) rows.push(r); }); }
+      if(rows.length===0) return showAlert("표 데이터가 아닙니다.");
+      let st = (rows[0].join('').includes('단원') || rows[0].join('').includes('난이도') || rows[0].join('').includes('배점')) ? 1 : 0;
+      
+      const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
+      const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
+      const totalCount = endNum - startNum + 1;
+      let c = 0;
+      
+      for(let i = st; i < rows.length && c < totalCount; i++) {
+        let u = rows[i].length >= 3 ? rows[i][1] : rows[i][0], d = rows[i].length >= 3 ? rows[i][2] : rows[i][1];
+        if(u && document.getElementById(`unit_${startNum+c}`)) document.getElementById(`unit_${startNum+c}`).value = u;
+        if(d && document.getElementById(`score_${startNum+c}`)) { let score = d.replace(/[^0-9]/g, ''); if(score) { document.getElementById(`score_${startNum+c}`).value = score; updateDiff(startNum+c); } } c++;
+      }
+    }
+    
+    document.getElementById('hwpPasteZone').addEventListener('click', function() { document.getElementById('pasteCatcher').focus(); this.style.backgroundColor = '#e9ecef'; setTimeout(() => this.style.backgroundColor = '#fff', 500); });
+    document.getElementById('pasteCatcher').addEventListener('paste', documentPaste);
+
+    function saveExamSetup() {
+      const tt = getTermAndTest('setup');
+      const term = tt.term, test = tt.test, level = document.getElementById('setupLevel').value, course = document.getElementById('setupCourse').value;
+      if(!term || !test || !level || !course) return showAlert("상단 항목을 모두 선택하세요.");
+      
+      const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
+      const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
+      const totalCount = endNum - startNum + 1;
+      const items = [];
+      
+      for (let i = 0; i < totalCount; i++) {
+        let qNum = startNum + i; 
+        let unitVal = document.getElementById(`unit_${qNum}`).value.trim();
+        let scoreVal = document.getElementById(`score_${qNum}`).value.trim();
+        if(!unitVal || !scoreVal) return showAlert(`[${qNum}번] 문항의 단원명 또는 배점이 누락되었습니다.<br>입력을 완료해 주세요.`);
+        items.push({ num: qNum, unit: unitVal, score: parseInt(scoreVal)||0, diff: document.getElementById(`diff_${qNum}`).value });
+      }
+      
+      showLoading(true, "저장 중...");
+      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveExamSetup', term, test, level, course, totalCount, startNum, items }) })
+      .then(res => res.json()).then(res => { 
+          showLoading(false); 
+          if(res.success) { 
+              showAlert("✔ 저장 완료"); 
+              fetchMetadata(true, true); 
+          } else { showAlert("에러: " + res.error); } 
+      }).catch(handleError);
+    }
+
+    function loadGradesData(afterLoadMsg = null) {
+      const tt = getTermAndTest('main');
+      const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
+      if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
+      
+      isDeleteMode = false;
+      const delBtn = document.getElementById('toggleDeleteBtn');
+      if(delBtn) { 
+        delBtn.classList.remove('active');
+        const textWrap = delBtn.querySelector('.btn-text-wrap');
+        if(textWrap) textWrap.innerText = '학생삭제'; 
+      }
+
+      showLoading(true, "데이터 불러오는 중...");
+      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, test, campus, course, teacher, className }) })
+      .then(res => res.json()).then(res => { 
+        showLoading(false); 
+        if(res.success) {
+          currentGlobalOtherScores = res.data.globalOtherScores || []; 
+          renderInputTable(res.data.setupData, res.data.students, res.data.grades); 
+          if (afterLoadMsg) {
+            setTimeout(() => showAlert(afterLoadMsg), 50);
+          }
+        } else { showAlert("· Error: " + res.error); } 
+      }).catch(handleError);
+    }
+
+    function renderInputTable(setupData, rawStudents, grades) {
+      document.getElementById('inputEmptyState').style.display = 'none'; 
+      const tableContainer = document.getElementById('inputTableContainer');
+      tableContainer.style.display = 'block';
+      document.getElementById('inputBottomControls').style.display = 'flex';
+      
+      const availableWidth = tableContainer.clientWidth - 260; 
+      const minCols = Math.max(0, Math.floor(availableWidth / 60)); 
+      
+      currentExamSetup = setupData; 
+      let parsedStudents = rawStudents.map(st => ({ ...st, name: st.name.replace(/\([^)]*\)/g, '').trim(), isEmpty: false }));
+      while(parsedStudents.length < minCols) parsedStudents.push({ name: '-', isEmpty: true });
+      
+      currentStudentsList = parsedStudents;
+      currentStudentsCount = parsedStudents.filter(s => !s.isEmpty).length; 
+
+      const thead = document.getElementById('inputTableHeader');
+      const tbody = document.getElementById('inputTableBody');
+      
+      let htmlThead = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>`;
+      parsedStudents.forEach((st, sIdx) => { 
+        let headerContent = st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0');
+        if (!st.isEmpty && isDeleteMode) {
+          headerContent = `<button class="student-del-badge" onclick="confirmDeleteStudent('${st.name}')" title="${st.name} 삭제">-</button>`;
+        }
+        htmlThead += `<th class="sticky-top-1 bg-gray" style="color:#6c757d;">${headerContent}</th>`; 
+      });
+      
+      htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-2 bg-gray" style="text-align:center; letter-spacing:1px;">총점</th>`;
+      parsedStudents.forEach((st, sIdx) => { 
+        if (st.isEmpty) htmlThead += `<th class="sticky-top-2 bg-light" style="color:#adb5bd;">-</th>`; 
+        else {
+          let stGrade = grades.find(g => g.name === st.name);
+          let hasData = stGrade && Object.keys(stGrade.answers).length > 0;
+          htmlThead += `<th class="sticky-top-2 bg-light" style="color:#1366ce; font-size:14px; font-weight:900;" id="totalScore_${sIdx}" data-valid="${hasData ? 'true' : 'false'}">${hasData ? stGrade.totalScore : '-'}</th>`; 
         }
       });
-      totalSum += st.totalScore; allStudents.push(st);
+      
+      htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-3 bg-gray" style="text-align:center; letter-spacing:1px;">등수</th>`;
+      parsedStudents.forEach((st, sIdx) => { 
+        if (st.isEmpty) htmlThead += `<th class="sticky-top-3 bg-light" style="color:#adb5bd;">-</th>`; 
+        else htmlThead += `<th class="sticky-top-3 bg-light" style="color:#dc3545; font-weight:900;" id="rank_${sIdx}">-</th>`; 
+      });
+      
+      htmlThead += `</tr><tr>
+          <th class="sticky-col-1 sticky-top-4 bg-gray">문항번호</th>
+          <th class="sticky-col-2 sticky-top-4 bg-gray">출제 단원명</th>
+          <th class="sticky-col-3 sticky-top-4 bg-gray">배점</th>
+      `;
+      parsedStudents.forEach((st, sIdx) => { 
+        htmlThead += `<th class="sticky-top-4 bg-light student-name-cell" style="${st.isEmpty ? 'color:#adb5bd;' : 'font-weight:bold; color:#333;'}">${st.name}</th>`; 
+      });
+      htmlThead += `</tr>`;
+      thead.innerHTML = htmlThead;
+
+      let htmlTbody = '';
+      if(currentStudentsCount === 0 && rawStudents.length === 0) {
+        htmlTbody = `<tr><td colspan="3" style="padding: 30px; color: #dc3545; font-weight:bold;">명단이 없습니다.</td></tr>`;
+      } else {
+        for (let qIdx = 0; qIdx < setupData.totalCount; qIdx++) {
+          let qNum = setupData.startNum + qIdx;
+          let unitName = setupData.items[qIdx].unit || "";
+          let scoreVal = setupData.items[qIdx].score || "";
+          
+          htmlTbody += `<tr>
+            <td class="sticky-col-1 bg-gray" style="font-weight:bold; color:#333;">${qNum}</td>
+            <td class="sticky-col-2 bg-light" style="text-align:left; padding-left:10px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; color:#333; font-weight:500;" title="${unitName}">${unitName}</td>
+            <td class="sticky-col-3 bg-light" style="color:#6c757d; font-weight:bold;">${scoreVal}</td>`;
+            
+          parsedStudents.forEach((st, sIdx) => {
+            if (st.isEmpty) {
+              htmlTbody += `<td class="bg-white"><input type="text" class="ox-input" disabled value="-"></td>`;
+            } else {
+              let stGrade = grades.find(g => g.name === st.name) || { answers: {} };
+              let val = stGrade.answers[qNum] || "";
+              let colorClass = val === 'O' ? 'val-o' : (val === 'X' ? 'val-x' : '');
+              htmlTbody += `<td class="bg-white"><input type="text" class="ox-input grid-nav ${colorClass}" data-q="${qIdx}" data-s="${sIdx}" maxlength="1" value="${val}" onfocus="this.select()" onclick="this.select()" oninput="handleOxInput(event, ${qIdx}, ${sIdx})"></td>`;
+            }
+          });
+          htmlTbody += `</tr>`;
+        }
+      }
+      tbody.innerHTML = htmlTbody;
+
+      if(currentStudentsCount > 0) updateAllRanks();
+      attachKeyboardNavigationListeners();
     }
-  }
 
-  if (allStudents.length === 0) throw new Error("해당 조건의 성적 데이터가 없습니다.");
-
-  let totalCount = allStudents.length;
-  let totalAvg = Math.round((totalSum / totalCount) * 10) / 10;
-  
-  let avgUnitScores = {}; unitNames.forEach(u => avgUnitScores[u] = 0);
-  let avgDiffScores = { "최하":0, "하":0, "중":0, "상":0, "최상":0 };
-
-  allStudents.forEach(st => {
-    unitNames.forEach(u => avgUnitScores[u] += st.unitScores[u]);
-    Object.keys(avgDiffScores).forEach(d => avgDiffScores[d] += st.diffScores[d]);
-  });
-
-  unitNames.forEach(u => avgUnitScores[u] = Math.round((avgUnitScores[u] / totalCount) * 10) / 10);
-  Object.keys(avgDiffScores).forEach(d => avgDiffScores[d] = Math.round((avgDiffScores[d] / totalCount) * 10) / 10);
-
-  allStudents.sort((a, b) => b.totalScore - a.totalScore);
-
-  let targetStudents = [];
-  allStudents.forEach((st, idx) => {
-    if (st.campus === payload.campus && st.teacher === payload.teacher && st.className === payload.className) {
-      let realRank = allStudents.findIndex(s => s.totalScore === st.totalScore) + 1;
+    function handleOxInput(e, qIdx, sIdx) {
+      let inputEl = e.target; 
+      let val = inputEl.value.trim().toLowerCase();
+      inputEl.classList.remove('val-o', 'val-x'); 
+      let isValidInput = false;
       
-      let unitsData = unitNames.map(u => ({ name: u, max: unitsMap[u], score: st.unitScores[u], avg: avgUnitScores[u], pct: unitsMap[u] > 0 ? Math.round((st.unitScores[u] / unitsMap[u]) * 100) : 0, avgPct: unitsMap[u] > 0 ? Math.round((avgUnitScores[u] / unitsMap[u]) * 100) : 0 }));
+      if (['1', 'o', '0', 'ㅇ', 'ㅐ'].includes(val)) { 
+        inputEl.value = 'O'; 
+        inputEl.classList.add('val-o'); 
+        isValidInput = true; 
+      } else if (['2', 'x', 'ㅂ', 'ㅌ'].includes(val)) { 
+        inputEl.value = 'X'; 
+        inputEl.classList.add('val-x'); 
+        isValidInput = true; 
+      } else { 
+        inputEl.value = ''; 
+      }
       
-      // 🟢 5단계 ["최하", "하", "중", "상", "최상"] 배열 순서대로 매핑
-      let diffsData = ["최하", "하", "중", "상", "최상"].map(d => ({ 
-        name: d, 
-        max: diffsMap[d], 
-        score: st.diffScores[d], 
-        avg: avgDiffScores[d], 
-        pct: diffsMap[d] > 0 ? Math.round((st.diffScores[d] / diffsMap[d]) * 100) : 0, 
-        avgPct: diffsMap[d] > 0 ? Math.round((avgDiffScores[d] / diffsMap[d]) * 100) : 0 
-      }));
-      
-      targetStudents.push({ name: st.name, totalScore: st.totalScore, rank: realRank, totalCount: totalCount, unitsData: unitsData, diffsData: diffsData });
-    }
-  });
+      calculateStudentScore(sIdx);
+      updateAllRanks();
 
-  return { examInfo: { term: payload.term, test: payload.test, campus: payload.campus, course: payload.course, className: payload.className, teacher: payload.teacher, totalAvg: totalAvg, totalCount: totalCount }, students: targetStudents };
-}
-
-// -------------------------------------------------------------
-// 대시보드 API (고도화: 과정 '전체' 지원 + 단원별 정답률 + 최고점 + 90점이상 비율 + 캠퍼스/반별 비교)
-// -------------------------------------------------------------
-function getDashboardData(payload) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let dbSheetName = payload.term + " 성적DB";
-  const dbSheet = ss.getSheetByName(dbSheetName);
-  if (!dbSheet) throw new Error("성적 데이터가 없습니다.");
-
-  const dbData = dbSheet.getDataRange().getValues();
-  let validStudents = [];
-  let totalSum = 0;
-  let topScore = 0;
-  let over90Count = 0;
-  let groupStats = {}; 
-  let dist = { over90: 0, over80: 0, over70: 0, over60: 0, under60: 0 };
-
-  let setupSheet = ss.getSheetByName("시험세팅");
-  let examItems = [];
-  if (setupSheet && setupSheet.getLastRow() > 1) {
-    let sData = setupSheet.getDataRange().getValues();
-    for (let i = 1; i < sData.length; i++) {
-      if (sData[i][0] === payload.term && sData[i][1] === payload.test) {
-        if (payload.course === "전체" || sData[i][2] + " " + sData[i][3] === payload.course) {
-          let parsed = JSON.parse(sData[i][6]).items;
-          examItems = examItems.concat(parsed);
+      if (isValidInput) {
+        if (qIdx === currentExamSetup.totalCount - 1) {
+          if (sIdx < currentStudentsCount - 1) {
+            pendingNextStudentIdx = sIdx + 1;
+            document.getElementById('nextStudentName').innerText = currentStudentsList[pendingNextStudentIdx].name;
+            document.getElementById('nextStudentModal').style.display = 'flex';
+          } else {
+            showAlert("모든 학생의 채점이 완료되었습니다.");
+          }
+        } else {
+          let next = document.querySelector(`.grid-nav[data-q="${qIdx + 1}"][data-s="${sIdx}"]`);
+          focusNextCell(next);
         }
       }
     }
-  }
 
-  let unitStats = {}; 
+    function focusNextCell(nextInput) {
+      if (nextInput) { 
+        nextInput.focus({ preventScroll: true }); 
+        nextInput.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); 
+        if (nextInput.value) nextInput.select(); 
+      }
+    }
 
-  for (let i = 1; i < dbData.length; i++) {
-    let term = String(dbData[i][1]).trim();
-    let test = String(dbData[i][2]).trim();
-    let campus = String(dbData[i][3]).trim();
-    let course = String(dbData[i][4]).trim();
-    let className = String(dbData[i][6]).trim();
-    let score = parseInt(dbData[i][10]) || 0;
+    function confirmNextStudent() {
+      document.getElementById('nextStudentModal').style.display = 'none';
+      if (pendingNextStudentIdx !== -1) {
+        document.getElementById('inputTableContainer').scrollTop = 0;
+        let nextInput = document.querySelector(`.grid-nav[data-q="0"][data-s="${pendingNextStudentIdx}"]`);
+        focusNextCell(nextInput);
+      }
+    }
 
-    if (term === payload.term && test === payload.test) {
-      if (payload.course !== "전체" && course !== payload.course) continue;
-      if (payload.campus !== "전체" && campus !== payload.campus) continue;
+    function calculateStudentScore(sIdx) {
+      let totalScore = 0;
+      let inputCount = 0;
+      document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { 
+        if (input.value) inputCount++;
+        if (input.value === 'O') totalScore += (currentExamSetup.items[parseInt(input.dataset.q)].score || 0);
+      });
       
-      validStudents.push(score);
-      totalSum += score;
-      if (score > topScore) topScore = score;
-      if (score >= 90) over90Count++;
+      let targetEl = document.getElementById(`totalScore_${sIdx}`);
+      if (inputCount === 0) {
+        targetEl.innerText = '-';
+        targetEl.dataset.valid = 'false';
+      } else {
+        targetEl.innerText = totalScore;
+        targetEl.dataset.valid = 'true';
+      }
+    }
 
-      if (score >= 90) dist.over90++;
-      else if (score >= 80) dist.over80++;
-      else if (score >= 70) dist.over70++;
-      else if (score >= 60) dist.over60++;
-      else dist.under60++;
-      
-      let groupKey = (payload.campus === "전체") ? campus : className;
-      if (!groupStats[groupKey]) groupStats[groupKey] = { sum: 0, count: 0 };
-      groupStats[groupKey].sum += score;
-      groupStats[groupKey].count++;
-
-      examItems.forEach(item => {
-        let u = item.unit || "미지정";
-        if (!unitStats[u]) unitStats[u] = { totalScore: 0, maxScore: 0 };
-        unitStats[u].maxScore += item.score;
-        let val = dbData[i][11 + item.num];
-        if (['O','o','ㅇ'].includes(val)) {
-          unitStats[u].totalScore += item.score;
+    function updateAllRanks() {
+      if (currentStudentsCount === 0) return;
+      let liveScores = [];
+      for (let i = 0; i < currentStudentsCount; i++) {
+        let el = document.getElementById(`totalScore_${i}`);
+        if (el.dataset.valid === 'true') {
+           liveScores.push({ sIdx: i, score: parseInt(el.innerText) || 0 });
+        } else {
+           document.getElementById(`rank_${i}`).innerText = '-'; 
         }
+      }
+      
+      let allScores = [...currentGlobalOtherScores, ...liveScores.map(s => s.score)];
+      allScores.sort((a, b) => b - a); 
+      
+      for (let i = 0; i < liveScores.length; i++) {
+        let rank = allScores.indexOf(liveScores[i].score) + 1; 
+        document.getElementById(`rank_${liveScores[i].sIdx}`).innerText = rank;
+      }
+    }
+
+    function attachKeyboardNavigationListeners() {
+      document.querySelectorAll('.grid-nav').forEach(input => {
+        input.onkeydown = function(e) {
+          let q = parseInt(this.dataset.q), s = parseInt(this.dataset.s), next;
+          if (e.key === "ArrowRight") next = document.querySelector(`.grid-nav[data-q="${q}"][data-s="${s + 1}"]`);
+          else if (e.key === "ArrowLeft") next = document.querySelector(`.grid-nav[data-q="${q}"][data-s="${s - 1}"]`);
+          else if (e.key === "ArrowDown") next = document.querySelector(`.grid-nav[data-q="${q + 1}"][data-s="${s}"]`);
+          else if (e.key === "ArrowUp") next = document.querySelector(`.grid-nav[data-q="${q - 1}"][data-s="${s}"]`);
+          else if (e.key === "Enter") { 
+            e.preventDefault(); 
+            if (q === currentExamSetup.totalCount - 1) {
+              if (s < currentStudentsCount - 1) {
+                 pendingNextStudentIdx = s + 1;
+                 document.getElementById('nextStudentName').innerText = currentStudentsList[pendingNextStudentIdx].name;
+                 document.getElementById('nextStudentModal').style.display = 'flex';
+                 return;
+              }
+            } else {
+              next = document.querySelector(`.grid-nav[data-q="${q + 1}"][data-s="${s}"]`);
+            }
+          }
+          if (next) { e.preventDefault(); focusNextCell(next); }
+        };
       });
     }
-  }
 
-  if (validStudents.length === 0) throw new Error("해당 조건의 데이터가 없습니다.");
+    function openAddStudentModal() {
+      const tt = getTermAndTest('main');
+      if (!tt.term || !tt.test || !document.getElementById('mainCampus').value || !document.getElementById('mainClass').value) {
+        return showAlert("상단에서 테스트, 캠퍼스, 선생님, 반명을 모두 선택한 후 학생을 추가할 수 있습니다.");
+      }
+      document.getElementById('newStudentName').value = '';
+      document.getElementById('newStudentSchool').value = '';
+      document.getElementById('newStudentGrade').value = '';
+      document.getElementById('addStudentModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('newStudentName').focus(), 100);
+    }
 
-  let totalAvg = Math.round((totalSum / validStudents.length) * 10) / 10;
-  let over90Rate = Math.round((over90Count / validStudents.length) * 1000) / 10; 
+    function saveNewStudent() {
+      const tt = getTermAndTest('main');
+      const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value;
+      const teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
+      const name = document.getElementById('newStudentName').value.trim();
+      const school = document.getElementById('newStudentSchool').value.trim();
+      const grade = document.getElementById('newStudentGrade').value.trim();
 
-  let groupsList = [];
-  let groupAvgsList = [];
-  for (let g in groupStats) {
-    groupsList.push(g);
-    groupAvgsList.push(Math.round((groupStats[g].sum / groupStats[g].count) * 10) / 10);
-  }
+      if (!name) return showAlert("학생명은 필수 입력 항목입니다.");
 
-  let unitsList = [];
-  let unitPctsList = [];
-  for (let u in unitStats) {
-    unitsList.push(u);
-    let pct = unitStats[u].maxScore > 0 ? Math.round((unitStats[u].totalScore / unitStats[u].maxScore) * 1000) / 10 : 0;
-    unitPctsList.push(pct);
-  }
+      showLoading(true, "학생 추가 중...");
+      fetch(document.getElementById('backendUrl').value.trim(), {
+        method: 'POST',
+        body: JSON.stringify({ action: 'addStudentToRoster', term, test, campus, teacher, className, name, school, grade })
+      }).then(res => res.json()).then(res => {
+        showLoading(false);
+        if (res.success) {
+          document.getElementById('addStudentModal').style.display = 'none';
+          loadGradesData(`✔ [${name}] 학생이 명단에 추가되었습니다.`);
+        } else {
+          showAlert("에러: " + res.error);
+        }
+      }).catch(handleError);
+    }
 
-  return {
-    totalStudents: validStudents.length,
-    totalAvg: totalAvg,
-    topScore: topScore,
-    over90Rate: over90Rate,
-    dist: dist,
-    groupLabel: (payload.campus === "전체") ? "캠퍼스별 평균 점수" : "반별 평균 점수",
-    groups: groupsList,
-    groupAvgs: groupAvgsList,
-    units: unitsList,
-    unitPcts: unitPctsList
-  };
-}
+    function toggleStudentDeleteMode() {
+      if (currentStudentsCount === 0) return showAlert("불러온 명단이 없습니다. 먼저 명단을 불러와 주세요.");
+      isDeleteMode = !isDeleteMode;
+      const delBtn = document.getElementById('toggleDeleteBtn');
+      const textWrap = delBtn.querySelector('.btn-text-wrap');
+      if (isDeleteMode) {
+        delBtn.classList.add('active');
+        if (textWrap) textWrap.innerText = '삭제종료';
+      } else {
+        delBtn.classList.remove('active');
+        if (textWrap) textWrap.innerText = '학생삭제';
+      }
+      const thead = document.getElementById('inputTableHeader');
+      let htmlTheadFirstRow = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>`;
+      currentStudentsList.forEach((st, sIdx) => {
+        let headerContent = st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0');
+        if (!st.isEmpty && isDeleteMode) {
+          headerContent = `<button class="student-del-badge" onclick="confirmDeleteStudent('${st.name}')" title="${st.name} 삭제">-</button>`;
+        }
+        htmlTheadFirstRow += `<th class="sticky-top-1 bg-gray" style="color:#6c757d;">${headerContent}</th>`;
+      });
+      thead.rows[0].innerHTML = htmlTheadFirstRow;
+    }
+
+    function confirmDeleteStudent(studentName) {
+      showConfirmModal(`[<b>${studentName}</b>] 학생을 현재 반 명단 및 성적 DB에서<br>완전히 삭제하시겠습니까?`, function() {
+        const tt = getTermAndTest('main');
+        const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value;
+        const teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
+        
+        showLoading(true, "학생 삭제 중...");
+        fetch(document.getElementById('backendUrl').value.trim(), {
+          method: 'POST',
+          body: JSON.stringify({ action: 'deleteStudentFromRoster', term, test, campus, teacher, className, name: studentName })
+        }).then(res => res.json()).then(res => {
+          showLoading(false);
+          if (res.success) {
+            loadGradesData(`✔ [${studentName}] 학생이 명단에서 삭제되었습니다.`);
+          } else {
+            showAlert("에러: " + res.error);
+          }
+        }).catch(handleError);
+      }, function() {});
+    }
+
+    function saveGrades() {
+      if (!currentExamSetup) return showAlert("명단을 먼저 불러와 주세요.");
+      
+      let hasPartialMissing = false;
+      let firstMissingInput = null;
+
+      for (let sIdx = 0; sIdx < currentStudentsCount; sIdx++) {
+         let totalEl = document.getElementById(`totalScore_${sIdx}`);
+         if (totalEl.dataset.valid !== 'true') continue; 
+
+         let missingInputsInRow = [];
+         document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => {
+            if (!input.value) missingInputsInRow.push(input);
+         });
+         
+         if (missingInputsInRow.length > 0) {
+            hasPartialMissing = true;
+            if (!firstMissingInput) firstMissingInput = missingInputsInRow[0];
+         }
+      }
+
+      if (hasPartialMissing) {
+          showConfirmModal("성적 입력이 완료되지 않은 학생이 있습니다.<br>입력되지 않은 문항은 X(오답)로 자동 저장됩니다.<br>진행하시겠습니까?", function() {
+              fillMissingWithXAndSave(); 
+          }, function() {
+              focusNextCell(firstMissingInput); 
+          });
+          return;
+      }
+      executeSaveGrades(); 
+    }
+
+    function fillMissingWithXAndSave() {
+       for (let sIdx = 0; sIdx < currentStudentsCount; sIdx++) {
+           let totalEl = document.getElementById(`totalScore_${sIdx}`);
+           if (totalEl.dataset.valid === 'true') {
+               document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => {
+                   if (!input.value) { input.value = 'X'; input.classList.add('val-x'); }
+               });
+               calculateStudentScore(sIdx);
+           }
+       }
+       updateAllRanks();
+       executeSaveGrades();
+    }
+
+    function executeSaveGrades() {
+      const tt = getTermAndTest('main');
+      const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
+      
+      let studentsData = [];
+      for (let sIdx = 0; sIdx < currentStudentsCount; sIdx++) {
+         let totalEl = document.getElementById(`totalScore_${sIdx}`);
+         let rankEl = document.getElementById(`rank_${sIdx}`);
+         if (totalEl.dataset.valid === 'true') {
+             let stObj = currentStudentsList[sIdx];
+             let total = totalEl.innerText;
+             let rank = rankEl ? rankEl.innerText : '';
+             let answers = {};
+             document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => {
+                let qNum = currentExamSetup.startNum + parseInt(input.dataset.q);
+                answers[qNum] = input.value;
+             });
+             studentsData.push({
+               name: stObj.name,
+               school: stObj.school || '',
+               grade: stObj.grade || '',
+               totalScore: total,
+               rank: rank,
+               answers: answers
+             });
+         }
+      }
+
+      if (studentsData.length === 0) return showAlert("저장할 성적 데이터가 없습니다. (전원 미입력)");
+
+      showLoading(true, "저장 중...");
+      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveStudentGrades', term, test, campus, course, teacher, className, students: studentsData }) })
+      .then(res => res.json()).then(res => { showLoading(false); if(res.success) showAlert("✔ 저장 완료"); else showAlert("에러: " + res.error); }).catch(handleError);
+    }
+
+    function executePrint() {
+      const reportContainer = document.getElementById('reportContainer');
+      if (!reportContainer || reportContainer.innerHTML.trim() === '' || reportContainer.style.display === 'none') {
+        showAlert("성적표를 렌더링 한 후 인쇄를 진행해주세요.");
+        return;
+      }
+      window.print();
+    }
+
+    function generateReports() {
+      const tt = getTermAndTest('main');
+      const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
+      if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
+      showLoading(true, "성적 분석 및 렌더링 중...");
+      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getReportData', term, test, campus, course, teacher, className }) })
+      .then(res => res.json()).then(res => {
+        showLoading(false);
+        if(res.success) { 
+          document.getElementById('reportEmptyState').style.display = 'none'; 
+          document.getElementById('reportContainer').style.display = 'flex'; 
+          renderReportCards(res.data.examInfo, res.data.students); 
+        } else { showAlert("· Error: " + res.error); }
+      }).catch(handleError);
+    }
+
+    function renderReportCards(examInfo, students) {
+      chartInstances.forEach(chart => chart.destroy()); chartInstances = []; const container = document.getElementById('reportContainer'); container.innerHTML = '';
+      if(students.length === 0) { container.innerHTML = '<h3 style="text-align:center; color:#ef4444; padding:40px;">데이터가 없습니다.</h3>'; return; }
+
+      let maxTotalScore = students[0].unitsData.reduce((sum, u) => sum + u.max, 0);
+
+      students.forEach((st, idx) => {
+        
+        let unitsDataPadded = [...st.unitsData];
+        while (unitsDataPadded.length < 4) {
+            unitsDataPadded.push({ name: '-', max: 0, score: 0, avg: 0, pct: 0, avgPct: 0 });
+        }
+        
+        let unitCols = unitsDataPadded.map(u => `<th style="width:${100/unitsDataPadded.length}%;">${u.max === 0 ? '-' : u.name}</th>`).join('');
+        let unitMaxs = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.max}</td>`).join('');
+        
+        let unitScores = unitsDataPadded.map(u => {
+            if (u.max === 0) return `<td>-</td>`;
+            let intAvg = Math.floor(u.avg);
+            let diffIcon = '', color = '#111827';
+            if (u.score > intAvg) { diffIcon = '▲'; color = '#3b82f6'; } 
+            else if (u.score === intAvg) { diffIcon = ''; color = '#3b82f6'; } 
+            else { diffIcon = '▼'; color = '#ef4444'; }
+            return `<td style="position:relative; color:${color}; font-weight:800;"><span style="display:block; text-align:center;">${u.score}</span>${diffIcon ? `<span style="position:absolute; right:4px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span>` : ''}</td>`;
+        }).join('');
+        let unitAvgs = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.avg}</td>`).join('');
+        let unitPcts = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.avgPct + '%'}</td>`).join(''); 
+
+        let diffsDataPadded = [...st.diffsData];
+        let diffCols = diffsDataPadded.map(d => `<th style="width:${100/diffsDataPadded.length}%;">${d.max === 0 ? '-' : d.name}</th>`).join('');
+        let diffMaxs = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.max}</td>`).join('');
+        
+        let diffScores = diffsDataPadded.map(d => {
+            if (d.max === 0) return `<td>-</td>`;
+            let intAvg = Math.floor(d.avg);
+            let diffIcon = '', color = '#111827';
+            if (d.score > intAvg) { diffIcon = '▲'; color = '#3b82f6'; } 
+            else if (d.score === intAvg) { diffIcon = ''; color = '#3b82f6'; } 
+            else { diffIcon = '▼'; color = '#ef4444'; }
+            return `<td style="position:relative; color:${color}; font-weight:800;"><span style="display:block; text-align:center;">${d.score}</span>${diffIcon ? `<span style="position:absolute; right:4px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span>` : ''}</td>`;
+        }).join('');
+        let diffAvgs = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.avg}</td>`).join('');
+        let diffPcts = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.avgPct + '%'}</td>`).join('');
+
+        let unitLabels = unitsDataPadded.map(u => {
+          if (u.max === 0) return '-';
+          let str = String(u.name);
+          if (str.length > 6) {
+             let mid = Math.ceil(str.length / 2);
+             return [str.slice(0, mid), str.slice(mid)];
+          }
+          return str;
+        });
+        let unitMyData = unitsDataPadded.map(u => u.max === 0 ? null : u.pct);
+        let unitAvgData = unitsDataPadded.map(u => u.max === 0 ? null : u.avgPct);
+
+        let diffLabels = diffsDataPadded.map(d => {
+          if (d.max === 0) return '-';
+          let str = String(d.name);
+          if (str.length > 6) {
+             let mid = Math.ceil(str.length / 2);
+             return [str.slice(0, mid), str.slice(mid)];
+          }
+          return str;
+        });
+        let diffMyData = diffsDataPadded.map(d => d.max === 0 ? null : d.pct);
+        let diffAvgData = diffsDataPadded.map(d => d.max === 0 ? null : d.avgPct);
+
+        let calcTopPct = examInfo.totalCount > 0 ? Math.round((st.rank / examInfo.totalCount) * 100) : 100;
+        calcTopPct = Math.max(1, calcTopPct); 
+
+        let bluePct = 100 - calcTopPct;
+        let startAngle = 360 - (bluePct * 3.6);
+
+        let html = `
+          <div class="report-page">
+            <div class="report-header">
+              <div class="report-logo">
+                <img src="https://i.imgur.com/PQRrCSI.png" alt="SG청운학원">
+              </div>
+              <div class="report-info">
+                <div class="info-badge combined-badge">
+                   <div style="font-size:13px; color:#0f172a; font-weight:800; line-height: 1.5; white-space: nowrap;">
+                      <span style="color:#64748b; font-weight:600; margin-right:4px;">● 테스트 :</span> ${examInfo.term} ${examInfo.test}<br>
+                      <span style="color:#64748b; font-weight:600; margin-right:4px;">● 과정명 :</span> ${examInfo.course}
+                   </div>
+                </div>
+                <div class="badge-divider"></div>
+                <div class="info-badge small-badge"><span>반명</span> <strong>${examInfo.className}</strong></div>
+                <div class="info-badge small-badge"><span>담임명</span> <strong>${examInfo.teacher}</strong></div>
+                <div class="info-badge small-badge"><span>학생명</span> <strong style="color:#3b82f6;">${st.name}</strong></div>
+              </div>
+            </div>
+            
+            <div class="report-grid">
+              <div class="summary-col">
+                <div class="kpi-card-white" style="justify-content: space-around; padding: 12px 10px;">
+                  <div class="kpi-icon" style="margin-right: 2px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-5 5"/></svg>
+                  </div>
+                  <div style="flex: 1; display: flex; align-items: center; justify-content: space-evenly; width: 100%;">
+                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                       <div class="kpi-label">전체평균</div>
+                       <div class="kpi-val">${Math.round(examInfo.totalAvg)}</div>
+                     </div>
+                     <div style="width: 1.5px; height: 20px; background-color: #cbd5e1; margin: 0 4px;"></div>
+                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                       <div class="kpi-label">기준만점</div>
+                       <div class="kpi-val">${maxTotalScore}</div>
+                     </div>
+                  </div>
+                </div>
+                <div class="kpi-card-white">
+                  <div class="kpi-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                  </div>
+                  <div class="kpi-info"><div class="kpi-label">나의 점수</div><div class="kpi-val"><span style="color:#3b82f6;">${st.totalScore}</span></div></div>
+                </div>
+                <div class="kpi-card-white">
+                  <div class="kpi-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                  </div>
+                  <div class="kpi-info"><div class="kpi-label">나의 석차</div><div class="kpi-val"><span style="color:#3b82f6;">${st.rank}</span> / ${examInfo.totalCount}</div></div>
+                </div>
+                <div class="doughnut-card">
+                  <div class="kpi-label" style="font-size: 13px !important; color: #64748b !important; font-weight: 700 !important; margin-bottom: 8px; text-align: center;">동일과정 상위 %</div>
+                  <div style="position: relative; width: 140px; height: 140px; margin: 0 auto;">
+                     <div style="position: absolute; top: 16px; left: 16px; width: 108px; height: 108px;">
+                         <canvas id="chart_doughnut_${idx}"></canvas>
+                     </div>
+                     <svg viewBox="0 0 150 150" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;">
+                        <defs>
+                           <marker id="arrow_${idx}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                             <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af" />
+                           </marker>
+                           <path id="innerCurve_${idx}" d="M 21,75 A 54,54 0 0,0 129,75" />
+                        </defs>
+                        <path d="M 72,11 A 64,64 0 1,0 139,72" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow_${idx})" />
+                        
+                        <text style="font-size: 11px; fill: #ffffff; font-weight: 800; letter-spacing: 0.5px;" dy="-4">
+                           <textPath href="#innerCurve_${idx}" startOffset="50%" text-anchor="middle">lower is better</textPath>
+                        </text>
+                     </svg>
+                     <div class="doughnut-text">
+                       <div class="doughnut-val">${calcTopPct}%</div>
+                     </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dash-card">
+                <div class="card-title">단원별 분석</div>
+                <div class="dash-card-content">
+                  <table class="willow-table bg-head-blue">
+                    <tr><th>단원</th>${unitCols}</tr>
+                    <tr class="bg-subhead"><th>기준만점</th>${unitMaxs}</tr>
+                    <tr><th style="color:#3b82f6;">${st.name}</th>${unitScores}</tr>
+                    <tr><th>전체평균</th>${unitAvgs}</tr>
+                    <tr><th>정답률</th>${unitPcts}</tr>
+                  </table>
+                </div>
+                <div class="chart-container-report dash-card-content"><canvas id="chart_unit_${idx}"></canvas></div>
+              </div>
+              
+              <div class="dash-card">
+                <div class="card-title card-title-green">난이도별 분석</div>
+                <div class="dash-card-content">
+                  <table class="willow-table bg-head-green">
+                    <tr><th>난이도</th>${diffCols}</tr>
+                    <tr class="bg-subhead"><th>기준만점</th>${diffMaxs}</tr>
+                    <tr><th style="color:#3b82f6;">${st.name}</th>${diffScores}</tr>
+                    <tr><th>전체평균</th>${diffAvgs}</tr>
+                    <tr><th>정답률</th>${diffPcts}</tr>
+                  </table>
+                </div>
+                <div class="chart-container-report dash-card-content"><canvas id="chart_diff_${idx}"></canvas></div>
+              </div>
+            </div>
+            
+            <div class="report-footer">
+              - 단원별 성적 : 출제 문항 중 각 단원별 점수를 나타냅니다.<br>
+              - 난이도별 성적 : 출제 문항 중 배점에 따른 난도별 점수를 나타냅니다.<br>
+              - 본인의 점수가 전체의 평균 점수보다 높을 경우 점수는 파란색(▲)으로, 낮을 경우 빨간색(▼)으로 표시됩니다.<br>
+              - 정답률(%)은 총 응시자들의 정답 비율입니다.<br>
+              - 그래프의 점수 분포는 만점을 100점으로 환산하여 표기되었습니다.
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+        
+        setTimeout(() => {
+          let chartOpts = { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            layout: { padding: { top: 15, bottom: 0, left: 0, right: 0 } }, 
+            scales: { 
+              x: { 
+                  ticks: { display: true, font: { family: 'Pretendard', size: 10 }, color: '#64748b', maxRotation: 0, minRotation: 0 }, 
+                  grid: { display: false, drawBorder: false } 
+              }, 
+              y: { 
+                beginAtZero: true, 
+                max: 100, 
+                ticks: { stepSize: 10, color: '#9ca3af', font: { family: 'Pretendard' } }, 
+                border: { display: false }, 
+                grid: { color: '#f3f4f6' }, 
+                afterFit: function(scale) { scale.width = 55; } 
+              } 
+            }, 
+            plugins: { legend: { display: false } } 
+          };
+          
+          chartInstances.push(new Chart(document.getElementById(`chart_unit_${idx}`).getContext('2d'), { type: 'bar', data: { labels: unitLabels, datasets: [{ label: st.name, data: unitMyData, backgroundColor: '#3b82f6', barPercentage: 0.5, borderRadius: 4 }, { label: '전체평균', data: unitAvgData, backgroundColor: '#e5e7eb', barPercentage: 0.5, borderRadius: 4 }]}, options: chartOpts }));
+          chartInstances.push(new Chart(document.getElementById(`chart_diff_${idx}`).getContext('2d'), { type: 'bar', data: { labels: diffLabels, datasets: [{ label: st.name, data: diffMyData, backgroundColor: '#10b981', barPercentage: 0.5, borderRadius: 4 }, { label: '전체평균', data: diffAvgData, backgroundColor: '#e5e7eb', barPercentage: 0.5, borderRadius: 4 }]}, options: chartOpts }));
+          
+          chartInstances.push(new Chart(document.getElementById(`chart_doughnut_${idx}`).getContext('2d'), { 
+            type: 'doughnut', 
+            data: { 
+                labels: ['내 비율', '나머지'], 
+                datasets: [{ 
+                    data: [bluePct, calcTopPct], 
+                    backgroundColor: ['#3b82f6', '#d1d5db'], 
+                    borderWidth: 0 
+                }] 
+            }, 
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                cutout: '65%', 
+                rotation: startAngle, 
+                plugins: { legend: { display: false }, tooltip: { enabled: false } } 
+            } 
+          }));
+        }, 100);
+      });
+    }
+
+    function generateDashboard() {
+      const tt = getTermAndTest('main');
+      const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value;
+      if (!term || !test || !campus || !course) return showAlert("[테스트, 과정, 캠퍼스]를 모두 선택해주세요.");
+      
+      showLoading(true, "분석 중...");
+      
+      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getDashboardData', term: term, test: test, campus: campus, course: course }) })
+      .then(res => res.json()).then(res => {
+        showLoading(false);
+        if(res.success) { 
+          document.getElementById('dashEmptyState').style.display = 'none';
+          document.getElementById('dashContainer').style.display = 'flex';
+          
+          const d = res.data;
+          
+          document.getElementById('dashTotalStudents').innerText = d.totalStudents + "명";
+          document.getElementById('dashTotalAvg').innerText = d.totalAvg + "점";
+          document.getElementById('dashTopScore').innerText = d.topScore + "점";
+          document.getElementById('dashOver90Rate').innerText = d.over90Rate + "%";
+          document.getElementById('dashGroupTitle').innerText = d.groupLabel;
+          
+          dashChartInstances.forEach(c => c.destroy()); dashChartInstances = [];
+          
+          const ctxDist = document.getElementById('dashScoreDistChart').getContext('2d');
+          dashChartInstances.push(new Chart(ctxDist, {
+            type: 'bar',
+            data: { labels: ['90점 이상', '80점대', '70점대', '60점대', '60점 미만'], datasets: [{ label: '인원(명)', data: [d.dist.over90, d.dist.over80, d.dist.over70, d.dist.over60, d.dist.under60], backgroundColor: '#17a2b8', borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+          }));
+
+          const ctxCam = document.getElementById('dashGroupAvgChart').getContext('2d');
+          dashChartInstances.push(new Chart(ctxCam, {
+            type: 'bar',
+            data: { labels: d.groups, datasets: [{ label: '평균 점수', data: d.groupAvgs, backgroundColor: '#68488e', borderRadius: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+          }));
+
+          const ctxUnit = document.getElementById('dashUnitPctChart').getContext('2d');
+          dashChartInstances.push(new Chart(ctxUnit, {
+            type: 'bar',
+            data: { labels: d.units, datasets: [{ label: '평균 정답률(%)', data: d.unitPcts, backgroundColor: '#28a745', borderRadius: 6 }] },
+            options: { 
+              indexAxis: 'y',
+              responsive: true, 
+              maintainAspectRatio: false, 
+              plugins: { legend: { display: false } }, 
+              scales: { x: { beginAtZero: true, max: 100, ticks: { stepSize: 20 } } } 
+            }
+          }));
+
+        } else { showAlert("· Error: " + res.error); }
+      }).catch(handleError);
+    }
+  </script>
+</body>
+</html>
