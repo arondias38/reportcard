@@ -989,6 +989,38 @@
       if (e.target.files.length) processSetupFile(e.target.files[0]); 
     });
 
+    /* 🟢 1. 인코딩 안전 디코더: 윈도우 HWP TXT(CP949/EUC-KR/UTF-16) 한글 깨짐을 완벽 방지 */
+    function decodeTextBuffer(buffer) {
+      const uint8 = new Uint8Array(buffer);
+      if (uint8.length >= 2 && uint8[0] === 0xFF && uint8[1] === 0xFE) {
+        return new TextDecoder('utf-16le').decode(buffer);
+      }
+      if (uint8.length >= 2 && uint8[0] === 0xFE && uint8[1] === 0xFF) {
+        return new TextDecoder('utf-16be').decode(buffer);
+      }
+      if (uint8.length >= 3 && uint8[0] === 0xEF && uint8[1] === 0xBB && uint8[2] === 0xBF) {
+        return new TextDecoder('utf-8').decode(buffer);
+      }
+      try {
+        return new TextDecoder('utf-8', { fatal: true }).decode(buffer);
+      } catch (e) {
+        return new TextDecoder('euc-kr').decode(buffer);
+      }
+    }
+
+    /* 🟢 2. 번호 판별 로직: 11->1, 1616->16 중복 번호와 16->16 일반 번호를 100% 식별 */
+    function parseQuestionNumber(rawStr) {
+      const len = rawStr.length;
+      if (len % 2 === 0 && len >= 2) {
+        const half1 = rawStr.slice(0, len / 2);
+        const half2 = rawStr.slice(len / 2);
+        if (half1 === half2) {
+          return parseInt(half1, 10);
+        }
+      }
+      return parseInt(rawStr, 10);
+    }
+
     function processSetupFile(file) {
       const ext = file.name.split('.').pop().toLowerCase();
       showLoading(true, "출제표 파일 분석 중...");
@@ -997,7 +1029,8 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           try {
-            parseTxtSetupData(e.target.result);
+            const textData = decodeTextBuffer(e.target.result);
+            parseTxtSetupData(textData);
             showLoading(false);
             setupFileInput.value = '';
             showAlert("✔ TXT 출제표 파싱 완료! 문항 단원명과 배점이 자동 기입되었습니다.");
@@ -1007,7 +1040,7 @@
             showAlert("🚫 TXT 분석 에러: " + err.message);
           }
         };
-        reader.readAsText(file, "UTF-8");
+        reader.readAsArrayBuffer(file);
       } else if (ext === 'xlsx' || ext === 'xls') {
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -1030,7 +1063,7 @@
       }
     }
 
-    /* 🟢 TXT 출제표 파서: 문제번호 감지 + 1616->16 아티팩트 정제 + 설정된 startNum~endNum 범위만 추출 */
+    /* 🟢 TXT 출제표 파서: 문제번호 감지 + 중복 숫자 정제 + 설정된 startNum~endNum 범위만 추출 */
     function parseTxtSetupData(textData) {
       const lines = textData.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '');
       const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
@@ -1038,23 +1071,24 @@
       let parsedCount = 0;
 
       for (let i = 0; i < lines.length; i++) {
-        const qMatch = lines[i].match(/^문제\s*(\d+)/);
+        const qMatch = lines[i].match(/(?:문제|문항)\s*(\d+)/);
         if (qMatch) {
-          let rawNumStr = qMatch[1];
-          let qNum = (rawNumStr.length % 2 === 0 && rawNumStr.length >= 2)
-            ? parseInt(rawNumStr.slice(0, rawNumStr.length / 2), 10) 
-            : parseInt(rawNumStr, 10);
+          let qNum = parseQuestionNumber(qMatch[1]);
           
           if (qNum >= startNum && qNum <= endNum) {
             const unitName = lines[i + 1] || '';
-            const scoreVal = lines[i + 2] || '';
-            
+            let scoreVal = lines[i + 2] || '';
+            if (!/^[1-5](?:점)?$/.test(scoreVal) && /^[1-5](?:점)?$/.test(lines[i + 3] || '')) {
+              scoreVal = lines[i + 3];
+            }
+            let scoreDigit = String(scoreVal).replace(/[^1-5]/g, '').slice(0, 1);
+
             const unitInput = document.getElementById(`unit_${qNum}`);
             const scoreInput = document.getElementById(`score_${qNum}`);
             
-            if (unitInput && scoreInput && /^[1-5]$/.test(scoreVal)) {
+            if (unitInput && scoreInput && /^[1-5]$/.test(scoreDigit)) {
               unitInput.value = unitName;
-              scoreInput.value = scoreVal;
+              scoreInput.value = scoreDigit;
               updateDiff(qNum);
               parsedCount++;
             }
@@ -1062,7 +1096,7 @@
         }
       }
       if (parsedCount === 0) {
-        throw new Error("설정하신 문항 번호(" + startNum + " ~ " + endNum + "번) 범위에 해당하는 출제표 데이터를 찾지 못했습니다.");
+        throw new Error("설정하신 문항 번호(" + startNum + " ~ " + endNum + "번) 범위에 해당하는 출제표 데이터를 찾지 못했습니다. (파일 내용 또는 번호 범위를 확인해 주세요)");
       }
     }
 
