@@ -1346,9 +1346,8 @@
       const tfoot = document.getElementById('inputTableFooter');
       
       let maxTotalScore = setupData.items.reduce((sum, item) => sum + (Number(item.score) || 0), 0);
-      let activeClassCount = parsedStudents.filter(s => !s.isEmpty && !s.isDeleted).length;
       
-      let htmlThead = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>`;
+      let htmlThead = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px; position:relative;">No.</th>`;
       parsedStudents.forEach((st, sIdx) => { 
         let headerContent = st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0');
         if (!st.isEmpty && st.isDeleted) {
@@ -1363,8 +1362,10 @@
         htmlThead += `<th class="sticky-top-1 bg-gray" style="color:#6c757d;">${headerContent}</th>`; 
       });
       
-      /* 🟢 총점 (기준 만점 : 00) 옆 표기 */
-      htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-2 bg-gray" style="text-align:center; letter-spacing:1px;">총점 <span style="font-size:11px; font-weight:normal; color:#6c757d; margin-left:4px; white-space:nowrap;">(기준 만점 : ${maxTotalScore})</span></th>`;
+      /* 🟢 1. 총점 중앙정렬 유지 & 괄호 문구 우측(3열 배점 열) 정렬 및 검정색(#111) 적용 */
+      htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-2 bg-gray" style="text-align:center; letter-spacing:1px; position:relative;">
+        총점 <span style="position:absolute; right:10px; top:50%; transform:translateY(-50%); font-size:11px; font-weight:normal; color:#111; white-space:nowrap;">(기준 만점 : ${maxTotalScore})</span>
+      </th>`;
       parsedStudents.forEach((st, sIdx) => { 
         if (st.isEmpty || st.isDeleted) htmlThead += `<th class="sticky-top-2 bg-light" style="color:#adb5bd;">-</th>`; 
         else {
@@ -1374,8 +1375,10 @@
         }
       });
       
-      /* 🟢 등수 (반 인원: 00명 / 전체 인원: 00명) 옆 표기 */
-      htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-3 bg-gray" style="text-align:center; letter-spacing:1px;">등수 <span id="headerRankCountLabel" style="font-size:11px; font-weight:normal; color:#6c757d; margin-left:4px; white-space:nowrap;">(반 인원: ${activeClassCount}명 / 전체 인원: 0명)</span></th>`;
+      /* 🟢 1. 등수 중앙정렬 유지 & 괄호 문구 우측(3열 배점 열) 정렬 및 검정색(#111) 적용 */
+      htmlThead += `</tr><tr><th colspan="3" class="sticky-col-all sticky-top-3 bg-gray" style="text-align:center; letter-spacing:1px; position:relative;">
+        등수 <span id="headerRankCountLabel" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); font-size:11px; font-weight:normal; color:#111; white-space:nowrap;">(반 인원: 0명 / 전체 인원: 0명)</span>
+      </th>`;
       parsedStudents.forEach((st, sIdx) => { 
         if (st.isEmpty || st.isDeleted) htmlThead += `<th class="sticky-top-3 bg-light" style="color:#adb5bd;">-</th>`; 
         else htmlThead += `<th class="sticky-top-3 bg-light" style="color:#dc3545; font-weight:900;" id="rank_${sIdx}">-</th>`; 
@@ -1575,9 +1578,16 @@
       }
     }
 
-    /* 🟢 반 인원 / 전체 인원 헤더 동적 표기 업데이트 */
+    /* 🟢 3. 반 인원: 해당 반 내에서 '성적이 유효하게 입력된 학생'만 집계하도록 팩트 체크 및 수정 */
     function updateAllRanks() {
-      let activeClassCount = currentStudentsList.filter(s => !s.isEmpty && !s.isDeleted).length;
+      let activeGradedClassCount = 0;
+      for (let i = 0; i < currentStudentsCount; i++) {
+        let el = document.getElementById(`totalScore_${i}`);
+        if (!currentStudentsList[i].isDeleted && el && el.dataset.valid === 'true') {
+           activeGradedClassCount++;
+        }
+      }
+
       let liveScores = [];
       for (let i = 0; i < currentStudentsCount; i++) {
         let el = document.getElementById(`totalScore_${i}`);
@@ -1600,7 +1610,7 @@
 
       let headerRankCountLabel = document.getElementById('headerRankCountLabel');
       if (headerRankCountLabel) {
-        headerRankCountLabel.innerText = `(반 인원: ${activeClassCount}명 / 전체 인원: ${allScores.length}명)`;
+        headerRankCountLabel.innerText = `(반 인원: ${activeGradedClassCount}명 / 전체 인원: ${allScores.length}명)`;
       }
     }
 
@@ -1696,7 +1706,7 @@
         if (textWrap) textWrap.innerText = '학생삭제';
       }
       const thead = document.getElementById('inputTableHeader');
-      let htmlTheadFirstRow = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px;">No.</th>`;
+      let htmlTheadFirstRow = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="text-align:center; letter-spacing:1px; position:relative;">No.</th>`;
       currentStudentsList.forEach((st, sIdx) => {
         let headerContent = st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0');
         if (!st.isEmpty && st.isDeleted) {
