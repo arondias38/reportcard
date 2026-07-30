@@ -20,6 +20,16 @@
     .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; overflow: hidden; }
     .page-content.active { display: flex; }
 
+    /* 🟢 부드러운 셀 깜빡임(Soft Blink Highlight) 시각 효과 애니메이션 */
+    @keyframes softBlink {
+      0% { background-color: #d1e7dd !important; }
+      50% { background-color: #fff3cd !important; }
+      100% { background-color: transparent; }
+    }
+    .cell-blink {
+      animation: softBlink 0.75s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1366ce; border-radius: 50%; animation: spin 1s linear infinite; }
     .spinner-text { margin-top: 15px; font-weight: bold; color: #1366ce; font-size: 15px; }
@@ -385,7 +395,7 @@
         <button class="icon-btn" id="headerAdminBtn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
         </button>
         <button class="icon-btn" id="headerMainBtn" style="display: none;" onclick="switchPage('page-main')" title="뒤로가기">
@@ -526,7 +536,7 @@
           <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06-.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
             </svg>
             필수 환경설정
           </button>
@@ -574,6 +584,17 @@
     let lastSelectedCourse = "";
     let confirmCallback = null;
     let cancelCallback = null;
+
+    /* 🟢 셀 깜빡임(Soft Blink Highlight) 재생 유틸리티 */
+    function highlightCells(selectorOrElements) {
+      let els = typeof selectorOrElements === 'string' ? document.querySelectorAll(selectorOrElements) : selectorOrElements;
+      els.forEach(el => {
+        if (!el) return;
+        el.classList.remove('cell-blink');
+        void el.offsetWidth; // reflow to restart css animation
+        el.classList.add('cell-blink');
+      });
+    }
 
     /* 🟢 3. 키보드 Escape(ESC) 키 누름 감지 리스너: 열려 있는 모달을 즉시 종료 */
     document.addEventListener('keydown', function(e) {
@@ -997,7 +1018,7 @@
       sel.innerHTML = `<option value="" disabled selected hidden>반 선택</option>`;
       
       if(term && test && campus && teacher) { 
-        let classes = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus && r.teacher === teacher).map(r => r.className))];
+        let classes = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus && r.teacher === teacher).map(r => r.className))].sort(); 
         classes.forEach(c => sel.innerHTML += `<option value="${c}" style="color:#333;">${c}</option>`); 
       }
       if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal;
@@ -1040,6 +1061,7 @@
       }
     }
 
+    /* 🟢 TXT / 엑셀 통합 출제표 파일 업로드 영역 이벤트 리스너 및 로직 */
     const setupUploadZone = document.getElementById('setupUploadZone');
     const setupFileInput = document.getElementById('setupFileInput');
 
@@ -1290,7 +1312,7 @@
       }).catch(handleError);
     }
 
-    function loadGradesData(afterLoadMsg = null) {
+    function loadGradesData(afterLoadMsg = null, highlightedStudentName = null) {
       const tt = getTermAndTest('main');
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
@@ -1312,6 +1334,15 @@
           renderInputTable(res.data.setupData, res.data.students, res.data.grades); 
           if (afterLoadMsg) {
             setTimeout(() => showAlert(afterLoadMsg), 50);
+          }
+          /* 🟢 방금 추가된 신규 학생 열 하이라이트 셀 깜빡임 시각 피드백 */
+          if (highlightedStudentName) {
+            let targetIdx = res.data.students.findIndex(s => s.name.trim() === highlightedStudentName.trim());
+            if (targetIdx !== -1) {
+              setTimeout(() => {
+                highlightCells(document.querySelectorAll(`.grid-nav[data-s="${targetIdx}"], #totalScore_${targetIdx}, #rank_${targetIdx}`));
+              }, 150);
+            }
           }
         } else { showAlert("· Error: " + res.error); } 
       }).catch(handleError);
@@ -1404,7 +1435,7 @@
 
       /* 🟢 1. 성적입력 학생별 하단 세로 일괄 입력([O], [X], [-], [↺]) 버튼 생성 */
       let htmlTfoot = `<tr>
-        <th colspan="3" class="sticky-col-all bg-gray" style="text-align:center; font-size:12px; color:#495057;">일괄 입력 / 되돌리기</th>`;
+        <th colspan="3" class="sticky-col-all bg-gray" style="text-align:center; font-size:12px; color:#495057;">일괄 입력 / 삭제 / 복구</th>`;
       parsedStudents.forEach((st, sIdx) => {
         if (st.isEmpty) {
           htmlTfoot += `<th class="bg-light" style="color:#adb5bd;">-</th>`;
@@ -1428,7 +1459,7 @@
       attachKeyboardNavigationListeners();
     }
 
-    /* 🟢 1. 학생별 일괄 입력 ([O], [X], [-]) 및 직전 스냅샷 저장 로직 */
+    /* 🟢 1. 학생별 일괄 입력 ([O], [X], [-]) 및 직전 스냅샷 저장 로직 + 셀 깜빡임 시각 피드백 */
     function batchSetStudentAnswers(sIdx, val) {
       if (!currentExamSetup) return;
       
@@ -1452,9 +1483,10 @@
 
       calculateStudentScore(sIdx);
       updateAllRanks();
+      highlightCells(document.querySelectorAll(`.grid-nav[data-s="${sIdx}"], #totalScore_${sIdx}, #rank_${sIdx}`));
     }
 
-    /* 🟢 1. 학생별 직전 일괄 입력 되돌리기 (↺) 로직: 1인 한정으로 스냅샷 복구 */
+    /* 🟢 1. 학생별 직전 일괄 입력 되돌리기 (↺) 로직: 1인 한정으로 스냅샷 복구 + 셀 깜빡임 */
     function undoStudentAnswers(sIdx) {
       let snapshot = studentUndoSnapshots[sIdx];
       if (!snapshot) {
@@ -1472,6 +1504,7 @@
 
       calculateStudentScore(sIdx);
       updateAllRanks();
+      highlightCells(document.querySelectorAll(`.grid-nav[data-s="${sIdx}"], #totalScore_${sIdx}, #rank_${sIdx}`));
     }
 
     function handleOxInput(e, qIdx, sIdx) {
@@ -1623,7 +1656,8 @@
         showLoading(false);
         if (res.success) {
           document.getElementById('addStudentModal').style.display = 'none';
-          loadGradesData(`✔ [${name}] 학생이 명단에 추가되었습니다.`);
+          /* 🟢 방금 추가된 신규 학생 열 하이라이트 셀 깜빡임 시각 피드백 */
+          loadGradesData(`✔ [${name}] 학생이 명단에 추가되었습니다.`, name);
         } else {
           showAlert("에러: " + res.error);
         }
