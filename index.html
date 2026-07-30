@@ -1576,10 +1576,10 @@
                         <!-- 🟢 M 72,11 A 64,64로 변경하여 중심 좌표를 정중앙(75, 75)으로 우측하단 이동시킴 -->
                         <path d="M 72,11 A 64,64 0 1,0 139,72" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow_${idx})" />
                         
-                        <!-- 🟢 dy="-4" 적용 및 글자색을 파란색(#3b82f6)으로 일치시켜 상단 위로 이동 -->
-                        <text style="font-size: 11px; fill: #3b82f6; font-weight: 800; letter-spacing: 0.5px;" dy="-4">
-                           <textPath href="#innerCurve_${idx}" startOffset="50%" text-anchor="middle">lower is better</textPath>
-                        </text>
+                        <!-- 🟢 dy="-4" 적용 및 상단 위로 이동 -->
+                        <text style="font-size: 11px; fill: #ffffff; font-weight: 800; letter-spacing: 0.5px;" dy="-4">
+   <textPath href="#innerCurve_${idx}" startOffset="50%" text-anchor="middle">lower is better</textPath>
+</text>
                      </svg>
                      <div class="doughnut-text">
                        <div class="doughnut-val">${calcTopPct}%</div>
