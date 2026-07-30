@@ -287,6 +287,7 @@
     </div>
   </div>
 
+  <!-- 🟢 2. 신규 학생 추가 모달: placeholder 문구 ex. ○○초, ○○중... / ex. 1, 2... 적용 -->
   <div class="modal-overlay" id="addStudentModal">
     <div class="modal-box" style="width: 360px; padding: 25px; text-align: left;">
       <div style="font-size: 16px; font-weight: 900; background-color: #28a745; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 20px; text-align: center;">신규 학생 추가</div>
@@ -297,11 +298,11 @@
       <div style="display: flex; gap: 10px; margin-bottom: 20px;">
          <div style="flex:1;">
             <label style="font-size:13px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">학교명</label>
-            <input type="text" id="newStudentSchool" placeholder="ex. 동탄초" style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
+            <input type="text" id="newStudentSchool" placeholder="ex. ○○초, ○○중..." style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
          </div>
          <div style="flex:1;">
             <label style="font-size:13px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">학년</label>
-            <input type="text" id="newStudentGrade" placeholder="ex. 1" style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
+            <input type="text" id="newStudentGrade" placeholder="ex. 1, 2..." style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
          </div>
       </div>
       <div style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -311,16 +312,26 @@
     </div>
   </div>
 
+  <!-- 🟢 1. 채점 이어서 진행 팝업: 글자색 동일 파란색 심플 상반신 SVG 아이콘 + 확인 (Enter) 2줄 슬림 버튼 적용 -->
   <div class="modal-overlay" id="nextStudentModal">
-    <div class="modal-box" style="width: 340px; padding: 30px 20px;">
-      <div style="font-size: 32px; margin-bottom: 10px;">👤</div>
-      <div style="font-size: 16px; font-weight: bold; color: #333; margin-bottom: 25px;">
+    <div class="modal-box" style="width: 340px; padding: 25px 20px;">
+      <div style="margin-bottom: 12px; color: #1366ce; display: flex; justify-content: center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4"></circle>
+          <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 0 0 1 4 4v2"></path>
+        </svg>
+      </div>
+      <div style="font-size: 16px; font-weight: bold; color: #333; margin-bottom: 22px;">
         <span id="nextStudentName" style="color: #1366ce; font-size: 18px;"></span> 학생의<br>채점을 이어서 진행합니다.
       </div>
-      <button class="modal-btn" onclick="confirmNextStudent()">확인 (Enter)</button>
+      <button class="modal-btn" style="width: 150px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 0; line-height: 1.2;" onclick="confirmNextStudent()">
+        <span style="font-size: 14px; font-weight: bold;">확인</span>
+        <span style="font-size: 11px; font-weight: normal; opacity: 0.75; margin-top: 2px;">(Enter)</span>
+      </button>
     </div>
   </div>
 
+  <!-- 🟢 4. 필수 환경설정 모달: 닫기 버튼은 정중앙으로 이동 & 설정 저장 버튼은 절대좌표로 우측 위치 고정 -->
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box" style="width: 700px; padding: 25px; text-align: left;">
       <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">필수 환경설정</div>
@@ -331,13 +342,14 @@
           <tbody id="settingsGridBody"></tbody>
         </table>
       </div>
-      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <div style="display: flex; justify-content: center; align-items: center; position: relative; width: 100%;">
         <button class="modal-btn" style="background-color: #6c757d; width: 130px;" onclick="document.getElementById('settingsModal').style.display='none'">닫기</button>
-        <button class="modal-btn" style="background-color: #28a745; width: 130px;" onclick="saveSettings()">설정 저장</button>
+        <button class="modal-btn" style="background-color: #28a745; width: 130px; position: absolute; right: 0;" onclick="saveSettings()">설정 저장</button>
       </div>
     </div>
   </div>
 
+  <!-- 🟢 3. 학생명단 일괄 업로드 모달: 닫기 버튼 좌우중앙(justify-content: center) 이동 -->
   <div class="modal-overlay" id="rosterUploadModal">
     <div class="modal-box" style="width: 480px; padding: 25px;">
       <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 14px 0; border-radius: 12px; margin-bottom: 15px;">학생명단 일괄 업로드</div>
@@ -351,7 +363,7 @@
          <div style="font-size:13px; color:#888; line-height: 1.4;">※ '담임명, 반명, 학생명, 학교, 학년' 열을 자동으로 추출합니다.</div>
          <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;">
       </div>
-      <div class="modal-buttons" style="display: flex; justify-content: flex-end; width: 100%;">
+      <div class="modal-buttons" style="display: flex; justify-content: center; width: 100%;">
         <button class="modal-btn btn-no" style="width: 25%; border-radius: 50px; padding: 10px 0; background-color: #6c757d;" onclick="document.getElementById('rosterUploadModal').style.display='none'">닫기</button>
       </div>
     </div>
@@ -371,7 +383,6 @@
       </div>
 
       <div style="display: flex; align-items: center;">
-        <!-- 🟢 1. 상단 네비게이션 바 우측 관리자 톱니바퀴: 구글 공식 머티리얼 디자인 Settings SVG로 완벽 교체 -->
         <button class="icon-btn" id="headerAdminBtn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
@@ -511,7 +522,6 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v6h16v-6"></path><path d="M12 4v12"></path><path d="m17 9-5-5-5 5"></path></svg>
             학생명단 업로드
           </button>
-          <!-- 🟢 2. 관리자 툴바 필수 환경설정 버튼: 동일한 구글 공식 머티리얼 디자인 Settings SVG로 1:1 교체 -->
           <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
@@ -647,7 +657,6 @@
       });
     }
 
-    /* 🟢 1. 합쳐진 과정명("레벨 과정명")을 1순위=난이도 목록 순서, 2순위=과정명 목록 순서로 엄격 정렬 */
     function sortCombinedCourses(arr, levelsOrder = [], coursesOrder = []) {
       return arr.slice().sort((a, b) => {
         let levelA = levelsOrder.find(l => a.startsWith(l)) || "";
@@ -925,7 +934,6 @@
       }; reader.readAsArrayBuffer(file);
     }
 
-    /* 🟢 1. 합쳐진 과정명("레벨 과정명")을 1순위=난이도 목록 순서, 2순위=과정명 목록 순서로 엄격 정렬 */
     function filterCourses(prefix, forceReset = false) {
       const tt = getTermAndTest(prefix);
       const term = tt.term; const test = tt.test;
