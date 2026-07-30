@@ -20,6 +20,15 @@
     .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; overflow: hidden; }
     .page-content.active { display: flex; }
 
+    @keyframes softBlink {
+      0% { background-color: #c8e6c9 !important; }
+      50% { background-color: #fff3cd !important; }
+      100% { background-color: transparent; }
+    }
+    .cell-blink {
+      animation: softBlink 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1366ce; border-radius: 50%; animation: spin 1s linear infinite; }
     .spinner-text { margin-top: 15px; font-weight: bold; color: #1366ce; font-size: 15px; }
@@ -499,7 +508,7 @@
 
     </div>
 
-    <!-- 🟢 관리자 화면: 시험 기본 세팅 1/5(업로드) : 4/5(세팅 표) 분할 레이아웃 -->
+    <!-- 🟢 관리자 화면 -->
     <div id="page-admin" class="page-content">
       <div class="filter-card admin-mode">
         <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="checkExistingSetup()"></select></div>
@@ -567,6 +576,17 @@
     let lastSelectedCourse = "";
     let confirmCallback = null;
     let cancelCallback = null;
+
+    function highlightCells(selectorOrElements) {
+      let els = typeof selectorOrElements === 'string' ? document.querySelectorAll(selectorOrElements) : selectorOrElements;
+      els.forEach(el => {
+        if (!el) return;
+        let targetEl = (el.tagName === 'INPUT' && el.parentElement) ? el.parentElement : el;
+        targetEl.classList.remove('cell-blink');
+        void targetEl.offsetWidth; 
+        targetEl.classList.add('cell-blink');
+      });
+    }
 
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
@@ -1135,11 +1155,13 @@
       }
     }
 
+    /* 🟢 2. TXT 업로드 시 단원명 '띄어쓰기 차이' 자동 통일(정규화) 사전을 적용하여 첫 등장 단어 기준으로 통합 */
     function parseTxtSetupData(textData) {
       const lines = textData.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '');
       const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
       const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
       let parsedCount = 0;
+      let unitNameMap = {};
 
       for (let i = 0; i < lines.length; i++) {
         const qMatch = lines[i].match(/(?:문제|문항)\s*(\d+)/);
@@ -1147,12 +1169,21 @@
           let qNum = parseQuestionNumber(qMatch[1]);
           
           if (qNum >= startNum && qNum <= endNum) {
-            const unitName = lines[i + 1] || '';
+            let unitName = lines[i + 1] || '';
             let scoreVal = lines[i + 2] || '';
             if (!/^[1-5](?:점)?$/.test(scoreVal) && /^[1-5](?:점)?$/.test(lines[i + 3] || '')) {
               scoreVal = lines[i + 3];
             }
             let scoreDigit = String(scoreVal).replace(/[^1-5]/g, '').slice(0, 1);
+
+            let spaceless = unitName.replace(/\s+/g, '');
+            if (spaceless) {
+              if (!unitNameMap[spaceless]) {
+                unitNameMap[spaceless] = unitName;
+              } else {
+                unitName = unitNameMap[spaceless];
+              }
+            }
 
             const unitInput = document.getElementById(`unit_${qNum}`);
             const scoreInput = document.getElementById(`score_${qNum}`);
@@ -1171,6 +1202,7 @@
       }
     }
 
+    /* 🟢 2. 엑셀 업로드 시에도 단원명 '띄어쓰기 차이' 자동 통일 사전을 일관성 있게 적용 */
     function parseExcelSetupData(buffer) {
       let data = new Uint8Array(buffer);
       let workbook = XLSX.read(data, {type: 'array'});
@@ -1198,6 +1230,7 @@
       const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
       const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
       let parsedCount = 0;
+      let unitNameMap = {};
 
       if (headerRowIdx === -1 || colMap.unit === -1 || colMap.score === -1) {
         let rowOffset = 0;
@@ -1212,6 +1245,15 @@
           } else {
             unitVal = String(row[0] || '').trim();
             scoreVal = String(row[1] || '').replace(/[^1-5]/g, '').slice(0, 1);
+          }
+
+          let spaceless = unitVal.replace(/\s+/g, '');
+          if (spaceless) {
+            if (!unitNameMap[spaceless]) {
+              unitNameMap[spaceless] = unitVal;
+            } else {
+              unitVal = unitNameMap[spaceless];
+            }
           }
           
           if (qNum >= startNum && qNum <= endNum && unitVal && /^[1-5]$/.test(scoreVal)) {
@@ -1232,6 +1274,15 @@
           let qNum = colMap.num !== -1 ? parseInt(row[colMap.num]) : (startNum + i - headerRowIdx - 1);
           let unitVal = String(row[colMap.unit] || '').trim();
           let scoreVal = String(row[colMap.score] || '').replace(/[^1-5]/g, '').slice(0, 1);
+
+          let spaceless = unitVal.replace(/\s+/g, '');
+          if (spaceless) {
+            if (!unitNameMap[spaceless]) {
+              unitNameMap[spaceless] = unitVal;
+            } else {
+              unitVal = unitNameMap[spaceless];
+            }
+          }
           
           if (qNum >= startNum && qNum <= endNum && unitVal && /^[1-5]$/.test(scoreVal)) {
             let uInput = document.getElementById(`unit_${qNum}`);
@@ -1298,7 +1349,7 @@
       }).catch(handleError);
     }
 
-    function loadGradesData(afterLoadMsg = null) {
+    function loadGradesData(afterLoadMsg = null, highlightedStudentName = null) {
       const tt = getTermAndTest('main');
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
@@ -1321,11 +1372,18 @@
           if (afterLoadMsg) {
             setTimeout(() => showAlert(afterLoadMsg), 50);
           }
+          if (highlightedStudentName) {
+            let targetIdx = res.data.students.findIndex(s => s.name.trim() === highlightedStudentName.trim());
+            if (targetIdx !== -1) {
+              setTimeout(() => {
+                highlightCells(document.querySelectorAll(`.grid-nav[data-s="${targetIdx}"], #totalScore_${targetIdx}, #rank_${targetIdx}`));
+              }, 150);
+            }
+          }
         } else { showAlert("· Error: " + res.error); } 
       }).catch(handleError);
     }
 
-    /* 🟢 1. 렌더링 좌표 버그 원천 해결: position:absolute 제거 ➔ Flexbox 인플로우 분할 레이아웃 */
     function renderInputTable(setupData, rawStudents, grades) {
       document.getElementById('inputEmptyState').style.display = 'none'; 
       const tableContainer = document.getElementById('inputTableContainer');
@@ -1837,7 +1895,7 @@
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       
       let studentsData = [];
-      let rosterUpdates = { added: [], deleted: [] };
+      let rosterUpdates = { added: [], deleted: [], restored: [] };
 
       for (let sIdx = 0; sIdx < currentStudentsCount; sIdx++) {
          let stObj = currentStudentsList[sIdx];
@@ -1847,6 +1905,8 @@
          }
          if (stObj.isNew) {
            rosterUpdates.added.push({ name: stObj.name, school: stObj.school || '', grade: stObj.grade || '' });
+         } else {
+           rosterUpdates.restored.push(stObj.name);
          }
 
          let totalEl = document.getElementById(`totalScore_${sIdx}`);
@@ -1870,7 +1930,7 @@
          }
       }
 
-      if (studentsData.length === 0 && rosterUpdates.added.length === 0 && rosterUpdates.deleted.length === 0) {
+      if (studentsData.length === 0 && rosterUpdates.added.length === 0 && rosterUpdates.deleted.length === 0 && rosterUpdates.restored.length === 0) {
         return showAlert("저장할 성적 또는 명단 변경 데이터가 없습니다.");
       }
 
