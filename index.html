@@ -208,7 +208,7 @@
     }
     .student-del-badge:hover { background-color: #a71d2a; }
 
-    /* 🟢 2. 성적표 렌더링 요약 메모 박스: 흰색 무테두리, 상하 줄바꿈, 우측 10% 회색 접기/펴기 슬라이드 핸들 */
+    /* 🟢 2. 성적표 렌더링 요약 메모 박스: 접기/펴기 핸들의 배경색을 부드러운 연한 회색(#ced4da)으로 수정 */
     .report-summary-memo {
       position: fixed; top: 50%; left: 0; transform: translate(0, -50%);
       width: 210px; background: #ffffff; border: none;
@@ -224,11 +224,11 @@
       flex: 1; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px; width: 185px; min-width: 185px;
     }
     .memo-toggle-handle {
-      width: 25px; min-width: 25px; background-color: #adb5bd; color: #ffffff;
+      width: 25px; min-width: 25px; background-color: #ced4da; color: #495057;
       display: flex; align-items: center; justify-content: center; cursor: pointer;
       font-size: 12px; font-weight: 900; transition: background-color 0.2s;
     }
-    .memo-toggle-handle:hover { background-color: #6c757d; }
+    .memo-toggle-handle:hover { background-color: #adb5bd; }
     .memo-block { display: flex; flex-direction: column; gap: 2px; }
     .memo-label { color: #6c757d; font-weight: 600; font-size: 12px; }
     .memo-value { color: #111; font-weight: 800; font-size: 13px; padding-left: 8px; word-break: break-all; }
@@ -430,14 +430,13 @@
       </div>
 
       <div style="display: flex; align-items: center;">
-        <!-- 🟢 1. 톱니바퀴 아이콘 복구: 선(Stroke) 기반 모던 표준 SVG 아이콘으로 교체 -->
-        <button class="icon-btn" id="headerAdminBtn" onclick="switchPage('page-admin')" title="시험 기본 세팅 (관리자)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        <!-- 🟢 1. 머티리얼 디자인 설정(Settings) 톱니바퀴 24x24 SVG 아이콘 복원 (툴팁 없음) -->
+        <button class="icon-btn" id="headerAdminBtn" onclick="switchPage('page-admin')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
           </svg>
         </button>
-        <button class="icon-btn" id="headerMainBtn" style="display: none;" onclick="switchPage('page-main')" title="뒤로가기">
+        <button class="icon-btn" id="headerMainBtn" style="display: none;" onclick="switchPage('page-main')">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         </button>
       </div>
@@ -456,11 +455,11 @@
         
         <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #495057;" onclick="loadGradesData()">명단 불러오기</button>
-          <button class="icon-btn" style="width: 32px; height: 32px; margin-left: 4px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()" title="검색 조건 초기화">
+          <button class="icon-btn" style="width: 32px; height: 32px; margin-left: 4px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           </button>
           <div style="margin-left: auto;">
-            <button class="btn-expand-action" style="background-color: #d32f2f;" onclick="saveGrades()" title="결과 저장">
+            <button class="btn-expand-action" style="background-color: #d32f2f;" onclick="saveGrades()">
               <span class="btn-icon-wrap">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
               </span>
@@ -471,11 +470,11 @@
 
         <div id="actionBtn_report" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #495057;" onclick="generateReports()">성적표 렌더링</button>
-          <button class="icon-btn" style="width: 32px; height: 32px; margin-left: 4px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()" title="검색 조건 초기화">
+          <button class="icon-btn" style="width: 32px; height: 32px; margin-left: 4px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           </button>
           <div style="margin-left: auto;">
-            <button class="btn-expand-action" style="background-color: #333;" onclick="executePrint()" title="일괄 인쇄 (PDF)">
+            <button class="btn-expand-action" style="background-color: #333;" onclick="executePrint()">
               <span class="btn-icon-wrap">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
               </span>
@@ -486,7 +485,7 @@
 
         <div id="actionBtn_data" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #495057;" onclick="generateDashboard()">데이터 조회</button>
-          <button class="icon-btn" style="width: 32px; height: 32px; margin-left: 4px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()" title="검색 조건 초기화">
+          <button class="icon-btn" style="width: 32px; height: 32px; margin-left: 4px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           </button>
         </div>
@@ -511,7 +510,7 @@
       </div>
 
       <div id="view_report" style="display: none;">
-        <!-- 🟢 2. 성적표 렌더링 화면 좌측 요약 메모 박스: 흰색 무테두리, 상하 줄바꿈, 10% 우측 회색 접기/펴기 핸들 -->
+        <!-- 🟢 2. 성적표 요약 메모 박스: 접기/펴기 핸들의 배경색을 연한 회색(#ced4da)으로 수정 (툴팁 없음) -->
         <div class="report-summary-memo" id="reportSummaryMemo">
           <div class="memo-content-wrap">
             <div class="memo-title">성적표 요약</div>
@@ -536,7 +535,7 @@
               <div class="memo-value" id="memoClassCount">-</div>
             </div>
           </div>
-          <div class="memo-toggle-handle" onclick="toggleSummaryMemo()" title="요약 메모 접기/펴기">
+          <div class="memo-toggle-handle" onclick="toggleSummaryMemo()">
             <span id="memoToggleIcon">◀</span>
           </div>
         </div>
@@ -591,7 +590,7 @@
 
     </div>
 
-    <!-- 🟢 관리자 화면: 시험 기본 세팅 18%(업로드) : 18%(입력현황 표) : 64%(세팅 표) 3분할 레이아웃 -->
+    <!-- 🟢 관리자 화면 -->
     <div id="page-admin" class="page-content">
       <div class="filter-card admin-mode">
         <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="onSetupTestChanged()"></select></div>
@@ -612,6 +611,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v6h16v-6"></path><path d="M12 4v12"></path><path d="m17 9-5-5-5 5"></path></svg>
             학생명단 업로드
           </button>
+          <!-- 🟢 1. 머티리얼 디자인 설정(Settings) 톱니바퀴 24x24 SVG 아이콘 복원 (툴팁 없음) -->
           <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
@@ -660,7 +660,7 @@
             <tbody id="setupTableBody"></tbody>
           </table>
           <div class="sticky-fab-bar" id="setupBottomControls" style="position: sticky; bottom: 15px; right: 15px; float: right; width: max-content; z-index: 70; margin: 15px; pointer-events: auto;">
-            <button class="btn-setup-clear-main" onclick="confirmClearSetup()" title="현재 표 내용 전체 삭제">
+            <button class="btn-setup-clear-main" onclick="confirmClearSetup()">
               <span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">입력내용삭제</span>
             </button>
           </div>
@@ -698,7 +698,6 @@
       });
     }
 
-    /* 🟢 2. 요약 메모지 접기/펴기 슬라이드 애니메이션 제어 함수 */
     function toggleSummaryMemo() {
       const memo = document.getElementById('reportSummaryMemo');
       const icon = document.getElementById('memoToggleIcon');
@@ -901,7 +900,7 @@
           );
 
           html += `
-            <tr style="cursor: pointer; border-bottom: 1px solid #eee; background-color: ${levelBg};" onclick="selectSetupFromStatus('${level}', '${course}')" title="클릭하여 해당 세팅 불러오기">
+            <tr style="cursor: pointer; border-bottom: 1px solid #eee; background-color: ${levelBg};" onclick="selectSetupFromStatus('${level}', '${course}')">
               <td style="padding: 6px 4px; color: #333;">${level}</td>
               <td style="padding: 6px 4px; color: #333; text-align: left; padding-left: 8px;">${course}</td>
               <td style="padding: 6px 4px; color: ${isSaved ? '#28a745' : '#adb5bd'}; font-weight: bold;">${isSaved ? '✔' : '-'}</td>
@@ -1741,11 +1740,11 @@
       parsedStudents.forEach((st, sIdx) => { 
         let headerContent = st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0');
         if (!st.isEmpty && st.isDeleted) {
-          headerContent = `<button class="student-del-badge" style="background-color:#28a745; width:22px; height:22px;" onclick="restoreDeletedStudent(${sIdx})" title="${st.name} 삭제 취소(원상복구)">
+          headerContent = `<button class="student-del-badge" style="background-color:#28a745; width:22px; height:22px;" onclick="restoreDeletedStudent(${sIdx})">
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
           </button>`;
         } else if (!st.isEmpty && isDeleteMode) {
-          headerContent = `<button class="student-del-badge" onclick="markDeleteStudent('${st.name}')" title="${st.name} 삭제 예고">
+          headerContent = `<button class="student-del-badge" onclick="markDeleteStudent('${st.name}')">
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/></line></svg>
           </button>`;
         }
@@ -1801,7 +1800,7 @@
           
           htmlTbody += `<tr>
             <td class="sticky-col-1 bg-gray" style="font-weight:bold; color:#333;">${qNum}</td>
-            <td class="sticky-col-2 bg-light" style="text-align:left; padding-left:10px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; color:#333; font-weight:500;" title="${unitName}">${unitName}</td>
+            <td class="sticky-col-2 bg-light" style="text-align:left; padding-left:10px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; color:#333; font-weight:500;">${unitName}</td>
             <td class="sticky-col-3 bg-light" style="color:#6c757d; font-weight:bold;">${scoreVal}</td>`;
             
           parsedStudents.forEach((st, sIdx) => {
@@ -1829,10 +1828,10 @@
         } else {
           htmlTfoot += `<th class="bg-white">
             <div class="batch-btn-col">
-              <button class="batch-btn batch-btn-o" onclick="batchSetStudentAnswers(${sIdx}, 'O')" title="${st.name} 전체 O 처리">O</button>
-              <button class="batch-btn batch-btn-x" onclick="batchSetStudentAnswers(${sIdx}, 'X')" title="${st.name} 전체 X 처리">X</button>
-              <button class="batch-btn batch-btn-clear" onclick="batchSetStudentAnswers(${sIdx}, '')" title="${st.name} 입력 전체 삭제">-</button>
-              <button class="batch-btn batch-btn-undo" onclick="undoStudentAnswers(${sIdx})" title="${st.name} 직전 일괄 입력 되돌리기">
+              <button class="batch-btn batch-btn-o" onclick="batchSetStudentAnswers(${sIdx}, 'O')">O</button>
+              <button class="batch-btn batch-btn-x" onclick="batchSetStudentAnswers(${sIdx}, 'X')">X</button>
+              <button class="batch-btn batch-btn-clear" onclick="batchSetStudentAnswers(${sIdx}, '')">-</button>
+              <button class="batch-btn batch-btn-undo" onclick="undoStudentAnswers(${sIdx})">
                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
               </button>
             </div>
@@ -2108,11 +2107,11 @@
       currentStudentsList.forEach((st, sIdx) => {
         let headerContent = st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0');
         if (!st.isEmpty && st.isDeleted) {
-          headerContent = `<button class="student-del-badge" style="background-color:#28a745; width:22px; height:22px;" onclick="restoreDeletedStudent(${sIdx})" title="${st.name} 삭제 취소(원상복구)">
+          headerContent = `<button class="student-del-badge" style="background-color:#28a745; width:22px; height:22px;" onclick="restoreDeletedStudent(${sIdx})">
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
           </button>`;
         } else if (!st.isEmpty && isDeleteMode) {
-          headerContent = `<button class="student-del-badge" onclick="markDeleteStudent('${st.name}')" title="${st.name} 삭제 예고">
+          headerContent = `<button class="student-del-badge" onclick="markDeleteStudent('${st.name}')">
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/></line></svg>
           </button>`;
         }
@@ -2309,7 +2308,6 @@
       }).catch(handleError);
     }
 
-    /* 🟢 2. 요약 메모 박스 동기화: 흰색 무테두리, 상하 줄바꿈 구조에 맞게 데이터 채우기 */
     function renderReportCards(examInfo, students) {
       chartInstances.forEach(chart => chart.destroy()); chartInstances = []; const container = document.getElementById('reportContainer'); container.innerHTML = '';
       if(students.length === 0) { container.innerHTML = '<h3 style="text-align:center; color:#ef4444; padding:40px;">데이터가 없습니다.</h3>'; return; }
