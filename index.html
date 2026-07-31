@@ -2498,7 +2498,7 @@
           <div class="report-page">
             <div class="report-header">
               <div class="report-logo">
-                <img src="https://i.imgur.com/PQRrCSI.png" alt="SG청운학원" class="no-capture">
+                <img src="https://i.imgur.com/PQRrCSI.png?v=1" alt="SG청운학원" class="no-capture" crossorigin="anonymous">
               </div>
               <div class="report-info">
                 <div class="info-badge combined-badge">
@@ -2672,7 +2672,7 @@
       if (batchBtnWrap) batchBtnWrap.style.display = 'block';
     }
 
-    /* 🟢 [핵심 헬퍼] 화면(DOM)에 이미 로드된 로고 요소를 캔버스 정확한 좌표에 합성하는 함수 (CORS 에러 0%) */
+    /* 🟢 [핵심 헬퍼] 화면(DOM)에 로드된 CORS 안전 로고 요소를 캔버스 정확한 좌표에 합성하는 함수 */
     function drawLogoOnCanvas(canvas, pageEl) {
       const ctx = canvas.getContext('2d');
       const logoEl = pageEl.querySelector('.report-logo img');
@@ -2690,7 +2690,7 @@
       const targetWidth = 155 * scale;
       const targetHeight = 38 * scale;
       
-      // 3. 네트워크 재호출 없이 DOM에 로드된 이미지를 메모리에서 즉시 도장 찍기
+      // 3. CORS 권한이 부여된 DOM 요소를 메모리에서 즉시 도장 찍기
       try {
         ctx.drawImage(logoEl, x, y, targetWidth, targetHeight);
       } catch (e) {
