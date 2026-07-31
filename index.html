@@ -2713,7 +2713,7 @@
       return canvas;
     }
 
-    /* 🟢 1. 성적표 개별 카드 JPEG 이미지 저장 함수 */
+    /* 🟢 1. 성적표 개별 카드 JPEG 이미지 저장 함수 (표준 고화질 로직) */
     function saveSingleReportImage(btnEl, studentName) {
       const pageEl = btnEl.closest('.report-page');
       const tt = getTermAndTest('main');
@@ -2726,9 +2726,6 @@
         backgroundColor: '#ffffff',
         ignoreElements: (el) => el.classList.contains('no-capture')
       }).then(canvas => {
-        // 💡 캔버스 캡처 직후 로고 요소를 정위치에 합성
-        drawLogoOnCanvas(canvas, pageEl);
-        
         showLoading(false);
         canvas.toBlob(blob => {
           saveAs(blob, fileName);
@@ -2739,7 +2736,7 @@
       });
     }
 
-    /* 🟢 1. 전체 성적표 일괄 JPEG 생성 및 ZIP 압축 다운로드 함수 */
+    /* 🟢 1. 전체 성적표 일괄 JPEG 생성 및 ZIP 압축 다운로드 함수 (표준 고화질 로직) */
     async function saveAllReportsZip() {
       const pages = document.querySelectorAll('.report-page');
       if (!pages || pages.length === 0) return showAlert("렌더링된 성적표가 없습니다.");
@@ -2760,15 +2757,12 @@
         
         showLoading(true, `전체 성적표(${pages.length}장) 압축 이미지 생성 중... (${i+1}/${pages.length})`);
         
-        let canvas = await html2canvas(pageEl, {
+        const canvas = await html2canvas(pageEl, {
           scale: 2,
           useCORS: true,
           backgroundColor: '#ffffff',
           ignoreElements: (el) => el.classList.contains('no-capture')
         });
-        
-        // 💡 각 성적표 페이지마다 해당 페이지의 로고를 정위치에 즉시 합성
-        drawLogoOnCanvas(canvas, pageEl);
         
         const blobData = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
         imgFolder.file(`${tt.term}_${tt.test}_${stName}.jpg`, blobData);
