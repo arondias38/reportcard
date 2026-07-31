@@ -2672,28 +2672,34 @@
       if (batchBtnWrap) batchBtnWrap.style.display = 'block';
     }
 
-    /* 🟢 [핵심 헬퍼] html2canvas 스크린샷 캔버스 위에 로고 이미지를 도장 찍듯 직접 합성하는 함수 */
-    function drawLogoOnCanvas(canvas) {
-      return new Promise((resolve) => {
-        const ctx = canvas.getContext('2d');
-        const logoImg = new Image();
-        logoImg.crossOrigin = 'Anonymous'; // 💡 CORS 보안 오염(Tainted Canvas) 방지
-        
-        logoImg.onload = function() {
-          // report-page의 padding: 35px -> scale: 2 기준 (x: 70px, y: 72px) 좌표에 정확히 스탬프 렌더링
-          // 가로 155px, 세로 38px의 2배수 크기 = 310px, 76px (비율 왜곡 0% 보증)
-          ctx.drawImage(logoImg, 70, 72, 310, 76);
-          resolve(canvas);
-        };
-        logoImg.onerror = function() {
-          // 💡 네트워크 문제로 로고 로드 실패 시에도 성적표 저장이 중단되지 않도록 방어
-          resolve(canvas);
-        };
-        logoImg.src = 'https://i.imgur.com/PQRrCSI.png';
-      });
+    /* 🟢 [핵심 헬퍼] 화면(DOM)에 이미 로드된 로고 요소를 캔버스 정확한 좌표에 합성하는 함수 (CORS 에러 0%) */
+    function drawLogoOnCanvas(canvas, pageEl) {
+      const ctx = canvas.getContext('2d');
+      const logoEl = pageEl.querySelector('.report-logo img');
+      if (!logoEl) return canvas;
+
+      // 1. 성적표 용지(pageEl)와 로고(logoEl) 사이의 정확한 상대 좌표 자동 계산
+      const pageRect = pageEl.getBoundingClientRect();
+      const logoRect = logoEl.getBoundingClientRect();
+      
+      const scale = 2; // html2canvas scale: 2 옵션과 동일한 2배수 기준
+      const x = (logoRect.left - pageRect.left) * scale;
+      const y = (logoRect.top - pageRect.top) * scale;
+      
+      // 2. 로고 원본 비율(가로 155px x 세로 38px)의 2배수 크기 = 310px x 76px (늘어남 0% 보증)
+      const targetWidth = 155 * scale;
+      const targetHeight = 38 * scale;
+      
+      // 3. 네트워크 재호출 없이 DOM에 로드된 이미지를 메모리에서 즉시 도장 찍기
+      try {
+        ctx.drawImage(logoEl, x, y, targetWidth, targetHeight);
+      } catch (e) {
+        console.error("로고 렌더링 에러:", e);
+      }
+      return canvas;
     }
 
-    /* 🟢 1. 성적표 개별 카드 JPEG 이미지 저장 함수 (로고 직접 합성 적용) */
+    /* 🟢 1. 성적표 개별 카드 JPEG 이미지 저장 함수 */
     function saveSingleReportImage(btnEl, studentName) {
       const pageEl = btnEl.closest('.report-page');
       const tt = getTermAndTest('main');
@@ -2705,9 +2711,9 @@
         useCORS: true,
         backgroundColor: '#ffffff',
         ignoreElements: (el) => el.classList.contains('no-capture')
-      }).then(async (canvas) => {
-        // 💡 캔버스 생성 직후 로고를 덧씌워 병합
-        await drawLogoOnCanvas(canvas);
+      }).then(canvas => {
+        // 💡 캔버스 캡처 직후 로고 요소를 정위치에 합성
+        drawLogoOnCanvas(canvas, pageEl);
         
         showLoading(false);
         canvas.toBlob(blob => {
@@ -2719,7 +2725,7 @@
       });
     }
 
-    /* 🟢 1. 전체 성적표 일괄 JPEG 생성 및 ZIP 압축 다운로드 함수 (로고 직접 합성 적용) */
+    /* 🟢 1. 전체 성적표 일괄 JPEG 생성 및 ZIP 압축 다운로드 함수 */
     async function saveAllReportsZip() {
       const pages = document.querySelectorAll('.report-page');
       if (!pages || pages.length === 0) return showAlert("렌더링된 성적표가 없습니다.");
@@ -2747,8 +2753,8 @@
           ignoreElements: (el) => el.classList.contains('no-capture')
         });
         
-        // 💡 각 성적표 캔버스마다 로고를 덧씌워 병합
-        await drawLogoOnCanvas(canvas);
+        // 💡 각 성적표 페이지마다 해당 페이지의 로고를 정위치에 즉시 합성
+        drawLogoOnCanvas(canvas, pageEl);
         
         const blobData = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
         imgFolder.file(`${tt.term}_${tt.test}_${stName}.jpg`, blobData);
