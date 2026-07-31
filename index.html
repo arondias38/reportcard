@@ -1791,6 +1791,9 @@
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
       
+      // 🟢 안정성 보완: 명단 로드 시 이전 반의 일괄 입력 Undo 스냅샷 메모리를 완전히 초기화
+      studentUndoSnapshots = {};
+
       isDeleteMode = false;
       const delBtn = document.getElementById('toggleDeleteBtn');
       if(delBtn) { 
