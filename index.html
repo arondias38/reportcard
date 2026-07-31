@@ -2498,7 +2498,7 @@
           <div class="report-page">
             <div class="report-header">
               <div class="report-logo">
-                <img src="https://i.imgur.com/PQRrCSI.png" alt="SG청운학원">
+                <img src="https://i.imgur.com/PQRrCSI.png" alt="SG청운학원" class="no-capture">
               </div>
               <div class="report-info">
                 <div class="info-badge combined-badge">
@@ -2672,6 +2672,28 @@
       if (batchBtnWrap) batchBtnWrap.style.display = 'block';
     }
 
+    /* 🟢 [핵심 헬퍼] html2canvas 스크린샷 캔버스 위에 로고 이미지를 도장 찍듯 직접 합성하는 함수 */
+    function drawLogoOnCanvas(canvas) {
+      return new Promise((resolve) => {
+        const ctx = canvas.getContext('2d');
+        const logoImg = new Image();
+        logoImg.crossOrigin = 'Anonymous'; // 💡 CORS 보안 오염(Tainted Canvas) 방지
+        
+        logoImg.onload = function() {
+          // report-page의 padding: 35px -> scale: 2 기준 (x: 70px, y: 72px) 좌표에 정확히 스탬프 렌더링
+          // 가로 155px, 세로 38px의 2배수 크기 = 310px, 76px (비율 왜곡 0% 보증)
+          ctx.drawImage(logoImg, 70, 72, 310, 76);
+          resolve(canvas);
+        };
+        logoImg.onerror = function() {
+          // 💡 네트워크 문제로 로고 로드 실패 시에도 성적표 저장이 중단되지 않도록 방어
+          resolve(canvas);
+        };
+        logoImg.src = 'https://i.imgur.com/PQRrCSI.png';
+      });
+    }
+
+    /* 🟢 1. 성적표 개별 카드 JPEG 이미지 저장 함수 (로고 직접 합성 적용) */
     function saveSingleReportImage(btnEl, studentName) {
       const pageEl = btnEl.closest('.report-page');
       const tt = getTermAndTest('main');
@@ -2683,7 +2705,10 @@
         useCORS: true,
         backgroundColor: '#ffffff',
         ignoreElements: (el) => el.classList.contains('no-capture')
-      }).then(canvas => {
+      }).then(async (canvas) => {
+        // 💡 캔버스 생성 직후 로고를 덧씌워 병합
+        await drawLogoOnCanvas(canvas);
+        
         showLoading(false);
         canvas.toBlob(blob => {
           saveAs(blob, fileName);
@@ -2694,6 +2719,7 @@
       });
     }
 
+    /* 🟢 1. 전체 성적표 일괄 JPEG 생성 및 ZIP 압축 다운로드 함수 (로고 직접 합성 적용) */
     async function saveAllReportsZip() {
       const pages = document.querySelectorAll('.report-page');
       if (!pages || pages.length === 0) return showAlert("렌더링된 성적표가 없습니다.");
@@ -2714,12 +2740,15 @@
         
         showLoading(true, `전체 성적표(${pages.length}장) 압축 이미지 생성 중... (${i+1}/${pages.length})`);
         
-        const canvas = await html2canvas(pageEl, {
+        let canvas = await html2canvas(pageEl, {
           scale: 2,
           useCORS: true,
           backgroundColor: '#ffffff',
           ignoreElements: (el) => el.classList.contains('no-capture')
         });
+        
+        // 💡 각 성적표 캔버스마다 로고를 덧씌워 병합
+        await drawLogoOnCanvas(canvas);
         
         const blobData = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
         imgFolder.file(`${tt.term}_${tt.test}_${stName}.jpg`, blobData);
