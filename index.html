@@ -291,16 +291,19 @@
     /* 🟢 이미지 저장(html2canvas) 시 왼쪽 상단 로고 이미지 상하 늘어남 완벽 방지 */
     .report-logo {
       width: 172px; min-width: 172px; max-width: 172px;
-      height: 40px; line-height: 40px;
-      display: block !important;
+      height: 40px; display: flex; justify-content: flex-start; align-items: center;
       flex-shrink: 0; overflow: hidden;
     }
+
+    /* 🟢 html2canvas object-fit 버그 우회: width:auto를 버리고 가로/세로 픽셀을 명확히 고정 */
     .report-logo img {
-      width: auto !important; height: 38px !important;
-      max-width: 170px !important; max-height: 38px !important;
-      object-fit: contain !important; display: inline-block !important;
-      vertical-align: middle !important; margin: 0 !important;
-    } 
+      width: 150px !important;  /* 💡 학원 로고 가로 너비 고정 (필요시 140~160px 사이로 조정) */
+      height: 36px !important;  /* 💡 세로 높이 고정 */
+      max-width: 170px !important;
+      max-height: 38px !important;
+      display: block !important;
+      margin: 0 !important;
+    }
     
     .report-info { display: flex; gap: 10px; align-items: stretch; flex: 1; min-width: 0; }
     
