@@ -289,28 +289,8 @@
     .report-header { display: flex; justify-content: flex-start; gap: 20px; align-items: center; margin-bottom: 25px; padding-bottom: 15px; flex-shrink: 0; }
     
     /* 🟢 2. 이미지 저장(html2canvas) 시 왼쪽 상단 로고 이미지 상하 늘어남 완벽 방지 */
-    /* 🟢 html2canvas 고화질 유지 + Flexbox 세로 늘어남 버그 원천 차단 (절대 좌표 격리 방식) */
-.report-logo {
-  width: 172px; min-width: 172px; max-width: 172px;
-  height: 40px; min-height: 40px; max-height: 40px;
-  position: relative !important; /* 💡 이미지 절대 좌표의 기준점 설정 */
-  display: block !important;     /* 💡 flexbox 간섭 차단 */
-  flex-shrink: 0; overflow: hidden;
-}
-
-.report-logo img {
-  position: absolute !important; /* 💡 Flexbox stretch 연산에서 완전히 뜯어냄 (Out of flow) */
-  top: 50% !important;           /* 💡 세로 정중앙 배치 */
-  left: 0 !important;
-  transform: translateY(-50%) !important;
-  width: 155px !important;       /* 💡 로고 원본 비율에 맞춘 고정 너비 */
-  height: 36px !important;       /* 💡 로고 원본 비율에 맞춘 고정 높이 */
-  max-width: none !important;
-  max-height: none !important;
-  object-fit: fill !important;   /* 💡 픽셀 크기가 고정되어 있어 왜곡 없이 선명하게 출력됨 */
-  display: block !important;
-  margin: 0 !important;
-} 
+    .report-logo { width: 172px; min-width: 172px; max-width: 172px; height: 40px; min-height: 40px; max-height: 40px; display: flex; justify-content: flex-start; align-items: center; flex-shrink: 0; overflow: hidden; }
+    .report-logo img { width: auto !important; height: 38px !important; max-width: 170px !important; max-height: 38px !important; object-fit: contain !important; display: inline-block !important; margin: 0 !important; } 
     
     .report-info { display: flex; gap: 10px; align-items: stretch; flex: 1; min-width: 0; }
     
