@@ -291,20 +291,15 @@
     /* 🟢 이미지 저장(html2canvas) 시 왼쪽 상단 로고 이미지 상하 늘어남 완벽 방지 */
     .report-logo {
       width: 172px; min-width: 172px; max-width: 172px;
-      height: 40px; min-height: 40px; max-height: 40px;
-      display: flex; justify-content: flex-start; align-items: center;
+      height: 40px; line-height: 40px;
+      display: block !important;
       flex-shrink: 0; overflow: hidden;
-      align-self: center !important; /* 💡 html2canvas의 부모 stretch 강제 상속 차단 */
     }
     .report-logo img {
-      width: auto !important;
-      height: 38px !important;
-      max-width: 170px !important;
-      max-height: 38px !important;
-      object-fit: contain !important;
-      display: block !important; /* 💡 inline-block에서 발생하는 baseline 여백 및 캔버스 렌더링 왜곡 차단 */
-      margin: 0 !important;
-      align-self: center !important;
+      width: auto !important; height: 38px !important;
+      max-width: 170px !important; max-height: 38px !important;
+      object-fit: contain !important; display: inline-block !important;
+      vertical-align: middle !important; margin: 0 !important;
     } 
     
     .report-info { display: flex; gap: 10px; align-items: stretch; flex: 1; min-width: 0; }
