@@ -2686,13 +2686,12 @@
         onclone: (clonedDoc) => {
           clonedDoc.querySelectorAll('.report-logo').forEach(logoWrap => {
             logoWrap.style.display = 'block';
-            logoWrap.style.paddingTop = '4px';
+            logoWrap.style.height = '40px';
+            logoWrap.style.paddingTop = '6px'; /* 💡 수직 중앙 배치 */
           });
           clonedDoc.querySelectorAll('.report-logo img').forEach(img => {
-            img.style.width = '150px';
-            img.style.height = '32px';
-            img.style.maxHeight = '32px';
-            img.style.objectFit = 'contain';
+            img.style.width = '145px'; /* 💡 약 10% 축소된 너비 */
+            img.style.height = 'auto'; /* 💡 ★ 핵심: auto로 두어 상하 늘어남 원천 차단! */
             img.style.display = 'block';
           });
         }
@@ -2735,13 +2734,12 @@
           onclone: (clonedDoc) => {
             clonedDoc.querySelectorAll('.report-logo').forEach(logoWrap => {
               logoWrap.style.display = 'block';
-              logoWrap.style.paddingTop = '4px';
+              logoWrap.style.height = '40px';
+              logoWrap.style.paddingTop = '6px'; /* 💡 수직 중앙 배치 */
             });
             clonedDoc.querySelectorAll('.report-logo img').forEach(img => {
-              img.style.width = '150px';
-              img.style.height = '32px';
-              img.style.maxHeight = '32px';
-              img.style.objectFit = 'contain';
+              img.style.width = '145px'; /* 💡 약 10% 축소된 너비 */
+              img.style.height = 'auto'; /* 💡 ★ 핵심: auto로 두어 상하 늘어남 원천 차단! */
               img.style.display = 'block';
             });
           }
