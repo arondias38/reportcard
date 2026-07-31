@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- 🟢 이미지 저장(JPEG) 및 ZIP 압축 다운로드를 위한 필수 라이브러리 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -17,7 +16,6 @@
     * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
-    /* 🟢 100vh 앱 뷰포트 레이아웃: 화면 전체 크기에 맞추고 상단 고정 + 내부 독립 스크롤 체계 */
     html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow: hidden; }
     .app-container { height: 100vh; display: flex; flex-direction: column; padding: 20px 25px; overflow: hidden; }
     
@@ -201,7 +199,7 @@
     .btn-roster-add-main:hover, .btn-roster-delete-main:hover, .btn-roster-delete-main.active { max-width: 115px; padding-right: 14px; }
     .btn-roster-delete-main.active { background-color: #8b0000; box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
 
-    /* 🟢 2, 3. 이미지 저장 버튼 & 일괄 이미지 저장 버튼: 동일 규격(32px), 옅은 회색(#6c757d), 카메라 정중앙, 마우스 오버 시 글자만 노출 */
+    /* 🟢 2, 3. 개별 및 일괄 이미지 저장 버튼: 동일 규격(32px), 옅은 회색(#6c757d), 카메라 아이콘 정중앙, 마우스 오버 시 글자만 표시 */
     .btn-card-save-img, .btn-batch-save-zip {
       height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s;
       background-color: #6c757d;
@@ -223,19 +221,16 @@
       display: inline; opacity: 1; transition-delay: 0.05s;
     }
 
-    /* 🟢 관리자 화면 좌측 하단 고정: 데이터 백업 원형 확장 플로팅 버튼 */
+    /* 🟢 4. 데이터 백업 원형 플로팅 버튼: 마우스 오버 시 아이콘은 사라지고 글자만 정중앙에 표시 */
     .btn-backup-cloud {
-      height: 42px; max-width: 42px; border-radius: 21px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.22); display: inline-flex; align-items: center; justify-content: flex-start; transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s ease, background-color 0.2s;
+      height: 42px; max-width: 42px; border-radius: 21px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.22); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s ease, background-color 0.2s;
       background-color: #28a745;
     }
-    .btn-backup-cloud:hover { max-width: 140px; padding-right: 18px; background-color: #218838; }
+    .btn-backup-cloud:hover { max-width: 115px; padding: 0 16px; background-color: #218838; justify-content: center; }
     .btn-backup-cloud .btn-icon-wrap { width: 42px; height: 42px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; }
-    .btn-backup-cloud .btn-text-wrap { opacity: 0; transition: opacity 0.15s ease-in; font-size: 13px; }
-    .btn-backup-cloud:hover .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
-
-    .btn-icon-wrap { width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; font-style: normal; font-size: 1.2em; font-weight: 900; line-height: 0; padding-bottom: 2px; }
-    .btn-text-wrap { opacity: 0; transition: opacity 0.1s ease-in; }
-    .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
+    .btn-backup-cloud:hover .btn-icon-wrap { display: none; }
+    .btn-backup-cloud .btn-text-wrap { display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 13px; }
+    .btn-backup-cloud:hover .btn-text-wrap { display: inline; opacity: 1; transition-delay: 0.05s; }
 
     .student-del-badge {
       display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px;
@@ -279,9 +274,9 @@
     
     .report-header { display: flex; justify-content: flex-start; gap: 20px; align-items: center; margin-bottom: 25px; padding-bottom: 15px; flex-shrink: 0; }
     
-    /* 🟢 4. 이미지 저장(html2canvas) 시 왼쪽 상단 로고 이미지 상하 늘어남 완벽 방지 */
-    .report-logo { width: 172px; min-width: 172px; max-width: 172px; display: flex; justify-content: flex-start; align-items: center; flex-shrink: 0; }
-    .report-logo img { height: 40px; width: auto; max-width: 100%; object-fit: contain; display: block; } 
+    /* 🟢 2. 이미지 저장(html2canvas) 시 왼쪽 상단 로고 이미지 상하 늘어남 완벽 방지 */
+    .report-logo { width: 172px; min-width: 172px; max-width: 172px; height: 40px; display: flex; justify-content: flex-start; align-items: center; flex-shrink: 0; overflow: hidden; }
+    .report-logo img { width: auto; height: 40px; max-width: 100%; max-height: 40px; object-fit: contain; display: block; } 
     
     .report-info { display: flex; gap: 10px; align-items: stretch; flex: 1; min-width: 0; }
     
@@ -334,15 +329,17 @@
     
     .report-footer { margin-top: 15px; padding: 15px 20px; background-color: #f1f5f9; border-radius: 12px; font-size: 11px; color: #475569; line-height: 1.6; flex-shrink: 0; border: 1px solid #e2e8f0; }
 
+    /* 🟢 3. 인쇄 시 마지막 페이지 빈 페이지(16장 출력) 완벽 방지 */
     @media print {
       body * { visibility: hidden; }
       html, body { overflow: visible !important; height: auto !important; background: #fff !important; }
       .app-container { padding: 0 !important; margin: 0 !important; height: auto !important; overflow: visible !important; display: block !important; }
       .page-content, #view_report { display: block !important; overflow: visible !important; }
       #reportContainer, #reportContainer * { visibility: visible; }
-      #reportContainer { position: absolute; left: 0; top: 0; width: 100%; margin-bottom: 0; }
+      #reportContainer { position: absolute; left: 0; top: 0; width: 100%; margin-bottom: 0 !important; padding-bottom: 0 !important; gap: 0 !important; }
       .top-nav-bar, .filter-card { display: none !important; }
       .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; background: #fff; margin: 0; flex-shrink: 1; }
+      .report-page:last-child, .report-page:last-of-type { page-break-after: avoid !important; }
       .report-summary-memo, .no-capture, #reportBatchSaveWrap { display: none !important; }
       
       .dash-card, .kpi-card-white { border: 1.5px solid #94a3b8 !important; box-shadow: none !important; }
@@ -435,7 +432,7 @@
     </div>
   </div>
 
-  <!-- 🟢 5, 7. 학기별 데이터 백업 모달: 박스 삭제 및 녹색 타이틀(#28a745), 버튼 겹침 해결(flex-end), 중앙 정렬, 엑셀 다운로드 버튼 추가 -->
+  <!-- 🟢 5, 6, 7. 학기별 데이터 백업 모달: 박스 삭제, 녹색 타이틀(#28a745), 닫기/백업·삭제 버튼 팝업 좌우중앙 정렬, '로컬 다운' 머릿글 변경 -->
   <div class="modal-overlay" id="backupModal">
     <div class="modal-box" style="width: 480px; padding: 25px; text-align: left;">
       <div style="font-size: 20px; font-weight: 900; color: #28a745; margin-bottom: 6px; text-align: center;">데이터 백업</div>
@@ -446,7 +443,7 @@
             <tr>
               <th width="18%" style="text-align: center;">선택</th>
               <th width="57%" style="text-align: center;">학기 목록</th>
-              <th width="25%" style="text-align: center;">엑셀 다운</th>
+              <th width="25%" style="text-align: center;">로컬 다운</th>
             </tr>
           </thead>
           <tbody id="backupTermTableBody">
@@ -454,9 +451,10 @@
           </tbody>
         </table>
       </div>
-      <div style="display: flex; justify-content: flex-end; gap: 10px; width: 100%;">
-        <button class="modal-btn" style="background-color: #6c757d; width: 100px;" onclick="document.getElementById('backupModal').style.display='none'">닫기</button>
-        <button class="modal-btn" style="background-color: #28a745; width: 120px;" onclick="confirmBackupTerms()">백업 / 삭제</button>
+      <!-- 🟢 5. 닫기 버튼과 백업/삭제 버튼을 팝업 좌우 정중앙에 배치 (justify-content: center) -->
+      <div style="display: flex; justify-content: center; gap: 10px; width: 100%;">
+        <button class="modal-btn" style="background-color: #6c757d; width: 110px;" onclick="document.getElementById('backupModal').style.display='none'">닫기</button>
+        <button class="modal-btn" style="background-color: #28a745; width: 125px;" onclick="confirmBackupTerms()">백업 / 삭제</button>
       </div>
     </div>
   </div>
@@ -494,10 +492,10 @@
       </div>
 
       <div style="display: flex; align-items: center;">
-        <!-- 🟢 1. 구글 Material Design 표준 settings 24x24 SVG 원본 경로 완벽 복원 -->
+        <!-- 🟢 1. 절대 깨지지 않는 구글 Material Design 표준 'settings' 24x24 SVG 원본 경로 완벽 적용 -->
         <button class="icon-btn" id="headerAdminBtn" onclick="switchPage('page-admin')">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61L19.14 12.94zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
           </svg>
         </button>
         <button class="icon-btn" id="headerMainBtn" style="display: none;" onclick="switchPage('page-main')">
@@ -687,7 +685,7 @@
           <!-- 🟢 1. 구글 표준 settings 24x24 SVG 원본 경로 완벽 복원 -->
           <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+              <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61L19.14 12.94zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
             </svg>
             필수 환경설정
           </button>
@@ -740,7 +738,7 @@
         </div>
       </div>
 
-      <!-- 🟢 좌측 하단 고정: 시험기본세팅앱 학기별 데이터 백업 원형 확장 플로팅 버튼 -->
+      <!-- 🟢 4. 좌측 하단 고정: 데이터 백업 원형 플로팅 버튼 (마우스 오버 시 글자만 표시) -->
       <div style="position: fixed; bottom: 25px; left: 30px; z-index: 150;">
         <button class="btn-backup-cloud" onclick="openBackupModal()">
           <span class="btn-icon-wrap">
@@ -1885,7 +1883,7 @@
           
           htmlTbody += `<tr>
             <td class="sticky-col-1 bg-gray" style="font-weight:bold; color:#333;">${qNum}</td>
-            <td class="sticky-col-2 bg-light" style="text-align:left; padding-left:10px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; color:#333; font-weight:500;">${unitName}</td>
+            <td class="sticky-col-2 bg-light" style="text-align:left; padding-left:10px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; color:#333; font-weight:500;" title="${unitName}">${unitName}</td>
             <td class="sticky-col-3 bg-light" style="color:#6c757d; font-weight:bold;">${scoreVal}</td>`;
             
           parsedStudents.forEach((st, sIdx) => {
@@ -2762,13 +2760,14 @@
       });
     }
 
+    /* 🟢 7. 여러 학기 선택 시 가독성을 위해 각 학기 줄바꿈 표시 */
     function confirmBackupTerms() {
       const checked = Array.from(document.querySelectorAll('.backup-term-chk:checked')).map(c => c.value);
       if (checked.length === 0) return showAlert("백업할 학기를 최소 1개 이상 선택하세요.");
       
       document.getElementById('backupModal').style.display = 'none';
       
-      showConfirmModal(`선택한 학기 데이터를 새 파일로 백업합니다.<br><b>[선택 학기]: ${checked.join(", ")}</b>`, function() {
+      showConfirmModal(`선택한 학기 데이터를 새 파일로 백업합니다.<br><b>[선택 학기]</b><br><b>${checked.join("<br>")}</b>`, function() {
         executeBackupTerms(checked);
       }, function() {
         document.getElementById('backupModal').style.display = 'flex';
@@ -2792,7 +2791,7 @@
     }
 
     function askDeleteAfterBackup(terms) {
-      showConfirmModal(`해당 학기 데이터가 백업 되었습니다.<br>해당 데이터를 삭제할까요?<br><span style="color:#28a745; font-size:13px;"><b>[백업 완료 학기]: ${terms.join(", ")}</b></span>`, function() {
+      showConfirmModal(`해당 학기 데이터가 백업 되었습니다.<br>해당 데이터를 삭제할까요?<br><span style="color:#28a745; font-size:13px;"><b>[백업 완료 학기]</b><br><b>${terms.join("<br>")}</b></span>`, function() {
         executeDeleteTerms(terms);
       }, function() {
         showSuccessAlert("백업만 완료되었으며, 원본 시트는 삭제되지 않고 유지됩니다.");
