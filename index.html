@@ -191,30 +191,14 @@
     .btn-setup-clear-main .btn-text-wrap { display: none; opacity: 0; transition: opacity 0.1s ease-in; }
     .btn-setup-clear-main:hover .btn-text-wrap { display: inline; opacity: 1; transition-delay: 0.05s; }
 
-    /* 🟢 1. 학생추가/삭제 버튼 : 글자 줄바꿈 방지(white-space: nowrap) 보완 완료 */
     .btn-roster-add-main, .btn-roster-delete-main {
-      height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.15s cubic-bezier(0.4, 0, 0.2, 1), padding 0.15s ease, background-color 0.2s;
+      height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: flex-start; transition: max-width 0.15s cubic-bezier(0.4, 0, 0.2, 1), padding 0.15s ease, background-color 0.2s;
     }
     .btn-roster-add-main { background-color: #28a745; }
     .btn-roster-delete-main { background-color: #dc3545; }
-    .btn-roster-add-main:hover, .btn-roster-delete-main:hover, .btn-roster-delete-main.active {
-      max-width: 110px; padding: 0 14px; justify-content: center;
-    }
+    .btn-roster-add-main:hover, .btn-roster-delete-main:hover, .btn-roster-delete-main.active { max-width: 115px; padding-right: 14px; }
     .btn-roster-delete-main.active { background-color: #8b0000; box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
-    .btn-roster-add-main .btn-icon-wrap, .btn-roster-delete-main .btn-icon-wrap {
-      width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; font-style: normal; font-size: 1.3em; font-weight: 900; line-height: 0; padding-bottom: 2px;
-    }
-    .btn-roster-add-main:hover .btn-icon-wrap, .btn-roster-delete-main:hover .btn-icon-wrap {
-      display: none;
-    }
-    .btn-roster-add-main .btn-text-wrap, .btn-roster-delete-main .btn-text-wrap {
-      display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 12px; white-space: nowrap;
-    }
-    .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap {
-      display: inline; opacity: 1; transition-delay: 0.05s;
-    }
 
-    /* 🟢 이미지 저장 버튼: 호버 시 중앙 정렬 보완 */
     .btn-card-save-img, .btn-batch-save-zip {
       height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s;
       background-color: #6c757d;
@@ -230,21 +214,20 @@
       display: none;
     }
     .btn-card-save-img .btn-text-wrap, .btn-batch-save-zip .btn-text-wrap {
-      display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 12px; white-space: nowrap;
+      display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 12px;
     }
     .btn-card-save-img:hover .btn-text-wrap, .btn-batch-save-zip:hover .btn-text-wrap {
       display: inline; opacity: 1; transition-delay: 0.05s;
     }
 
-    /* 🟢 3. 데이터 백업 원형 플로팅 버튼: 30px 및 중앙 정렬 완벽 적용 */
     .btn-backup-cloud {
-      height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s;
+      height: 42px; max-width: 42px; border-radius: 21px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.22); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s ease, background-color 0.2s;
       background-color: #28a745;
     }
-    .btn-backup-cloud:hover { max-width: 110px; padding: 0 14px; background-color: #218838; justify-content: center; }
-    .btn-backup-cloud .btn-icon-wrap { width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; }
+    .btn-backup-cloud:hover { max-width: 115px; padding: 0 16px; background-color: #218838; justify-content: center; }
+    .btn-backup-cloud .btn-icon-wrap { width: 42px; height: 42px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; }
     .btn-backup-cloud:hover .btn-icon-wrap { display: none; }
-    .btn-backup-cloud .btn-text-wrap { display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 12px; white-space: nowrap; }
+    .btn-backup-cloud .btn-text-wrap { display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 13px; }
     .btn-backup-cloud:hover .btn-text-wrap { display: inline; opacity: 1; transition-delay: 0.05s; }
 
     .student-del-badge {
@@ -288,23 +271,9 @@
     
     .report-header { display: flex; justify-content: flex-start; gap: 20px; align-items: center; margin-bottom: 25px; padding-bottom: 15px; flex-shrink: 0; }
     
-    /* 🟢 2. 이미지 저장(html2canvas) 시 왼쪽 상단 로고 이미지 상하 늘어남 완벽 방지 */
-    .report-logo {
-      width: 172px; min-width: 172px; max-width: 172px;
-      height: 40px; min-height: 40px; max-height: 40px;
-      display: block !important; /* 💡 flexbox 강제 늘어남(stretch) 간섭 원천 차단 */
-      overflow: hidden;
-      padding-top: 6px !important; /* 💡 40px 높이 안에서 28px 로고를 수직 중앙에 단정하게 배치 */
-    }
-
-    .report-logo img {
-      width: 160px !important;  /* 💡 SG청운학원 로고 가로 너비 */
-      height: 28px !important;  /* 💡 38px/40px이 아닌 실제 비율에 맞춘 28px 고정 (상하 늘어남 0% 보증!) */
-      max-width: 160px !important;
-      max-height: 28px !important;
-      display: block !important;
-      margin: 0 !important;
-    } 
+    /* 🟢 렌더링 화면: 원래 가장 정상적으로 나오던 기본 비율 스타일 복구 */
+    .report-logo { width: 172px; min-width: 172px; max-width: 172px; height: 40px; display: flex; justify-content: flex-start; align-items: center; flex-shrink: 0; overflow: hidden; }
+    .report-logo img { width: auto; height: 40px; max-width: 100%; max-height: 40px; object-fit: contain; display: block; margin: 0; } 
     
     .report-info { display: flex; gap: 10px; align-items: stretch; flex: 1; min-width: 0; }
     
@@ -357,7 +326,6 @@
     
     .report-footer { margin-top: 15px; padding: 15px 20px; background-color: #f1f5f9; border-radius: 12px; font-size: 11px; color: #475569; line-height: 1.6; flex-shrink: 0; border: 1px solid #e2e8f0; }
 
-    /* 🟢 4. 인쇄 시 마지막 페이지 빈 페이지 완벽 방지 */
     @media print {
       body * { visibility: hidden; }
       html, body { overflow: visible !important; height: auto !important; background: #fff !important; }
@@ -459,7 +427,6 @@
     </div>
   </div>
 
-  <!-- 🟢 5, 6. 학기별 데이터 백업 모달: 닫기 중앙, 백업/삭제 우측 정렬 완벽 반영 -->
   <div class="modal-overlay" id="backupModal">
     <div class="modal-box" style="width: 480px; padding: 25px; text-align: left;">
       <div style="font-size: 20px; font-weight: 900; color: #28a745; margin-bottom: 6px; text-align: center;">데이터 백업</div>
@@ -478,9 +445,9 @@
           </tbody>
         </table>
       </div>
-      <div style="position: relative; width: 100%; height: 38px; display: flex; align-items: center; justify-content: center; margin-top: 10px;">
+      <div style="display: flex; justify-content: center; gap: 10px; width: 100%;">
         <button class="modal-btn" style="background-color: #6c757d; width: 110px;" onclick="document.getElementById('backupModal').style.display='none'">닫기</button>
-        <button class="modal-btn" style="background-color: #28a745; width: 125px; position: absolute; right: 0;" onclick="confirmBackupTerms()">백업 / 삭제</button>
+        <button class="modal-btn" style="background-color: #28a745; width: 125px;" onclick="confirmBackupTerms()">백업 / 삭제</button>
       </div>
     </div>
   </div>
@@ -761,7 +728,7 @@
         </div>
       </div>
 
-      <!-- 🟢 좌측 하단 고정: 데이터 백업 원형 플로팅 버튼 (마우스 오버 시 글자만 표시) -->
+      <!-- 🟢 4. 좌측 하단 고정: 데이터 백업 원형 플로팅 버튼 (마우스 오버 시 글자만 표시) -->
       <div style="position: fixed; bottom: 25px; left: 30px; z-index: 150;">
         <button class="btn-backup-cloud" onclick="openBackupModal()">
           <span class="btn-icon-wrap">
@@ -2621,7 +2588,6 @@
               - 그래프의 점수 분포는 만점을 100점으로 환산하여 표기되었습니다.
             </div>
 
-            <!-- 🟢 2. 개별 성적표 우측 하단 이미지 저장 원형 버튼 (옅은 회색, 카메라 정중앙, 마우스 오버 시 글자만 노출) -->
             <button class="btn-card-save-img no-capture" onclick="saveSingleReportImage(this, '${st.name}')">
               <span class="btn-icon-wrap">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
@@ -2686,34 +2652,6 @@
       if (batchBtnWrap) batchBtnWrap.style.display = 'block';
     }
 
-    /* 🟢 [핵심 헬퍼] 화면(DOM)에 로드된 CORS 안전 로고 요소를 캔버스 정확한 좌표에 합성하는 함수 */
-    function drawLogoOnCanvas(canvas, pageEl) {
-      const ctx = canvas.getContext('2d');
-      const logoEl = pageEl.querySelector('.report-logo img');
-      if (!logoEl) return canvas;
-
-      // 1. 성적표 용지(pageEl)와 로고(logoEl) 사이의 정확한 상대 좌표 자동 계산
-      const pageRect = pageEl.getBoundingClientRect();
-      const logoRect = logoEl.getBoundingClientRect();
-      
-      const scale = 2; // html2canvas scale: 2 옵션과 동일한 2배수 기준
-      const x = (logoRect.left - pageRect.left) * scale;
-      const y = (logoRect.top - pageRect.top) * scale;
-      
-      // 2. 로고 원본 비율(가로 155px x 세로 38px)의 2배수 크기 = 310px x 76px (늘어남 0% 보증)
-      const targetWidth = 155 * scale;
-      const targetHeight = 38 * scale;
-      
-      // 3. CORS 권한이 부여된 DOM 요소를 메모리에서 즉시 도장 찍기
-      try {
-        ctx.drawImage(logoEl, x, y, targetWidth, targetHeight);
-      } catch (e) {
-        console.error("로고 렌더링 에러:", e);
-      }
-      return canvas;
-    }
-
-    /* 🟢 1. 성적표 개별 카드 JPEG 이미지 저장 함수 (표준 고화질 로직) */
     function saveSingleReportImage(btnEl, studentName) {
       const pageEl = btnEl.closest('.report-page');
       const tt = getTermAndTest('main');
@@ -2724,7 +2662,15 @@
         scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
-        ignoreElements: (el) => el.classList.contains('no-capture')
+        ignoreElements: (el) => el.classList.contains('no-capture'),
+        onclone: (clonedDoc) => {
+          clonedDoc.querySelectorAll('.report-logo img').forEach(img => {
+            img.style.height = '28px';
+            img.style.maxHeight = '28px';
+            img.style.width = 'auto';
+            img.style.objectFit = 'contain';
+          });
+        }
       }).then(canvas => {
         showLoading(false);
         canvas.toBlob(blob => {
@@ -2736,7 +2682,6 @@
       });
     }
 
-    /* 🟢 1. 전체 성적표 일괄 JPEG 생성 및 ZIP 압축 다운로드 함수 (표준 고화질 로직) */
     async function saveAllReportsZip() {
       const pages = document.querySelectorAll('.report-page');
       if (!pages || pages.length === 0) return showAlert("렌더링된 성적표가 없습니다.");
@@ -2761,7 +2706,15 @@
           scale: 2,
           useCORS: true,
           backgroundColor: '#ffffff',
-          ignoreElements: (el) => el.classList.contains('no-capture')
+          ignoreElements: (el) => el.classList.contains('no-capture'),
+          onclone: (clonedDoc) => {
+            clonedDoc.querySelectorAll('.report-logo img').forEach(img => {
+              img.style.height = '28px';
+              img.style.maxHeight = '28px';
+              img.style.width = 'auto';
+              img.style.objectFit = 'contain';
+            });
+          }
         });
         
         const blobData = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
@@ -2775,7 +2728,6 @@
       showSuccessAlert(`총 ${pages.length}장의 성적표가 ZIP 파일로 저장되었습니다!`);
     }
 
-    /* 🟢 5, 6, 7. 시험기본세팅 데이터 백업 모달 열기 및 학기 목록(엑셀 다운로드 포함) 렌더링 */
     function openBackupModal() {
       showLoading(true, "학기 목록 조회 중...");
       fetch(document.getElementById('backendUrl').value.trim(), {
@@ -2866,7 +2818,6 @@
       }).catch(handleError);
     }
 
-    /* 🟢 7. 학기 데이터 엑셀(.xlsx) 내보내기 함수 (명단 시트 + 성적DB 시트 2개 탭 모두 포함) */
     function downloadTermExcel(termName) {
       showLoading(true, `[${termName}] 명단 및 성적DB 데이터 조회 중...`);
       fetch(document.getElementById('backendUrl').value.trim(), {
