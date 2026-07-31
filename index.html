@@ -60,7 +60,7 @@
     .btn-primary { height: 32px; padding: 0 16px; border: none; border-radius: 50px; font-weight: bold; font-size: 13px; background-color: #1366ce; color: white; transition: 0.2s; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap; }
     .btn-primary:hover { background-color: #0f52a8; }
     .filter-card .btn-primary { min-width: 135px; justify-content: center; }
-    /* 🟢 필터 바 내부의 원형 아이콘 버튼은 메인 버튼(.btn-primary)과 정확히 동일한 32px 규격으로 일치 */
+    /* 🟢 필터 바 내부의 원형 버튼은 메인 버튼(.btn-primary)과 동일하게 32px 규격으로 고정 */
     .filter-card .icon-btn { width: 32px; height: 32px; margin-left: 4px; }
 
     .btn-expand-action {
@@ -85,7 +85,7 @@
     }
     
     #view_input { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-    #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
+    #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; position: relative; }
     #view_data { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; }
 
     .table-wrapper { flex: 1; min-height: 0; overflow: auto; position: relative; border: 1px solid #dee2e6; border-radius: 4px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
@@ -126,7 +126,13 @@
     .admin-main-grid { display: flex; gap: 20px; flex: 1; min-height: 0; overflow: hidden; }
     .paste-zone { border: 2px dashed #495057; background-color: #fff; padding: 15px 12px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
     .paste-zone:hover { background-color: #e9ecef; }
-    #setupUploadZone { flex: 0 0 20%; width: 20%; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow-y: auto; }
+    #setupUploadZone { flex: 0 0 18%; width: 18%; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow-y: auto; }
+
+    /* 🟢 시험 정보 입력 현황 표 카드 스타일 (18% 너비) */
+    .setup-status-card {
+      flex: 0 0 18%; width: 18%; background: #fff; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      display: flex; flex-direction: column; overflow: hidden; min-width: 180px;
+    }
 
     .batch-btn-col { display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center; padding: 6px 2px; }
     .batch-btn { width: 26px; height: 22px; border: none; border-radius: 4px; font-weight: 900; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
@@ -166,6 +172,7 @@
       pointer-events: auto;
     }
 
+    /* 🟢 시험 기본 세팅: 우측 하단 고정 마이너스(-) 버튼 - 마우스 오버 시 '-' 숨기고 '입력내용삭제' 표출 */
     .btn-setup-clear-main {
       height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
       background-color: #dc3545;
@@ -194,6 +201,26 @@
       cursor: pointer; border: none; vertical-align: middle; margin: 0 auto; padding: 0;
     }
     .student-del-badge:hover { background-color: #a71d2a; }
+
+    /* 🟢 성적표 렌더링 화면 좌측 고정 요약 메모지 박스 스타일 (인쇄 시 자동 숨김) */
+    .report-summary-memo {
+      position: fixed; top: 135px; left: 30px; width: 200px;
+      background: #fff9db; border: 1px solid #f1e5bc; border-left: 5px solid #fcc419;
+      border-radius: 8px; padding: 16px 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      z-index: 150; display: none; flex-direction: column; gap: 9px;
+      font-size: 13px; color: #495057; pointer-events: auto;
+    }
+    .report-summary-memo .memo-title {
+      font-size: 14px; font-weight: 800; color: #212529;
+      border-bottom: 1px dashed #e4d8a7; padding-bottom: 6px; margin-bottom: 2px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .report-summary-memo .memo-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; line-height: 1.3;
+    }
+    .report-summary-memo .memo-label { color: #6c757d; font-weight: 600; }
+    .report-summary-memo .memo-value { color: #111; font-weight: 800; text-align: right; }
 
     /* =========================================================
        🟢 성적표 출력 디자인: A4 사이즈 고정 및 모던 테마
@@ -268,6 +295,7 @@
       #reportContainer { position: absolute; left: 0; top: 0; width: 100%; margin-bottom: 0; }
       .top-nav-bar, .filter-card { display: none !important; }
       .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; background: #fff; margin: 0; flex-shrink: 1; }
+      .report-summary-memo { display: none !important; }
       
       .dash-card, .kpi-card-white { border: 1.5px solid #94a3b8 !important; box-shadow: none !important; }
       .doughnut-card { border: none !important; box-shadow: none !important; background: transparent !important; }
@@ -415,7 +443,7 @@
         
         <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #495057;" onclick="loadGradesData()">명단 불러오기</button>
-          <!-- 🟢 4. 성적 입력: 머티리얼 디자인 새로고침(초기화) 원형 회색 버튼 (높이/너비 32px 1:1 일치) -->
+          <!-- 🟢 머티리얼 디자인 새로고침(초기화) 원형 회색 버튼 (높이/너비 32px 1:1 일치) -->
           <button class="icon-btn" style="width: 32px; height: 32px; margin-left: 4px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()" title="검색 조건 초기화">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           </button>
@@ -431,7 +459,7 @@
 
         <div id="actionBtn_report" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #495057;" onclick="generateReports()">성적표 렌더링</button>
-          <!-- 🟢 4. 성적표 출력: 머티리얼 디자인 새로고침(초기화) 원형 회색 버튼 (높이/너비 32px 1:1 일치) -->
+          <!-- 🟢 머티리얼 디자인 새로고침(초기화) 원형 회색 버튼 (높이/너비 32px 1:1 일치) -->
           <button class="icon-btn" style="width: 32px; height: 32px; margin-left: 4px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()" title="검색 조건 초기화">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           </button>
@@ -447,7 +475,7 @@
 
         <div id="actionBtn_data" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #495057;" onclick="generateDashboard()">데이터 조회</button>
-          <!-- 🟢 4. 데이터 확인: 머티리얼 디자인 새로고침(초기화) 원형 회색 버튼 (높이/너비 32px 1:1 일치) -->
+          <!-- 🟢 머티리얼 디자인 새로고침(초기화) 원형 회색 버튼 (높이/너비 32px 1:1 일치) -->
           <button class="icon-btn" style="width: 32px; height: 32px; margin-left: 4px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()" title="검색 조건 초기화">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           </button>
@@ -473,6 +501,17 @@
       </div>
 
       <div id="view_report" style="display: none;">
+        <!-- 🟢 성적표 렌더링 화면 좌측 포스트잇 요약 메모 박스 (인쇄 시 자동 숨김) -->
+        <div class="report-summary-memo" id="reportSummaryMemo">
+          <div class="memo-title">📌 성적표 요약 메모</div>
+          <div class="memo-row"><span class="memo-label">테스트명:</span><span class="memo-value" id="memoTestName">-</span></div>
+          <div class="memo-row"><span class="memo-label">과정명:</span><span class="memo-value" id="memoCourseName">-</span></div>
+          <div class="memo-row"><span class="memo-label">응시 인원(전체):</span><span class="memo-value" id="memoTotalStudents">-</span></div>
+          <div class="memo-row"><span class="memo-label">응시 인원(출력):</span><span class="memo-value" id="memoRenderedStudents">-</span></div>
+          <div class="memo-row"><span class="memo-label">응시 반:</span><span class="memo-value" id="memoClassCount">-</span></div>
+          <div class="memo-row" style="margin-top: 2px; padding-top: 6px; border-top: 1px dashed #e4d8a7;"><span class="memo-label" style="color:#28a745;">통합 평균 점수:</span><span class="memo-value" style="color:#28a745;" id="memoTotalAvg">-</span></div>
+        </div>
+        
         <div class="report-container" id="reportContainer" style="display: none;"></div>
         <div id="reportEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
           반을 확인하고 [성적표 렌더링]을 누르면 성적표가 생성됩니다.
@@ -523,13 +562,13 @@
 
     </div>
 
-    <!-- 🟢 관리자 화면: 시험 기본 세팅 1/5(업로드) : 4/5(세팅 표) 분할 레이아웃 -->
+    <!-- 🟢 관리자 화면: 시험 기본 세팅 18%(업로드) : 18%(입력현황 표) : 64%(세팅 표) 3분할 레이아웃 -->
     <div id="page-admin" class="page-content">
+      <!-- 🟢 관리자 툴바: [테스트] ➔ [난이도] ➔ [과정] 순서 교체 및 구분선 제거 -->
       <div class="filter-card admin-mode">
-        <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="checkExistingSetup()"></select></div>
-        <div class="select-group"><label>과정</label><select id="setupCourse" required onchange="checkExistingSetup()"></select></div>
-        <div class="filter-divider"></div>
+        <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="onSetupTestChanged()"></select></div>
         <div class="select-group"><label>난이도</label><select id="setupLevel" required onchange="checkExistingSetup()" style="width: 110px;"></select></div>
+        <div class="select-group"><label>과정</label><select id="setupCourse" required onchange="checkExistingSetup()"></select></div>
         <div class="filter-divider"></div>
         
         <div class="select-group"><label>문항시작번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 110px; text-align: center;" onchange="renderSetupTable()"></div>
@@ -555,7 +594,7 @@
       </div>
 
       <div class="admin-main-grid">
-        <div class="paste-zone" id="setupUploadZone" style="padding: 24px 15px; margin-bottom: 0;">
+        <div class="paste-zone" id="setupUploadZone" style="flex: 0 0 18%; width: 18%; padding: 24px 12px; margin-bottom: 0; overflow-y: auto;">
           <div style="font-size: 28px; margin-bottom: 8px;">📄</div>
           <h4 style="margin: 0 0 6px 0; color: #495057; font-size: 15px;">시험 출제표 (TXT/엑셀) 일괄 업로드</h4>
           <p style="color: #666; margin: 0; font-size: 13px;">
@@ -565,10 +604,32 @@
           <input type="file" id="setupFileInput" accept=".txt, .xlsx, .xls" style="display: none;">
         </div>
 
-        <div class="table-wrapper">
+        <!-- 🟢 업로드 박스와 문항 설정 표 사이 '시험 정보 입력 현황' 표 카드 (18% 너비) -->
+        <div class="setup-status-card" id="setupStatusContainer">
+          <div style="background: #495057; color: #fff; font-size: 13px; font-weight: bold; padding: 10px 8px; text-align: center; letter-spacing: -0.5px; flex-shrink: 0;">
+            시험 정보 입력 현황
+          </div>
+          <div style="flex: 1; overflow-y: auto;">
+            <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+              <thead>
+                <tr>
+                  <th class="bg-gray" style="position: sticky; top: 0; z-index: 10; padding: 6px 4px; font-weight: bold; color: #333;">난이도</th>
+                  <th class="bg-gray" style="position: sticky; top: 0; z-index: 10; padding: 6px 4px; font-weight: bold; color: #333;">과정</th>
+                  <th class="bg-gray" style="position: sticky; top: 0; z-index: 10; padding: 6px 4px; font-weight: bold; color: #333;">입력</th>
+                </tr>
+              </thead>
+              <tbody id="setupStatusTableBody">
+                <tr><td colspan="3" style="padding: 20px; color: #888; text-align: center;">테스트를 선택하세요.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="table-wrapper" style="flex: 1; min-width: 0;">
           <table class="data-table" style="text-align: left;">
             <thead>
-              <tr><th class="admin-sticky-top bg-gray" width="8%" style="text-align: center;">문항번호</th><th class="admin-sticky-top bg-gray" width="42%" style="text-align: center;">출제 단원명</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">문항 배점</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">난이도 (자동입력)</th><th class="admin-sticky-top bg-gray" width="10%" style="text-align: center;">상태</th></tr>
+              <!-- 🟢 문항번호 열 너비 6%로 슬림하게 축소 -->
+              <tr><th class="admin-sticky-top bg-gray" width="6%" style="text-align: center;">문항번호</th><th class="admin-sticky-top bg-gray" width="44%" style="text-align: center;">출제 단원명</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">문항 배점</th><th class="admin-sticky-top bg-gray" width="20%" style="text-align: center;">난이도 (자동입력)</th><th class="admin-sticky-top bg-gray" width="10%" style="text-align: center;">상태</th></tr>
             </thead>
             <tbody id="setupTableBody"></tbody>
           </table>
@@ -634,6 +695,7 @@
       }
     });
 
+    /* 🟢 체크표시(✔) 알림 팝업: 표 존재 시 너비 500px 확장 & 20px 넉넉한 상하 공백 확보 */
     function showSuccessAlert(msg, detailsHtml = '') {
       const modalBox = document.querySelector('#customAlertModal .modal-box');
       if (modalBox) {
@@ -647,6 +709,7 @@
       document.getElementById('customAlertModal').style.display = 'flex';
     }
 
+    /* 🟢 에러 메시지 중복 글자("Error:") 정제 및 단일 출력 */
     function showAlert(msg) { 
       let cleanMsg = String(msg || "").replace(/^(Error:\s*)+/i, '');
       const modalBox = document.querySelector('#customAlertModal .modal-box');
@@ -685,6 +748,7 @@
       document.getElementById('inputEmptyState').style.display = 'block';
       document.getElementById('reportContainer').style.display = 'none';
       document.getElementById('reportEmptyState').style.display = 'block';
+      document.getElementById('reportSummaryMemo').style.display = 'none';
       document.getElementById('dashContainer').style.display = 'none';
       document.getElementById('dashEmptyState').style.display = 'block';
       
@@ -754,6 +818,60 @@
       return { term: parts[0], test: parts[1] };
     }
 
+    /* 🟢 시험 기본 세팅: 테스트 변경 시 '시험 정보 입력 현황' 표 동기화 */
+    function onSetupTestChanged() {
+      checkExistingSetup();
+      renderSetupStatusTable();
+    }
+
+    /* 🟢 '시험 정보 입력 현황' 표 렌더링 및 행 클릭 로드 기능 */
+    function renderSetupStatusTable() {
+      const tt = getTermAndTest('setup');
+      const tbody = document.getElementById('setupStatusTableBody');
+      if (!tbody) return;
+
+      if (!tt.term || !tt.test) {
+        tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; color: #888; text-align: center;">테스트를 선택하세요.</td></tr>';
+        return;
+      }
+
+      const levels = globalData.settings.levels || [];
+      const courses = globalData.settings.courses || [];
+
+      if (levels.length === 0 || courses.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; color: #888; text-align: center;">환경설정에서 난이도와 과정을 등록해주세요.</td></tr>';
+        return;
+      }
+
+      let html = '';
+      levels.forEach(level => {
+        courses.forEach(course => {
+          let combined = level + " " + course;
+          let isSaved = globalData.setups.some(s => 
+            s.term === tt.term && 
+            s.test === tt.test && 
+            ((s.level === level && s.courseName === course) || s.course === combined)
+          );
+
+          html += `
+            <tr style="cursor: pointer; border-bottom: 1px solid #eee;" onclick="selectSetupFromStatus('${level}', '${course}')" title="클릭하여 해당 세팅 불러오기">
+              <td style="padding: 6px 4px; color: #333;">${level}</td>
+              <td style="padding: 6px 4px; color: #333; text-align: left; padding-left: 8px;">${course}</td>
+              <td style="padding: 6px 4px; color: ${isSaved ? '#28a745' : '#adb5bd'}; font-weight: bold;">${isSaved ? '✔' : '-'}</td>
+            </tr>
+          `;
+        });
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    function selectSetupFromStatus(level, course) {
+      document.getElementById('setupLevel').value = level;
+      document.getElementById('setupCourse').value = course;
+      checkExistingSetup();
+    }
+
     function switchNav(navId) {
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`button[onclick="switchNav('${navId}')"]`).classList.add('active');
@@ -818,6 +936,7 @@
         mainBtn.style.display = 'flex';
         navTabs.style.display = 'none';
         headerTitle.innerHTML = `<img src="https://i.imgur.com/PQRrCSI.png" alt="로고"> 시험 기본 세팅 (관리자)`;
+        renderSetupStatusTable();
       }
     }
 
@@ -833,6 +952,7 @@
         if(res.success) { 
             globalData = res.data; 
             populateSettingsAndDropdowns(preserveState); 
+            renderSetupStatusTable();
         } else { showAlert(res.error); }
       }).catch(handleError);
     }
@@ -936,6 +1056,7 @@
           document.getElementById('mainCombinedTest').value = "";
           filterCourses('main', true); 
       }
+      renderSetupStatusTable();
     }
 
     const dropZone = document.getElementById('dropZone'); const fileInput = document.getElementById('fileInput');
@@ -1302,7 +1423,7 @@
       let detailsHtml = '';
       if (modifiedList.length > 0) {
         detailsHtml = `
-          <div style="margin-top: 14px; text-align: left; font-size: 12px; border: 1px solid #dee2e6; border-radius: 6px; max-height: 140px; overflow-y: auto;">
+          <div style="margin-top: 20px; text-align: left; font-size: 12px; border: 1px solid #dee2e6; border-radius: 6px; max-height: 140px; overflow-y: auto;">
             <table style="width: 100%; border-collapse: collapse; text-align: center;">
               <thead>
                 <tr style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; color: #333; font-weight: bold;">
@@ -1435,7 +1556,7 @@
       let detailsHtml = '';
       if (modifiedList.length > 0) {
         detailsHtml = `
-          <div style="margin-top: 14px; text-align: left; font-size: 12px; border: 1px solid #dee2e6; border-radius: 6px; max-height: 140px; overflow-y: auto;">
+          <div style="margin-top: 20px; text-align: left; font-size: 12px; border: 1px solid #dee2e6; border-radius: 6px; max-height: 140px; overflow-y: auto;">
             <table style="width: 100%; border-collapse: collapse; text-align: center;">
               <thead>
                 <tr style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; color: #333; font-weight: bold;">
@@ -2138,6 +2259,18 @@
       if(students.length === 0) { container.innerHTML = '<h3 style="text-align:center; color:#ef4444; padding:40px;">데이터가 없습니다.</h3>'; return; }
 
       let maxTotalScore = students[0].unitsData.reduce((sum, u) => sum + u.max, 0);
+
+      const memoBox = document.getElementById('reportSummaryMemo');
+      if (memoBox) {
+        let distinctClassCount = new Set(students.map(s => s.className)).size;
+        document.getElementById('memoTestName').innerText = `${examInfo.term} ${examInfo.test}`;
+        document.getElementById('memoCourseName').innerText = examInfo.course;
+        document.getElementById('memoTotalStudents').innerText = `${examInfo.totalCount}명`;
+        document.getElementById('memoRenderedStudents').innerText = `${students.length}명`;
+        document.getElementById('memoClassCount').innerText = `${distinctClassCount}개`;
+        document.getElementById('memoTotalAvg').innerText = `${Math.round(examInfo.totalAvg)}점`;
+        memoBox.style.display = 'flex';
+      }
 
       students.forEach((st, idx) => {
         
