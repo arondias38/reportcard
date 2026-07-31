@@ -20,15 +20,6 @@
     .page-content { flex: 1; display: none; flex-direction: column; min-height: 0; overflow: hidden; }
     .page-content.active { display: flex; }
 
-    @keyframes softBlink {
-      0% { background-color: #c8e6c9 !important; }
-      50% { background-color: #fff3cd !important; }
-      100% { background-color: transparent; }
-    }
-    .cell-blink {
-      animation: softBlink 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    }
-
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
     .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1366ce; border-radius: 50%; animation: spin 1s linear infinite; }
     .spinner-text { margin-top: 15px; font-weight: bold; color: #1366ce; font-size: 15px; }
@@ -173,6 +164,16 @@
       pointer-events: auto;
     }
 
+    /* 🟢 시험 기본 세팅: 표 우측 하단 고정 확장 마이너스(-) 버튼 스타일 */
+    .btn-setup-clear-main {
+      height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: flex-start; transition: max-width 0.15s cubic-bezier(0.4, 0, 0.2, 1), padding 0.15s ease, background-color 0.2s;
+      background-color: #dc3545;
+    }
+    .btn-setup-clear-main:hover { max-width: 115px; padding-right: 14px; background-color: #a71d2a; }
+    .btn-setup-clear-main .btn-icon-wrap { width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; font-style: normal; font-size: 1.2em; font-weight: 900; line-height: 0; padding-bottom: 2px; }
+    .btn-setup-clear-main .btn-text-wrap { opacity: 0; transition: opacity 0.1s ease-in; }
+    .btn-setup-clear-main:hover .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
+
     .btn-roster-add-main, .btn-roster-delete-main {
       height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: flex-start; transition: max-width 0.15s cubic-bezier(0.4, 0, 0.2, 1), padding 0.15s ease, background-color 0.2s;
     }
@@ -280,7 +281,7 @@
   <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">처리 중입니다...</div></div>
   
   <div class="modal-overlay" id="customAlertModal">
-    <div class="modal-box" style="width: 320px;">
+    <div class="modal-box" style="width: 340px;">
       <div id="modalMessage" class="modal-message" style="text-align: center; margin: 25px 0;"></div>
       <button class="modal-btn" onclick="document.getElementById('customAlertModal').style.display='none'">확인</button>
     </div>
@@ -508,19 +509,24 @@
 
     </div>
 
-    <!-- 🟢 관리자 화면 -->
+    <!-- 🟢 관리자 화면: 시험 기본 세팅 1/5(업로드) : 4/5(세팅 표) 분할 레이아웃 -->
     <div id="page-admin" class="page-content">
+      <!-- 🟢 3. 난이도, 문항시작번호, 문항종료번호 입력칸 너비 110px 동일 적용 -->
       <div class="filter-card admin-mode">
         <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="checkExistingSetup()"></select></div>
         <div class="select-group"><label>과정</label><select id="setupCourse" required onchange="checkExistingSetup()"></select></div>
         <div class="filter-divider"></div>
-        <div class="select-group"><label>난이도</label><select id="setupLevel" required onchange="checkExistingSetup()"></select></div>
+        <div class="select-group"><label>난이도</label><select id="setupLevel" required onchange="checkExistingSetup()" style="width: 110px;"></select></div>
         <div class="filter-divider"></div>
         
-        <div class="select-group"><label>문항시작번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
-        <div class="select-group"><label>문항종료번호</label><input type="number" id="setupEndNum" value="45" min="1" max="100" style="width: 55px;" onchange="renderSetupTable()"></div>
+        <div class="select-group"><label>문항시작번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 110px; text-align: center;" onchange="renderSetupTable()"></div>
+        <div class="select-group"><label>문항종료번호</label><input type="number" id="setupEndNum" value="45" min="1" max="100" style="width: 110px; text-align: center;" onchange="renderSetupTable()"></div>
         
-        <button class="btn-primary" style="margin-left: 5px; background-color: #495057;" onclick="saveExamSetup()">시험 정보 저장</button>
+        <!-- 🟢 3. 시험정보저장 버튼에 머티리얼 디자인 Save SVG 아이콘 적용 -->
+        <button class="btn-primary" style="margin-left: 5px; background-color: #495057;" onclick="saveExamSetup()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+          시험 정보 저장
+        </button>
 
         <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
           <button class="btn-primary" style="background-color: #28a745;" onclick="document.getElementById('rosterUploadModal').style.display='flex'">
@@ -529,7 +535,7 @@
           </button>
           <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+              <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22-.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
             </svg>
             필수 환경설정
           </button>
@@ -554,6 +560,12 @@
             </thead>
             <tbody id="setupTableBody"></tbody>
           </table>
+          <!-- 🟢 4. 시험 기본 세팅 우측 하단 플로팅 전체삭제(-) 버튼 -->
+          <div class="sticky-fab-bar" id="setupBottomControls" style="position: sticky; bottom: 15px; right: 15px; float: right; width: max-content; z-index: 70; margin: 15px; pointer-events: auto;">
+            <button class="btn-setup-clear-main" onclick="confirmClearSetup()" title="현재 표 내용 전체 삭제">
+              <span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">내용삭제</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -576,17 +588,6 @@
     let lastSelectedCourse = "";
     let confirmCallback = null;
     let cancelCallback = null;
-
-    function highlightCells(selectorOrElements) {
-      let els = typeof selectorOrElements === 'string' ? document.querySelectorAll(selectorOrElements) : selectorOrElements;
-      els.forEach(el => {
-        if (!el) return;
-        let targetEl = (el.tagName === 'INPUT' && el.parentElement) ? el.parentElement : el;
-        targetEl.classList.remove('cell-blink');
-        void targetEl.offsetWidth; 
-        targetEl.classList.add('cell-blink');
-      });
-    }
 
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
@@ -622,7 +623,21 @@
       }
     });
 
-    function showAlert(msg) { document.getElementById('modalMessage').innerHTML = `<div style="margin: 25px 0;">${msg}</div>`; document.getElementById('customAlertModal').style.display = 'flex'; }
+    function showAlert(msg) { 
+      document.getElementById('modalMessage').innerHTML = `<div style="margin: 25px 0;">${msg}</div>`; 
+      document.getElementById('customAlertModal').style.display = 'flex'; 
+    }
+
+    /* 🟢 1, 2. 파란색 상단 중앙 체크표시(✔) 통일 팝업 및 상세 표 출력 지원 */
+    function showSuccessAlert(msg, detailsHtml = '') {
+      document.getElementById('modalMessage').innerHTML = `
+        <div style="font-size: 32px; color: #1366ce; margin-bottom: 12px; font-weight: 900;">✔</div>
+        <div style="font-size: 15px; font-weight: bold; color: #333; margin-bottom: 15px;">${msg}</div>
+        ${detailsHtml}
+      `;
+      document.getElementById('customAlertModal').style.display = 'flex';
+    }
+
     function showLoading(status, msg = "처리 중입니다...") { document.getElementById('spinnerText').innerText = msg; document.getElementById('globalSpinner').style.display = status ? 'flex' : 'none'; }
     function handleError(err) { showLoading(false); showAlert("🚫 에러 발생: " + err.message); }
 
@@ -1032,19 +1047,64 @@
       else sel.value = "";
     }
 
+    /* 🟢 5. 시작번호/종료번호 수정 시 표 입력 데이터(단원명/배점) 보존 렌더링 */
     function renderSetupTable() {
       const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
       const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
       const totalCount = endNum - startNum + 1;
       const tbody = document.getElementById('setupTableBody');
-      tbody.innerHTML = '';
       
+      let preservedData = {};
+      document.querySelectorAll('#setupTableBody tr').forEach(tr => {
+        let td = tr.querySelector('td:first-child');
+        if (!td) return;
+        let num = parseInt(td.innerText, 10);
+        let unitInput = document.getElementById(`unit_${num}`);
+        let scoreInput = document.getElementById(`score_${num}`);
+        if (!isNaN(num) && unitInput && scoreInput) {
+          preservedData[num] = {
+            unit: unitInput.value,
+            score: scoreInput.value
+          };
+        }
+      });
+
+      tbody.innerHTML = '';
       if (totalCount < 1) return; 
       
       for (let i = 0; i < totalCount; i++) {
         let qNum = startNum + i;
-        tbody.innerHTML += `<tr><td class="bg-gray" style="text-align:center; font-weight:bold;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" min="1" max="5" oninput="updateDiff(${qNum})" placeholder=""></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:transparent; text-align:center; border:none; padding:0; color:#495057;"></td><td id="status_${qNum}" style="color:#adb5bd; text-align:center;">-</td></tr>`;
+        let prevUnit = preservedData[qNum] ? preservedData[qNum].unit.replace(/"/g, '&quot;') : '';
+        let prevScore = preservedData[qNum] ? preservedData[qNum].score : '';
+        tbody.innerHTML += `<tr><td class="bg-gray" style="text-align:center; font-weight:bold;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}" value="${prevUnit}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" min="1" max="5" value="${prevScore}" oninput="updateDiff(${qNum})" placeholder=""></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:transparent; text-align:center; border:none; padding:0; color:#495057;"></td><td id="status_${qNum}" style="color:#adb5bd; text-align:center;">-</td></tr>`;
       }
+      
+      for (let i = 0; i < totalCount; i++) {
+        let qNum = startNum + i;
+        if (preservedData[qNum]) {
+          updateDiff(qNum);
+        }
+      }
+    }
+
+    /* 🟢 4. 시험 기본 세팅 전체 삭제 확인 및 초기화 */
+    function confirmClearSetup() {
+      showConfirmModal("입력된 출제 단원명과 배점을 전체 삭제 하시겠습니까?", function() {
+        clearAllSetupData();
+      }, function() {});
+    }
+
+    function clearAllSetupData() {
+      document.querySelectorAll('#setupTableBody tr').forEach(tr => {
+        let td = tr.querySelector('td:first-child');
+        if (!td) return;
+        let qNum = parseInt(td.innerText, 10);
+        let uInput = document.getElementById(`unit_${qNum}`);
+        let sInput = document.getElementById(`score_${qNum}`);
+        if (uInput) uInput.value = '';
+        if (sInput) sInput.value = '';
+        updateDiff(qNum);
+      });
     }
 
     function updateDiff(qNum) {
@@ -1125,7 +1185,6 @@
             parseTxtSetupData(textData);
             showLoading(false);
             setupFileInput.value = '';
-            showAlert("✔ TXT 출제표 파싱 완료! 문항 단원명과 배점이 자동 기입되었습니다.");
           } catch(err) {
             showLoading(false);
             setupFileInput.value = '';
@@ -1140,7 +1199,6 @@
             parseExcelSetupData(e.target.result);
             showLoading(false);
             setupFileInput.value = '';
-            showAlert("✔ 엑셀 출제표 파싱 완료! 문항 단원명과 배점이 자동 기입되었습니다.");
           } catch(err) {
             showLoading(false);
             setupFileInput.value = '';
@@ -1155,13 +1213,14 @@
       }
     }
 
-    /* 🟢 2. TXT 업로드 시 단원명 '띄어쓰기 차이' 자동 통일(정규화) 사전을 적용하여 첫 등장 단어 기준으로 통합 */
+    /* 🟢 1. TXT 띄어쓰기 정규화 내역 기록 및 체크 팝업 표 안내 */
     function parseTxtSetupData(textData) {
       const lines = textData.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '');
       const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
       const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
       let parsedCount = 0;
       let unitNameMap = {};
+      let modifiedList = [];
 
       for (let i = 0; i < lines.length; i++) {
         const qMatch = lines[i].match(/(?:문제|문항)\s*(\d+)/);
@@ -1180,6 +1239,9 @@
             if (spaceless) {
               if (!unitNameMap[spaceless]) {
                 unitNameMap[spaceless] = unitName;
+              } else if (unitName !== unitNameMap[spaceless]) {
+                modifiedList.push({ qNum: qNum, before: unitName, after: unitNameMap[spaceless] });
+                unitName = unitNameMap[spaceless];
               } else {
                 unitName = unitNameMap[spaceless];
               }
@@ -1200,9 +1262,36 @@
       if (parsedCount === 0) {
         throw new Error("설정하신 문항 번호(" + startNum + " ~ " + endNum + "번) 범위에 해당하는 출제표 데이터를 찾지 못했습니다. (파일 내용 또는 번호 범위를 확인해 주세요)");
       }
+
+      let detailsHtml = '';
+      if (modifiedList.length > 0) {
+        detailsHtml = `
+          <div style="margin-top: 15px; text-align: left; font-size: 12px; border: 1px solid #dee2e6; border-radius: 6px; max-height: 140px; overflow-y: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: center;">
+              <thead>
+                <tr style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; color: #495057;">
+                  <th style="padding: 6px 4px;">문항번호</th>
+                  <th style="padding: 6px 4px;">수정 전</th>
+                  <th style="padding: 6px 8px;">수정 후 (통일)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${modifiedList.map(m => `
+                  <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 6px 4px; font-weight: bold; color: #1366ce;">${m.qNum}번</td>
+                    <td style="padding: 6px 4px; color: #dc3545; text-decoration: line-through;">${m.before}</td>
+                    <td style="padding: 6px 8px; color: #28a745; font-weight: bold;">${m.after}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+      showSuccessAlert("출제 단원명과 배점이 입력되었습니다.", detailsHtml);
     }
 
-    /* 🟢 2. 엑셀 업로드 시에도 단원명 '띄어쓰기 차이' 자동 통일 사전을 일관성 있게 적용 */
+    /* 🟢 1. 엑셀 띄어쓰기 정규화 내역 기록 및 체크 팝업 표 안내 */
     function parseExcelSetupData(buffer) {
       let data = new Uint8Array(buffer);
       let workbook = XLSX.read(data, {type: 'array'});
@@ -1231,6 +1320,7 @@
       const endNum = parseInt(document.getElementById('setupEndNum').value) || 45;
       let parsedCount = 0;
       let unitNameMap = {};
+      let modifiedList = [];
 
       if (headerRowIdx === -1 || colMap.unit === -1 || colMap.score === -1) {
         let rowOffset = 0;
@@ -1251,6 +1341,9 @@
           if (spaceless) {
             if (!unitNameMap[spaceless]) {
               unitNameMap[spaceless] = unitVal;
+            } else if (unitVal !== unitNameMap[spaceless]) {
+              modifiedList.push({ qNum: qNum, before: unitVal, after: unitNameMap[spaceless] });
+              unitVal = unitNameMap[spaceless];
             } else {
               unitVal = unitNameMap[spaceless];
             }
@@ -1279,6 +1372,9 @@
           if (spaceless) {
             if (!unitNameMap[spaceless]) {
               unitNameMap[spaceless] = unitVal;
+            } else if (unitVal !== unitNameMap[spaceless]) {
+              modifiedList.push({ qNum: qNum, before: unitVal, after: unitNameMap[spaceless] });
+              unitVal = unitNameMap[spaceless];
             } else {
               unitVal = unitNameMap[spaceless];
             }
@@ -1300,6 +1396,33 @@
       if (parsedCount === 0) {
         throw new Error("설정하신 문항 번호(" + startNum + " ~ " + endNum + "번) 범위에 해당하는 엑셀 출제표 데이터를 찾지 못했습니다.");
       }
+
+      let detailsHtml = '';
+      if (modifiedList.length > 0) {
+        detailsHtml = `
+          <div style="margin-top: 15px; text-align: left; font-size: 12px; border: 1px solid #dee2e6; border-radius: 6px; max-height: 140px; overflow-y: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: center;">
+              <thead>
+                <tr style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; color: #495057;">
+                  <th style="padding: 6px 4px;">문항번호</th>
+                  <th style="padding: 6px 4px;">수정 전</th>
+                  <th style="padding: 6px 8px;">수정 후 (통일)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${modifiedList.map(m => `
+                  <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 6px 4px; font-weight: bold; color: #1366ce;">${m.qNum}번</td>
+                    <td style="padding: 6px 4px; color: #dc3545; text-decoration: line-through;">${m.before}</td>
+                    <td style="padding: 6px 8px; color: #28a745; font-weight: bold;">${m.after}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+      showSuccessAlert("출제 단원명과 배점이 입력되었습니다.", detailsHtml);
     }
     
     function checkExistingSetup() {
@@ -1343,13 +1466,13 @@
       .then(res => res.json()).then(res => { 
           showLoading(false); 
           if(res.success) { 
-              showAlert("✔ 저장 완료"); 
+              showSuccessAlert("시험 기본 세팅 정보가 안전하게 저장되었습니다.");
               fetchMetadata(true, true); 
           } else { showAlert("에러: " + res.error); } 
       }).catch(handleError);
     }
 
-    function loadGradesData(afterLoadMsg = null, highlightedStudentName = null) {
+    function loadGradesData(afterLoadMsg = null) {
       const tt = getTermAndTest('main');
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
@@ -1370,15 +1493,7 @@
           currentGlobalOtherScores = res.data.globalOtherScores || []; 
           renderInputTable(res.data.setupData, res.data.students, res.data.grades); 
           if (afterLoadMsg) {
-            setTimeout(() => showAlert(afterLoadMsg), 50);
-          }
-          if (highlightedStudentName) {
-            let targetIdx = res.data.students.findIndex(s => s.name.trim() === highlightedStudentName.trim());
-            if (targetIdx !== -1) {
-              setTimeout(() => {
-                highlightCells(document.querySelectorAll(`.grid-nav[data-s="${targetIdx}"], #totalScore_${targetIdx}, #rank_${targetIdx}`));
-              }, 150);
-            }
+            setTimeout(() => showSuccessAlert(afterLoadMsg), 50);
           }
         } else { showAlert("· Error: " + res.error); } 
       }).catch(handleError);
@@ -1947,7 +2062,7 @@
       .then(res => res.json()).then(res => { 
         showLoading(false); 
         if(res.success) {
-          showAlert("✔ 결과 및 명단 변경사항이 안전하게 저장되었습니다.");
+          showSuccessAlert("결과 및 명단 변경사항이 안전하게 저장되었습니다.");
           currentStudentsList.forEach(s => s.isNew = false);
         } else { 
           showAlert("에러: " + res.error); 
