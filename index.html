@@ -164,7 +164,7 @@
       pointer-events: auto;
     }
 
-    /* 🟢 2. 시험 기본 세팅: 우측 하단 고정 확장 마이너스(-) 버튼 - 마우스 오버 시 아이콘 숨기고 '입력내용삭제' 문구 표출 */
+    /* 🟢 2. 시험 기본 세팅: 우측 하단 고정 마이너스(-) 버튼 - 마우스 오버 시 '-' 숨기고 '입력내용삭제' 표출 */
     .btn-setup-clear-main {
       height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
       background-color: #dc3545;
@@ -281,7 +281,7 @@
 
   <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">처리 중입니다...</div></div>
   
-  <!-- 🟢 1. 체크표시(✔) 알림 팝업 상·하 공백 균등화 및 확인 버튼 너비 50% 통일 -->
+  <!-- 🟢 1, 5. 체크표시(✔) 알림 팝업: 상·하 공백 균등화 및 통일 내역 표 가로/세로 간격 여유 확보 -->
   <div class="modal-overlay" id="customAlertModal">
     <div class="modal-box" style="width: 340px; padding: 28px 20px 22px 20px;">
       <div id="modalMessage" class="modal-message" style="text-align: center; margin-bottom: 22px;"></div>
@@ -415,6 +415,10 @@
         
         <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #495057;" onclick="loadGradesData()">명단 불러오기</button>
+          <!-- 🟢 4. 성적 입력: 머티리얼 디자인 새로고침(초기화) 원형 회색 버튼 -->
+          <button class="icon-btn" style="margin-left: 2px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()" title="검색 조건 초기화">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          </button>
           <div style="margin-left: auto;">
             <button class="btn-expand-action" style="background-color: #d32f2f;" onclick="saveGrades()" title="결과 저장">
               <span class="btn-icon-wrap">
@@ -427,6 +431,10 @@
 
         <div id="actionBtn_report" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #495057;" onclick="generateReports()">성적표 렌더링</button>
+          <!-- 🟢 4. 성적표 출력: 머티리얼 디자인 새로고침(초기화) 원형 회색 버튼 -->
+          <button class="icon-btn" style="margin-left: 2px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()" title="검색 조건 초기화">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          </button>
           <div style="margin-left: auto;">
             <button class="btn-expand-action" style="background-color: #333;" onclick="executePrint()" title="일괄 인쇄 (PDF)">
               <span class="btn-icon-wrap">
@@ -439,6 +447,10 @@
 
         <div id="actionBtn_data" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #495057;" onclick="generateDashboard()">데이터 조회</button>
+          <!-- 🟢 4. 데이터 확인: 머티리얼 디자인 새로고침(초기화) 원형 회색 버튼 -->
+          <button class="icon-btn" style="margin-left: 2px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()" title="검색 조건 초기화">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          </button>
         </div>
       </div>
 
@@ -511,7 +523,7 @@
 
     </div>
 
-    <!-- 🟢 관리자 화면: 시험 기본 세팅 1/5(업로드) : 4/5(세팅 표) 분할 레이아웃 -->
+    <!-- 🟢 관리자 화면 -->
     <div id="page-admin" class="page-content">
       <div class="filter-card admin-mode">
         <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="checkExistingSetup()"></select></div>
@@ -560,7 +572,6 @@
             </thead>
             <tbody id="setupTableBody"></tbody>
           </table>
-          <!-- 🟢 2. 시험 기본 세팅 우측 하단 고정 플로팅 버튼: 마우스 오버 시 '-' 아이콘 숨기고 '입력내용삭제' 문구 표출 -->
           <div class="sticky-fab-bar" id="setupBottomControls" style="position: sticky; bottom: 15px; right: 15px; float: right; width: max-content; z-index: 70; margin: 15px; pointer-events: auto;">
             <button class="btn-setup-clear-main" onclick="confirmClearSetup()" title="현재 표 내용 전체 삭제">
               <span class="btn-icon-wrap">&minus;</span><span class="btn-text-wrap">입력내용삭제</span>
@@ -623,23 +634,35 @@
       }
     });
 
-    /* 🟢 1. 체크표시(✔) 알림 팝업 상·하 여백 대칭 균등화 및 확인 버튼 너비 50% 적용 */
+    /* 🟢 5. 체크표시(✔) 알림 팝업: 표 존재 시 너비를 500px로 넓게 확장 & 상하 공백 및 표 사이 간격 여유 확보 */
     function showSuccessAlert(msg, detailsHtml = '') {
+      const modalBox = document.querySelector('#customAlertModal .modal-box');
+      if (modalBox) {
+        modalBox.style.width = detailsHtml ? '500px' : '340px';
+      }
       document.getElementById('modalMessage').innerHTML = `
         <div style="font-size: 34px; color: #1366ce; margin-top: 4px; margin-bottom: 10px; font-weight: 900; line-height: 1;">✔</div>
-        <div style="font-size: 15px; font-weight: bold; color: #333; margin-bottom: ${detailsHtml ? '14px' : '4px'}; word-break: keep-all;">${msg}</div>
+        <div style="font-size: 15px; font-weight: bold; color: #333; margin-bottom: ${detailsHtml ? '20px' : '6px'}; word-break: keep-all;">${msg}</div>
         ${detailsHtml}
       `;
       document.getElementById('customAlertModal').style.display = 'flex';
     }
 
+    /* 🟢 1. 에러 메시지 중복 글자("Error:") 제거 및 깔끔한 출력 */
     function showAlert(msg) { 
-      document.getElementById('modalMessage').innerHTML = `<div style="margin: 10px 0 4px 0; font-size: 14px; color: #333; word-break: keep-all;">${msg}</div>`; 
+      let cleanMsg = String(msg || "").replace(/^(Error:\s*)+/i, '');
+      const modalBox = document.querySelector('#customAlertModal .modal-box');
+      if (modalBox) modalBox.style.width = '340px';
+      document.getElementById('modalMessage').innerHTML = `<div style="margin: 10px 0 4px 0; font-size: 14px; color: #333; word-break: keep-all;">${cleanMsg}</div>`; 
       document.getElementById('customAlertModal').style.display = 'flex'; 
     }
 
     function showLoading(status, msg = "처리 중입니다...") { document.getElementById('spinnerText').innerText = msg; document.getElementById('globalSpinner').style.display = status ? 'flex' : 'none'; }
-    function handleError(err) { showLoading(false); showAlert("🚫 에러 발생: " + err.message); }
+    function handleError(err) { 
+      showLoading(false); 
+      let cleanErr = String(err.message || err).replace(/^(Error:\s*)+/i, '');
+      showAlert("🚫 " + cleanErr); 
+    }
 
     function showConfirmModal(msg, onConfirm, onCancel) {
       document.getElementById('confirmMessage').innerHTML = msg;
@@ -651,6 +674,25 @@
       document.getElementById('customConfirmModal').style.display = 'none';
       if (isConfirmed && confirmCallback) confirmCallback();
       else if (!isConfirmed && cancelCallback) cancelCallback();
+    }
+
+    /* 🟢 4. 상단 필터 목록박스 페이지 새로고침처럼 초기화 (Refresh) */
+    function resetMainFilters() {
+      document.getElementById('mainCombinedTest').value = "";
+      document.getElementById('mainCourse').innerHTML = '<option value="" disabled selected hidden>과정 선택</option>';
+      document.getElementById('mainCampus').innerHTML = '<option value="" disabled selected hidden>캠퍼스 선택</option>';
+      document.getElementById('mainTeacher').innerHTML = '<option value="" disabled selected hidden>선생님 선택</option>';
+      document.getElementById('mainClass').innerHTML = '<option value="" disabled selected hidden>반 선택</option>';
+      
+      document.getElementById('inputTableContainer').style.display = 'none';
+      document.getElementById('inputEmptyState').style.display = 'block';
+      document.getElementById('reportContainer').style.display = 'none';
+      document.getElementById('reportEmptyState').style.display = 'block';
+      document.getElementById('dashContainer').style.display = 'none';
+      document.getElementById('dashEmptyState').style.display = 'block';
+      
+      filterCourses('main', true);
+      showSuccessAlert("검색 조건이 초기화되었습니다.");
     }
 
     function sortTestNames(arr) {
@@ -794,7 +836,7 @@
         if(res.success) { 
             globalData = res.data; 
             populateSettingsAndDropdowns(preserveState); 
-        } else { showAlert("에러: " + res.error); }
+        } else { showAlert(res.error); }
       }).catch(handleError);
     }
 
@@ -841,8 +883,8 @@
            document.getElementById('settingsModal').style.display = 'none'; 
            fetchMetadata(true); 
            showLoading(false); 
-           showAlert("✔ 설정 저장 완료!"); 
-        } else { showLoading(false); showAlert("에러: " + res.error); }
+           showSuccessAlert("설정이 안전하게 저장되었습니다."); 
+        } else { showLoading(false); showAlert(res.error); }
       }).catch(handleError);
     }
 
@@ -955,13 +997,13 @@
             fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'uploadRoster', term: termName, test: testName, campus: campusName, students: parsedStudents }) })
             .then(res => res.json()).then(result => {
               showLoading(false); document.getElementById('fileInput').value = '';
-              if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showAlert(`✔ 업로드 완료!`); fetchMetadata(true, true); } else { showAlert("Error: " + result.error); }
+              if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showSuccessAlert(`업로드 완료!`); fetchMetadata(true, true); } else { showAlert(result.error); }
             }).catch(err => { document.getElementById('fileInput').value = ''; handleError(err); });
           };
 
           if (isDuplicate) { showLoading(false); setTimeout(() => { if (confirm(`해당 테스트의 명단이 이미 있습니다.\n기존 명단을 삭제하고 새로 덮어쓰시겠습니까?`)) executeUpload(); else document.getElementById('fileInput').value = ''; }, 50); 
           } else { executeUpload(); }
-        } catch (err) { showLoading(false); document.getElementById('fileInput').value = ''; showAlert("Error: " + err.message); }
+        } catch (err) { showLoading(false); document.getElementById('fileInput').value = ''; showAlert(err.message); }
       }; reader.readAsArrayBuffer(file);
     }
 
@@ -1211,7 +1253,6 @@
       }
     }
 
-    /* 🟢 3. TXT 띄어쓰기 통일 내역 표: 취소선 제거 및 폰트 색상 정돈 */
     function parseTxtSetupData(textData) {
       const lines = textData.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '');
       const startNum = parseInt(document.getElementById('setupStartNum').value) || 1;
@@ -1264,7 +1305,7 @@
       let detailsHtml = '';
       if (modifiedList.length > 0) {
         detailsHtml = `
-          <div style="margin-top: 14px; text-align: left; font-size: 12px; border: 1px solid #dee2e6; border-radius: 6px; max-height: 140px; overflow-y: auto;">
+          <div style="margin-top: 20px; text-align: left; font-size: 12px; border: 1px solid #dee2e6; border-radius: 6px; max-height: 140px; overflow-y: auto;">
             <table style="width: 100%; border-collapse: collapse; text-align: center;">
               <thead>
                 <tr style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; color: #333; font-weight: bold;">
@@ -1289,7 +1330,6 @@
       showSuccessAlert("출제 단원명과 배점이 입력되었습니다.", detailsHtml);
     }
 
-    /* 🟢 3. 엑셀 띄어쓰기 통일 내역 표: 취소선 제거 및 폰트 색상 정돈 */
     function parseExcelSetupData(buffer) {
       let data = new Uint8Array(buffer);
       let workbook = XLSX.read(data, {type: 'array'});
@@ -1398,7 +1438,7 @@
       let detailsHtml = '';
       if (modifiedList.length > 0) {
         detailsHtml = `
-          <div style="margin-top: 14px; text-align: left; font-size: 12px; border: 1px solid #dee2e6; border-radius: 6px; max-height: 140px; overflow-y: auto;">
+          <div style="margin-top: 20px; text-align: left; font-size: 12px; border: 1px solid #dee2e6; border-radius: 6px; max-height: 140px; overflow-y: auto;">
             <table style="width: 100%; border-collapse: collapse; text-align: center;">
               <thead>
                 <tr style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; color: #333; font-weight: bold;">
@@ -1466,11 +1506,11 @@
           if(res.success) { 
               showSuccessAlert("시험 기본 세팅 정보가 안전하게 저장되었습니다.");
               fetchMetadata(true, true); 
-          } else { showAlert("에러: " + res.error); } 
+          } else { showAlert(res.error); } 
       }).catch(handleError);
     }
 
-    function loadGradesData(afterLoadMsg = null) {
+    function loadGradesData(afterLoadMsg = null, highlightedStudentName = null) {
       const tt = getTermAndTest('main');
       const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
       if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
@@ -1493,7 +1533,15 @@
           if (afterLoadMsg) {
             setTimeout(() => showSuccessAlert(afterLoadMsg), 50);
           }
-        } else { showAlert("· Error: " + res.error); } 
+          if (highlightedStudentName) {
+            let targetIdx = res.data.students.findIndex(s => s.name.trim() === highlightedStudentName.trim());
+            if (targetIdx !== -1) {
+              setTimeout(() => {
+                highlightCells(document.querySelectorAll(`.grid-nav[data-s="${targetIdx}"], #totalScore_${targetIdx}, #rank_${targetIdx}`));
+              }, 150);
+            }
+          }
+        } else { showAlert(res.error); } 
       }).catch(handleError);
     }
 
@@ -2063,7 +2111,7 @@
           showSuccessAlert("결과 및 명단 변경사항이 안전하게 저장되었습니다.");
           currentStudentsList.forEach(s => s.isNew = false);
         } else { 
-          showAlert("에러: " + res.error); 
+          showAlert(res.error); 
         } 
       }).catch(handleError);
     }
@@ -2077,10 +2125,14 @@
       window.print();
     }
 
+    /* 🟢 6. 성적표 렌더링: 테스트와 과정만 필수로 검사하고 전체 반 일괄 렌더링 지원 */
     function generateReports() {
       const tt = getTermAndTest('main');
-      const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value;
-      if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
+      const term = tt.term, test = tt.test, course = document.getElementById('mainCourse').value;
+      const campus = document.getElementById('mainCampus').value || "";
+      const teacher = document.getElementById('mainTeacher').value || "";
+      const className = document.getElementById('mainClass').value || "";
+      if (!term || !test || !course) return showAlert("테스트와 과정명을 선택해주세요.");
       showLoading(true, "성적 분석 및 렌더링 중...");
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getReportData', term, test, campus, course, teacher, className }) })
       .then(res => res.json()).then(res => {
@@ -2089,7 +2141,7 @@
           document.getElementById('reportEmptyState').style.display = 'none'; 
           document.getElementById('reportContainer').style.display = 'flex'; 
           renderReportCards(res.data.examInfo, res.data.students); 
-        } else { showAlert("· Error: " + res.error); }
+        } else { showAlert(res.error); }
       }).catch(handleError);
     }
 
@@ -2173,6 +2225,10 @@
         let bluePct = 100 - calcTopPct;
         let startAngle = 360 - (bluePct * 3.6);
 
+        /* 🟢 6. 각 학생의 실제 소속 반명(st.className)과 담임명(st.teacher)을 자동 매핑하여 배지에 출력 */
+        let studentClassName = st.className || examInfo.className;
+        let studentTeacherName = st.teacher || examInfo.teacher;
+
         let html = `
           <div class="report-page">
             <div class="report-header">
@@ -2187,8 +2243,8 @@
                    </div>
                 </div>
                 <div class="badge-divider"></div>
-                <div class="info-badge small-badge"><span>반명</span> <strong>${examInfo.className}</strong></div>
-                <div class="info-badge small-badge"><span>담임명</span> <strong>${examInfo.teacher}</strong></div>
+                <div class="info-badge small-badge"><span>반명</span> <strong>${studentClassName}</strong></div>
+                <div class="info-badge small-badge"><span>담임명</span> <strong>${studentTeacherName}</strong></div>
                 <div class="info-badge small-badge"><span>학생명</span> <strong style="color:#3b82f6;">${st.name}</strong></div>
               </div>
             </div>
