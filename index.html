@@ -2682,7 +2682,20 @@
         scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
-        ignoreElements: (el) => el.classList.contains('no-capture')
+        ignoreElements: (el) => el.classList.contains('no-capture'),
+        onclone: (clonedDoc) => {
+          clonedDoc.querySelectorAll('.report-logo').forEach(logoWrap => {
+            logoWrap.style.display = 'block';
+            logoWrap.style.paddingTop = '4px';
+          });
+          clonedDoc.querySelectorAll('.report-logo img').forEach(img => {
+            img.style.width = '150px';
+            img.style.height = '32px';
+            img.style.maxHeight = '32px';
+            img.style.objectFit = 'contain';
+            img.style.display = 'block';
+          });
+        }
       }).then(canvas => {
         showLoading(false);
         canvas.toBlob(blob => {
@@ -2718,7 +2731,20 @@
           scale: 2,
           useCORS: true,
           backgroundColor: '#ffffff',
-          ignoreElements: (el) => el.classList.contains('no-capture')
+          ignoreElements: (el) => el.classList.contains('no-capture'),
+          onclone: (clonedDoc) => {
+            clonedDoc.querySelectorAll('.report-logo').forEach(logoWrap => {
+              logoWrap.style.display = 'block';
+              logoWrap.style.paddingTop = '4px';
+            });
+            clonedDoc.querySelectorAll('.report-logo img').forEach(img => {
+              img.style.width = '150px';
+              img.style.height = '32px';
+              img.style.maxHeight = '32px';
+              img.style.objectFit = 'contain';
+              img.style.display = 'block';
+            });
+          }
         });
         
         const blobData = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92));
