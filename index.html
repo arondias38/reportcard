@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- 🟢 이미지 저장(JPEG) 및 ZIP 압축 다운로드를 위한 필수 라이브러리 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -17,7 +16,6 @@
     * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     body, button, input, select, textarea, th, td { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
     
-    /* 🟢 100vh 앱 뷰포트 레이아웃: 화면 전체 크기에 맞추고 상단 고정 + 내부 독립 스크롤 체계 */
     html, body { height: 100%; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; overflow: hidden; }
     .app-container { height: 100vh; display: flex; flex-direction: column; padding: 20px 25px; overflow: hidden; }
     
@@ -201,25 +199,29 @@
     .btn-roster-add-main:hover, .btn-roster-delete-main:hover, .btn-roster-delete-main.active { max-width: 115px; padding-right: 14px; }
     .btn-roster-delete-main.active { background-color: #8b0000; box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
 
-    /* 🟢 1. 성적표 개별 카드 우측 하단 이미지 저장(JPEG) 원형 확장 플로팅 버튼 */
-    .btn-card-save-img {
-      height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: flex-start; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s;
-      background-color: #1366ce;
-      position: absolute; bottom: 25px; right: 30px; z-index: 50;
+    /* 🟢 2, 3. 이미지 저장 버튼 & 일괄 이미지 저장 버튼: 크기(32px), 옅은 회색(#6c757d), 카메라 정중앙, 오버 시 아이콘 숨김 */
+    .btn-card-save-img, .btn-batch-save-zip {
+      height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s;
+      background-color: #6c757d;
     }
-    .btn-card-save-img:hover { max-width: 115px; padding-right: 14px; background-color: #0f52a8; }
-
-    /* 🟢 1. 성적표 출력 화면 우측 하단 일괄 이미지 저장(ZIP) 원형 확장 플로팅 버튼 */
-    .btn-batch-save-zip {
-      height: 42px; max-width: 42px; border-radius: 21px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.22); display: inline-flex; align-items: center; justify-content: flex-start; transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s ease, background-color 0.2s;
-      background: linear-gradient(135deg, #1366ce 0%, #3a82e0 100%);
+    .btn-card-save-img { position: absolute; bottom: 25px; right: 30px; z-index: 50; }
+    .btn-card-save-img:hover, .btn-batch-save-zip:hover {
+      max-width: 115px; padding: 0 14px; background-color: #5a6268; justify-content: center;
     }
-    .btn-batch-save-zip:hover { max-width: 160px; padding-right: 18px; background: linear-gradient(135deg, #0f52a8 0%, #2870d0 100%); }
-    .btn-batch-save-zip .btn-icon-wrap { width: 42px; height: 42px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; }
-    .btn-batch-save-zip .btn-text-wrap { opacity: 0; transition: opacity 0.15s ease-in; font-size: 13px; }
-    .btn-batch-save-zip:hover .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
+    .btn-card-save-img .btn-icon-wrap, .btn-batch-save-zip .btn-icon-wrap {
+      width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0;
+    }
+    .btn-card-save-img:hover .btn-icon-wrap, .btn-batch-save-zip:hover .btn-icon-wrap {
+      display: none;
+    }
+    .btn-card-save-img .btn-text-wrap, .btn-batch-save-zip .btn-text-wrap {
+      display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 12px;
+    }
+    .btn-card-save-img:hover .btn-text-wrap, .btn-batch-save-zip:hover .btn-text-wrap {
+      display: inline; opacity: 1; transition-delay: 0.05s;
+    }
 
-    /* 🟢 2. 시험 기본 세팅 관리자 화면 좌측 하단 데이터 백업 원형 확장 플로팅 버튼 */
+    /* 🟢 관리자 화면 좌측 하단 고정: 데이터 백업 원형 확장 플로팅 버튼 */
     .btn-backup-cloud {
       height: 42px; max-width: 42px; border-radius: 21px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.22); display: inline-flex; align-items: center; justify-content: flex-start; transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s ease, background-color 0.2s;
       background-color: #28a745;
@@ -231,8 +233,7 @@
 
     .btn-icon-wrap { width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; font-style: normal; font-size: 1.2em; font-weight: 900; line-height: 0; padding-bottom: 2px; }
     .btn-text-wrap { opacity: 0; transition: opacity 0.1s ease-in; }
-    .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap,
-    .btn-card-save-img:hover .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
+    .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
 
     .student-del-badge {
       display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px;
@@ -276,8 +277,9 @@
     
     .report-header { display: flex; justify-content: flex-start; gap: 20px; align-items: center; margin-bottom: 25px; padding-bottom: 15px; flex-shrink: 0; }
     
-    .report-logo { width: 172px; min-width: 172px; max-width: 172px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
-    .report-logo img { height: 42px; max-width: 100%; object-fit: contain; } 
+    /* 🟢 4. 이미지 저장(html2canvas) 시 왼쪽 상단 로고 이미지 상하 늘어남 완벽 방지 */
+    .report-logo { width: 172px; min-width: 172px; max-width: 172px; display: flex; justify-content: flex-start; align-items: center; flex-shrink: 0; }
+    .report-logo img { height: 40px; width: auto; max-width: 100%; object-fit: contain; display: block; } 
     
     .report-info { display: flex; gap: 10px; align-items: stretch; flex: 1; min-width: 0; }
     
@@ -361,7 +363,7 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="customConfirmModal">
+  <div class="modal-overlay" id="customConfirmModal" style="z-index: 10010;">
     <div class="modal-box" style="width: 380px; padding: 25px;">
       <div id="confirmMessage" class="modal-message" style="text-align: center; font-size: 15px; margin-bottom: 25px; font-weight:bold;"></div>
       <div style="display: flex; gap: 10px;">
@@ -430,27 +432,28 @@
     </div>
   </div>
 
-  <!-- 🟢 2. 학기별 데이터 백업 및 삭제 확인 모달 -->
+  <!-- 🟢 5, 7. 학기별 데이터 백업 모달: 박스 삭제 및 녹색 타이틀(#28a745), 버튼 겹침 해결(flex-end), 중앙 정렬, 엑셀 다운로드 버튼 추가 -->
   <div class="modal-overlay" id="backupModal">
-    <div class="modal-box" style="width: 440px; padding: 25px; text-align: left;">
-      <div style="font-size: 18px; font-weight: 900; background-color: #28a745; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 6px; text-align: center;">데이터 백업</div>
-      <p style="font-size: 12px; color: #666; margin: 0 0 15px 0; text-align: center;">(데이터 백업 후 삭제 여부를 결정합니다.)</p>
+    <div class="modal-box" style="width: 480px; padding: 25px; text-align: left;">
+      <div style="font-size: 20px; font-weight: 900; color: #28a745; margin-bottom: 6px; text-align: center;">데이터 백업</div>
+      <p style="font-size: 12px; color: #666; margin: 0 0 18px 0; text-align: center;">(데이터 백업 후 삭제 여부를 결정합니다.)</p>
       <div class="settings-table-wrapper" style="max-height: 260px; margin-bottom: 20px;">
         <table class="settings-table" style="width: 100%;">
           <thead>
             <tr>
-              <th width="15%" style="text-align: center;">선택</th>
-              <th width="85%" style="text-align: left; padding-left: 12px;">학기 목록</th>
+              <th width="18%" style="text-align: center;">선택</th>
+              <th width="57%" style="text-align: center;">학기 목록</th>
+              <th width="25%" style="text-align: center;">엑셀 다운</th>
             </tr>
           </thead>
           <tbody id="backupTermTableBody">
-            <tr><td colspan="2" style="padding: 25px; color: #888; text-align: center;">학기 목록을 불러오는 중...</td></tr>
+            <tr><td colspan="3" style="padding: 25px; color: #888; text-align: center;">학기 목록을 불러오는 중...</td></tr>
           </tbody>
         </table>
       </div>
-      <div style="display: flex; justify-content: center; align-items: center; position: relative; width: 100%;">
-        <button class="modal-btn" style="background-color: #6c757d; width: 120px;" onclick="document.getElementById('backupModal').style.display='none'">닫기</button>
-        <button class="modal-btn" style="background-color: #28a745; width: 140px; position: absolute; right: 0;" onclick="confirmBackupTerms()">백업 / 삭제</button>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; width: 100%;">
+        <button class="modal-btn" style="background-color: #6c757d; width: 100px;" onclick="document.getElementById('backupModal').style.display='none'">닫기</button>
+        <button class="modal-btn" style="background-color: #28a745; width: 120px;" onclick="confirmBackupTerms()">백업 / 삭제</button>
       </div>
     </div>
   </div>
@@ -488,10 +491,10 @@
       </div>
 
       <div style="display: flex; align-items: center;">
-        <!-- 🟢 3. 구글 Material Design 표준 24x24 톱니바퀴 원본 SVG 100% 영구 보존 -->
+        <!-- 🟢 1. 구글 Material Design 'settings' 표준 24x24 SVG 원본 경로 완벽 복원 -->
         <button class="icon-btn" id="headerAdminBtn" onclick="switchPage('page-admin')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
           </svg>
         </button>
         <button class="icon-btn" id="headerMainBtn" style="display: none;" onclick="switchPage('page-main')">
@@ -602,11 +605,11 @@
           반을 확인하고 [성적표 렌더링]을 누르면 성적표가 생성됩니다.
         </div>
 
-        <!-- 🟢 1. 우측 하단 고정: 전체 성적표 일괄 이미지 저장(ZIP) 확장 원형 플로팅 버튼 -->
-        <div id="reportBatchSaveWrap" style="position: fixed; bottom: 25px; right: 30px; z-index: 150; display: none;">
-          <button class="btn-batch-save-zip" onclick="saveAllReportsZip()" title="전체 성적표 ZIP 이미지 다운로드">
+        <!-- 🟢 3. 우측 하단 고정: 일괄 이미지 저장(ZIP) 플로팅 버튼 (스크롤 겹침 방지 right: 55px, 동일 크기 32px, 옅은 회색 #6c757d) -->
+        <div id="reportBatchSaveWrap" style="position: fixed; bottom: 25px; right: 55px; z-index: 150; display: none;">
+          <button class="btn-card-save-img" style="position: relative; bottom: auto; right: auto;" onclick="saveAllReportsZip()">
             <span class="btn-icon-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             </span>
             <span class="btn-text-wrap">일괄 이미지 저장</span>
           </button>
@@ -678,7 +681,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v6h16v-6"></path><path d="M12 4v12"></path><path d="m17 9-5-5-5 5"></path></svg>
             학생명단 업로드
           </button>
-          <!-- 🟢 3. 구글 Material Design 'settings' 표준 24x24 톱니바퀴 원본 SVG 100% 영구 보존 -->
+          <!-- 🟢 1. 구글 Material Design 'settings' 표준 24x24 톱니바퀴 원본 SVG 100% 영구 보존 -->
           <button class="btn-primary" style="background-color: #6c757d;" onclick="openSettingsModal()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
@@ -734,9 +737,9 @@
         </div>
       </div>
 
-      <!-- 🟢 2. 좌측 하단 고정: 시험기본세팅앱 학기별 데이터 백업 원형 확장 플로팅 버튼 -->
+      <!-- 🟢 좌측 하단 고정: 학기별 데이터 백업 원형 확장 플로팅 버튼 -->
       <div style="position: fixed; bottom: 25px; left: 30px; z-index: 150;">
-        <button class="btn-backup-cloud" onclick="openBackupModal()" title="학기별 데이터 백업 및 삭제">
+        <button class="btn-backup-cloud" onclick="openBackupModal()">
           <span class="btn-icon-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>
           </span>
@@ -2594,8 +2597,8 @@
               - 그래프의 점수 분포는 만점을 100점으로 환산하여 표기되었습니다.
             </div>
 
-            <!-- 🟢 1. 성적표 개별 카드 우측 하단: 이미지 저장(JPEG) 원형 확장 플로팅 버튼 -->
-            <button class="btn-card-save-img no-capture" onclick="saveSingleReportImage(this, '${st.name}')" title="해당 학생 성적표 JPEG 이미지 저장">
+            <!-- 🟢 2. 개별 성적표 우측 하단 이미지 저장 원형 버튼 (옅은 회색, 카메라 정중앙, 마우스 오버 시 글자만 노출) -->
+            <button class="btn-card-save-img no-capture" onclick="saveSingleReportImage(this, '${st.name}')">
               <span class="btn-icon-wrap">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
               </span>
@@ -2655,12 +2658,10 @@
         }, 100);
       });
 
-      // 🟢 1. 성적표 렌더링 완료 시 일괄 이미지 저장(ZIP) 플로팅 버튼 노출
       const batchBtnWrap = document.getElementById('reportBatchSaveWrap');
       if (batchBtnWrap) batchBtnWrap.style.display = 'block';
     }
 
-    /* 🟢 1. 성적표 개별 카드 JPEG 이미지 저장 함수 */
     function saveSingleReportImage(btnEl, studentName) {
       const pageEl = btnEl.closest('.report-page');
       const tt = getTermAndTest('main');
@@ -2683,7 +2684,6 @@
       });
     }
 
-    /* 🟢 1. 전체 성적표 일괄 JPEG 생성 및 ZIP 압축 다운로드 함수 */
     async function saveAllReportsZip() {
       const pages = document.querySelectorAll('.report-page');
       if (!pages || pages.length === 0) return showAlert("렌더링된 성적표가 없습니다.");
@@ -2722,7 +2722,7 @@
       showSuccessAlert(`총 ${pages.length}장의 성적표가 ZIP 파일로 저장되었습니다!`);
     }
 
-    /* 🟢 2. 시험기본세팅 학기별 데이터 백업 모달 열기 및 학기 목록 렌더링 */
+    /* 🟢 5, 6, 7. 시험기본세팅 데이터 백업 모달 열기 및 학기 목록(엑셀 다운로드 포함) 렌더링 */
     function openBackupModal() {
       showLoading(true, "학기 목록 조회 중...");
       fetch(document.getElementById('backendUrl').value.trim(), {
@@ -2743,14 +2743,17 @@
       const tbody = document.getElementById('backupTermTableBody');
       tbody.innerHTML = '';
       if (!terms || terms.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="2" style="padding: 25px; color: #888; text-align: center;">저장된 학기 데이터가 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" style="padding: 25px; color: #888; text-align: center;">저장된 학기 데이터가 없습니다.</td></tr>';
         return;
       }
       terms.forEach(term => {
         tbody.innerHTML += `
           <tr style="border-bottom: 1px solid #eee;">
             <td style="padding: 8px; text-align: center;"><input type="checkbox" class="backup-term-chk" value="${term}" style="width:16px; height:16px; cursor:pointer;"></td>
-            <td style="padding: 8px; font-weight: bold; color: #333; text-align: left;">${term}</td>
+            <td style="padding: 8px; font-weight: bold; color: #333; text-align: center;">${term}</td>
+            <td style="padding: 8px; text-align: center;">
+              <button class="batch-btn batch-btn-o" style="margin: 0 auto; width: 66px; height: 24px;" onclick="downloadTermExcel('${term}')">엑셀 다운</button>
+            </td>
           </tr>
         `;
       });
@@ -2760,9 +2763,13 @@
       const checked = Array.from(document.querySelectorAll('.backup-term-chk:checked')).map(c => c.value);
       if (checked.length === 0) return showAlert("백업할 학기를 최소 1개 이상 선택하세요.");
       
+      document.getElementById('backupModal').style.display = 'none';
+      
       showConfirmModal(`선택한 학기 데이터를 새 파일로 백업합니다.<br><b>[선택 학기]: ${checked.join(", ")}</b>`, function() {
         executeBackupTerms(checked);
-      }, function() {});
+      }, function() {
+        document.getElementById('backupModal').style.display = 'flex';
+      });
     }
 
     function executeBackupTerms(terms) {
@@ -2773,10 +2780,10 @@
       }).then(res => res.json()).then(res => {
         showLoading(false);
         if (res.success) {
-          document.getElementById('backupModal').style.display = 'none';
           askDeleteAfterBackup(terms);
         } else {
           showAlert(res.error);
+          document.getElementById('backupModal').style.display = 'flex';
         }
       }).catch(handleError);
     }
@@ -2803,6 +2810,24 @@
           showAlert(res.error);
         }
       }).catch(handleError);
+    }
+
+    /* 🟢 7. 학기 데이터 엑셀(.xlsx) 내보내기 함수 */
+    function downloadTermExcel(termName) {
+      const rosters = globalData.rosters.filter(r => r.term === termName);
+      if (rosters.length === 0) {
+        return showAlert(`[${termName}]에 해당하는 명단 데이터가 없습니다.`);
+      }
+      
+      const wb = XLSX.utils.book_new();
+      const wsData = [["학기", "테스트", "캠퍼스", "담임명", "반명"]];
+      rosters.forEach(r => {
+        wsData.push([r.term, r.test, r.campus, r.teacher, r.className]);
+      });
+      
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      XLSX.utils.book_append_sheet(wb, ws, termName + "_명단");
+      XLSX.writeFile(wb, `${termName}_데이터.xlsx`);
     }
 
     function generateDashboard() {
