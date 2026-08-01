@@ -2602,7 +2602,7 @@
                   <table class="willow-table bg-head-blue">
                     <tr><th>단원</th>${unitCols}</tr>
                     <tr class="bg-subhead"><th>기준만점</th>${unitMaxs}</tr>
-                    <tr><th style="color:#3b82f6;">${st.name}</th>${unitScores}</tr>
+                    <tr><th style="color:#3b82f6; font-weight: 900;">${st.name}</th>${unitScores}</tr>
                     <tr><th>전체평균</th>${unitAvgs}</tr>
                     <tr><th>정답률</th>${unitPcts}</tr>
                   </table>
@@ -2616,7 +2616,7 @@
                   <table class="willow-table bg-head-green">
                     <tr><th>난이도</th>${diffCols}</tr>
                     <tr class="bg-subhead"><th>기준만점</th>${diffMaxs}</tr>
-                    <tr><th style="color:#3b82f6;">${st.name}</th>${diffScores}</tr>
+                    <tr><th style="color:#3b82f6; font-weight: 900;">${st.name}</th>${unitScores}</tr>
                     <tr><th>전체평균</th>${diffAvgs}</tr>
                     <tr><th>정답률</th>${diffPcts}</tr>
                   </table>
@@ -2626,8 +2626,8 @@
             </div>
             
             <div class="report-footer">
-              - 단원별 성적 : 출제 문항 중 각 단원별 점수를 나타냅니다.<br>
-              - 난이도별 성적 : 출제 문항 중 배점에 따른 난도별 점수를 나타냅니다.<br>
+              - 단원별 분석 : 출제 문항 중 각 단원별 점수를 나타냅니다.<br>
+              - 난이도별 분석 : 출제 문항 중 배점에 따른 난이도별 점수를 나타냅니다.<br>
               - 본인의 점수가 전체의 평균 점수보다 높을 경우 점수는 파란색(▲)으로, 낮을 경우 빨간색(▼)으로 표시됩니다.<br>
               - 정답률(%)은 총 응시자들의 정답 비율입니다.<br>
               - 그래프의 점수 분포는 만점을 100점으로 환산하여 표기되었습니다.
@@ -2653,13 +2653,13 @@
             layout: { padding: { top: 15, bottom: 0, left: 0, right: 0 } }, 
             scales: { 
               x: { 
-                  ticks: { display: true, font: { family: 'Pretendard', size: 10 }, color: '#64748b', maxRotation: 0, minRotation: 0 }, 
+                  ticks: { display: true, font: { family: 'Pretendard', size: 10 }, color: '#475569', maxRotation: 0, minRotation: 0 }, 
                   grid: { display: false, drawBorder: false } 
               }, 
               y: { 
                 beginAtZero: true, 
                 max: 100, 
-                ticks: { stepSize: 10, color: '#9ca3af', font: { family: 'Pretendard' } }, 
+                ticks: { stepSize: 10, color: '#6b7280', font: { family: 'Pretendard' } },
                 border: { display: false }, 
                 grid: { color: '#f3f4f6' }, 
                 afterFit: function(scale) { scale.width = 55; } 
