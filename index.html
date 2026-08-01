@@ -2668,8 +2668,8 @@
             plugins: { legend: { display: false } } 
           };
           
-          chartInstances.push(new Chart(document.getElementById(`chart_unit_${idx}`).getContext('2d'), { type: 'bar', data: { labels: unitLabels, datasets: [{ label: st.name, data: unitMyData, backgroundColor: '#3b82f6', barPercentage: 0.5, borderRadius: 4 }, { label: '전체평균', data: unitAvgData, backgroundColor: '#e5e7eb', barPercentage: 0.5, borderRadius: 4 }]}, options: chartOpts }));
-          chartInstances.push(new Chart(document.getElementById(`chart_diff_${idx}`).getContext('2d'), { type: 'bar', data: { labels: diffLabels, datasets: [{ label: st.name, data: diffMyData, backgroundColor: '#10b981', barPercentage: 0.5, borderRadius: 4 }, { label: '전체평균', data: diffAvgData, backgroundColor: '#e5e7eb', barPercentage: 0.5, borderRadius: 4 }]}, options: chartOpts }));
+          chartInstances.push(new Chart(document.getElementById(`chart_unit_${idx}`).getContext('2d'), { type: 'bar', data: { labels: unitLabels, datasets: [{ label: st.name, data: unitMyData, backgroundColor: '#3b82f6', barPercentage: 0.5, borderRadius: 4 }, { label: '전체평균', data: unitAvgData, backgroundColor: '#d1d5db', barPercentage: 0.5, borderRadius: 4 }]}, options: chartOpts }));
+          chartInstances.push(new Chart(document.getElementById(`chart_diff_${idx}`).getContext('2d'), { type: 'bar', data: { labels: diffLabels, datasets: [{ label: st.name, data: diffMyData, backgroundColor: '#10b981', barPercentage: 0.5, borderRadius: 4 }, { label: '전체평균', data: diffAvgData, backgroundColor: '#d1d5db', barPercentage: 0.5, borderRadius: 4 }]}, options: chartOpts }));
           
           chartInstances.push(new Chart(document.getElementById(`chart_doughnut_${idx}`).getContext('2d'), { 
             type: 'doughnut', 
