@@ -75,14 +75,7 @@
     .filter-card .btn-primary { min-width: 135px; justify-content: center; }
     .filter-card .icon-btn { width: 32px; height: 32px; margin-left: 4px; }
 
-    .btn-expand-action {
-      height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden;
-      white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px;
-      cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      display: inline-flex; align-items: center; justify-content: flex-start;
-      transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s;
-      flex-shrink: 0;
-    }
+    .btn-expand-action { height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); display: inline-flex; align-items: center; justify-content: flex-start; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s; flex-shrink: 0; }
     .btn-expand-action:hover { max-width: 130px; padding-right: 14px; }
     .btn-expand-action .btn-icon-wrap { width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; }
     .btn-expand-action .btn-text-wrap { opacity: 0; transition: opacity 0.15s ease-in; font-size: 13px; }
@@ -537,7 +530,7 @@
               <div class="dash-chart-basic"><canvas id="dashScoreDistChart"></canvas></div>
             </div>
             <div class="dash-card-basic" style="flex: 1.2;">
-              <div class="dash-title" id="dashChart2Title">과정별/단원별 정답률</div>
+              <div class="dash-title" id="dashChart2Title">과정별 통합 정답률</div>
               <div class="dash-chart-basic"><canvas id="dashChart2"></canvas></div>
             </div>
           </div>
@@ -997,17 +990,19 @@
       filterCampuses(prefix, forceReset);
     }
     
+    // 🟢 2. '데이터 확인' 탭에서 필터 변경 시 '전체(All)' 항목이 유지되도록 로직 보완
     function filterCampuses(prefix, forceReset = false) {
       const tt = getTermAndTest(prefix); const term = tt.term, test = tt.test; const sel = document.getElementById(`${prefix}Campus`); if(!sel) return;
-      const prevVal = forceReset ? "" : sel.value; const keepAll = sel.querySelector('option[value="전체"]');
-      let optionsHtml = keepAll ? '<option value="전체" style="color:#333;">전체 (All)</option>' : '<option value="" disabled selected hidden>캠퍼스 선택</option>';
+      const prevVal = forceReset ? "" : sel.value; 
+      const isDataMode = (document.getElementById('view_data')?.style.display === 'flex');
+      let optionsHtml = isDataMode ? '<option value="전체" style="color:#333;">전체 (All)</option>' : '<option value="" disabled selected hidden>캠퍼스 선택</option>';
       if(term && test) { 
         let campuses = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test).map(r => r.campus))];
         campuses = sortBySettingsOrder(campuses, globalData.settings.campuses);
         campuses.forEach(c => optionsHtml += `<option value="${c}" style="color:#333;">${c}</option>`); 
       }
       sel.innerHTML = optionsHtml;
-      if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal; else sel.value = keepAll ? "전체" : "";
+      if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal; else sel.value = isDataMode ? "전체" : "";
       filterTeachers(prefix, forceReset);
     }
 
@@ -1578,7 +1573,7 @@
           }));
 
           // (2) 차트 2 (과정별/단원별 정답률) & (3) 차트 3 (동적 단원별 정답률)의 과정 순서 정렬
-          if (payload.course === '전체') {
+          if (course === '전체') {
              let sortedLabels2 = sortCombinedCourses(d.chart2Labels, globalData.settings.levels, globalData.settings.courses);
              let sortedData2 = sortedLabels2.map(l => d.chart2Data[d.chart2Labels.indexOf(l)]);
              d.chart2Labels = sortedLabels2;
