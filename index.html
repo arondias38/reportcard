@@ -75,26 +75,11 @@
     .filter-card .btn-primary { min-width: 135px; justify-content: center; }
     .filter-card .icon-btn { width: 32px; height: 32px; margin-left: 4px; }
 
-    .btn-expand-action {
-      height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden;
-      white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px;
-      cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      display: inline-flex; align-items: center; justify-content: flex-start;
-      transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s;
-      flex-shrink: 0;
-    }
-    .btn-expand-action:hover {
-      max-width: 130px; padding-right: 14px;
-    }
-    .btn-expand-action .btn-icon-wrap {
-      width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0;
-    }
-    .btn-expand-action .btn-text-wrap {
-      opacity: 0; transition: opacity 0.15s ease-in; font-size: 13px;
-    }
-    .btn-expand-action:hover .btn-text-wrap {
-      opacity: 1; transition-delay: 0.05s;
-    }
+    .btn-expand-action { height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); display: inline-flex; align-items: center; justify-content: flex-start; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s; flex-shrink: 0; }
+    .btn-expand-action:hover { max-width: 130px; padding-right: 14px; }
+    .btn-expand-action .btn-icon-wrap { width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; }
+    .btn-expand-action .btn-text-wrap { opacity: 0; transition: opacity 0.15s ease-in; font-size: 13px; }
+    .btn-expand-action:hover .btn-text-wrap { opacity: 1; transition-delay: 0.05s; }
     
     #view_input { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
     #view_report { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 5px; position: relative; }
@@ -140,10 +125,7 @@
     .paste-zone:hover { background-color: #e9ecef; }
     #setupUploadZone { flex: 0 0 18%; width: 18%; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow-y: auto; }
 
-    .setup-status-card {
-      flex: 0 0 18%; width: 18%; background: #fff; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      display: flex; flex-direction: column; overflow: hidden; min-width: 180px;
-    }
+    .setup-status-card { flex: 0 0 18%; width: 18%; background: #fff; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-direction: column; overflow: hidden; min-width: 180px; }
 
     .batch-btn-col { display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center; padding: 6px 2px; }
     .batch-btn { width: 26px; height: 22px; border: none; border-radius: 4px; font-weight: 900; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.15s; }
@@ -170,168 +152,69 @@
     .dash-value { font-size: 32px; font-weight: 900; color: #1366ce; }
     .dash-chart-basic { width: 100%; height: 250px; position: relative; }
 
-    .sticky-fab-bar {
-      position: sticky;
-      bottom: 15px;
-      left: 15px;
-      width: max-content;
-      display: flex;
-      gap: 10px;
-      z-index: 70;
-      margin-top: 20px;
-      margin-bottom: 15px;
-      pointer-events: auto;
-    }
+    .sticky-fab-bar { position: sticky; bottom: 15px; left: 15px; width: max-content; display: flex; gap: 10px; z-index: 70; margin-top: 20px; margin-bottom: 15px; pointer-events: auto; }
 
-    .btn-setup-clear-main {
-      height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
-      background-color: #dc3545;
-    }
+    .btn-setup-clear-main { height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s; background-color: #dc3545; }
     .btn-setup-clear-main:hover { max-width: 110px; padding: 0 14px; background-color: #a71d2a; }
     .btn-setup-clear-main .btn-icon-wrap { width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; font-style: normal; font-size: 1.2em; font-weight: 900; line-height: 0; padding-bottom: 2px; }
     .btn-setup-clear-main:hover .btn-icon-wrap { display: none; }
     .btn-setup-clear-main .btn-text-wrap { display: none; opacity: 0; transition: opacity 0.1s ease-in; }
     .btn-setup-clear-main:hover .btn-text-wrap { display: inline; opacity: 1; transition-delay: 0.05s; }
 
-    /* 🟢 1. 학생추가/삭제 버튼 : 글자 줄바꿈 방지(white-space: nowrap) 보완 완료 */
-    .btn-roster-add-main, .btn-roster-delete-main {
-      height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.15s cubic-bezier(0.4, 0, 0.2, 1), padding 0.15s ease, background-color 0.2s;
-    }
+    .btn-roster-add-main, .btn-roster-delete-main { height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.15s cubic-bezier(0.4, 0, 0.2, 1), padding 0.15s ease, background-color 0.2s; }
     .btn-roster-add-main { background-color: #28a745; }
     .btn-roster-delete-main { background-color: #dc3545; }
-    .btn-roster-add-main:hover, .btn-roster-delete-main:hover, .btn-roster-delete-main.active {
-      max-width: 110px; padding: 0 14px; justify-content: center;
-    }
+    .btn-roster-add-main:hover, .btn-roster-delete-main:hover, .btn-roster-delete-main.active { max-width: 110px; padding: 0 14px; justify-content: center; }
     .btn-roster-delete-main.active { background-color: #8b0000; box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
-    .btn-roster-add-main .btn-icon-wrap, .btn-roster-delete-main .btn-icon-wrap {
-      width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; font-style: normal; font-size: 1.3em; font-weight: 900; line-height: 0; padding-bottom: 2px;
-    }
-    .btn-roster-add-main:hover .btn-icon-wrap, .btn-roster-delete-main:hover .btn-icon-wrap {
-      display: none;
-    }
-    .btn-roster-add-main .btn-text-wrap, .btn-roster-delete-main .btn-text-wrap {
-      display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 12px; white-space: nowrap;
-    }
-    .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap {
-      display: inline; opacity: 1; transition-delay: 0.05s;
-    }
+    .btn-roster-add-main .btn-icon-wrap, .btn-roster-delete-main .btn-icon-wrap { width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; font-style: normal; font-size: 1.3em; font-weight: 900; line-height: 0; padding-bottom: 2px; }
+    .btn-roster-add-main:hover .btn-icon-wrap, .btn-roster-delete-main:hover .btn-icon-wrap { display: none; }
+    .btn-roster-add-main .btn-text-wrap, .btn-roster-delete-main .btn-text-wrap { display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 12px; white-space: nowrap; }
+    .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap { display: inline; opacity: 1; transition-delay: 0.05s; }
 
-    /* 🟢 이미지 저장 버튼: 호버 시 중앙 정렬 보완 */
-    .btn-card-save-img, .btn-batch-save-zip {
-      height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s;
-      background-color: #6c757d;
-    }
+    .btn-card-save-img, .btn-batch-save-zip { height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s; background-color: #6c757d; }
     .btn-card-save-img { position: absolute; bottom: 25px; right: 30px; z-index: 50; }
-    .btn-card-save-img:hover, .btn-batch-save-zip:hover {
-      max-width: 115px; padding: 0 14px; background-color: #5a6268; justify-content: center;
-    }
-    .btn-card-save-img .btn-icon-wrap, .btn-batch-save-zip .btn-icon-wrap {
-      width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0;
-    }
-    .btn-card-save-img:hover .btn-icon-wrap, .btn-batch-save-zip:hover .btn-icon-wrap {
-      display: none;
-    }
-    .btn-card-save-img .btn-text-wrap, .btn-batch-save-zip .btn-text-wrap {
-      display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 12px; white-space: nowrap;
-    }
-    .btn-card-save-img:hover .btn-text-wrap, .btn-batch-save-zip:hover .btn-text-wrap {
-      display: inline; opacity: 1; transition-delay: 0.05s;
-    }
+    .btn-card-save-img:hover, .btn-batch-save-zip:hover { max-width: 115px; padding: 0 14px; background-color: #5a6268; justify-content: center; }
+    .btn-card-save-img .btn-icon-wrap, .btn-batch-save-zip .btn-icon-wrap { width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; }
+    .btn-card-save-img:hover .btn-icon-wrap, .btn-batch-save-zip:hover .btn-icon-wrap { display: none; }
+    .btn-card-save-img .btn-text-wrap, .btn-batch-save-zip .btn-text-wrap { display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 12px; white-space: nowrap; }
+    .btn-card-save-img:hover .btn-text-wrap, .btn-batch-save-zip:hover .btn-text-wrap { display: inline; opacity: 1; transition-delay: 0.05s; }
 
-    /* 🟢 데이터 백업 버튼: 필수 환경설정 우측 배치용 (32px 크기업, 빨간색, 좌측 확장 효과) */
-    .btn-backup-cloud {
-      height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s; flex-shrink: 0;
-      background-color: #dc3545; /* 빨간색 */
-    }
+    .btn-backup-cloud { height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s; flex-shrink: 0; background-color: #dc3545; }
     .btn-backup-cloud:hover { max-width: 110px; padding: 0 14px; background-color: #a71d2a; justify-content: center; }
     .btn-backup-cloud .btn-icon-wrap { width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; }
     .btn-backup-cloud:hover .btn-icon-wrap { display: none; }
     .btn-backup-cloud .btn-text-wrap { display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 13px; white-space: nowrap; }
     .btn-backup-cloud:hover .btn-text-wrap { display: inline; opacity: 1; transition-delay: 0.05s; }
 
-    /* 🟢 한글 변환기 다운로드 버튼: 좌측 하단 플로팅 위치 (기존 백업 버튼 자리) */
-    .btn-download-tool {
-      height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s;
-      background-color: #1366ce; /* 파란색 */
-    }
+    .btn-download-tool { height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s; background-color: #1366ce; }
     .btn-download-tool:hover { max-width: 130px; padding: 0 14px; background-color: #0f52a8; justify-content: center; }
     .btn-download-tool .btn-icon-wrap { width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; }
     .btn-download-tool:hover .btn-icon-wrap { display: none; }
     .btn-download-tool .btn-text-wrap { display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 12px; white-space: nowrap; }
     .btn-download-tool:hover .btn-text-wrap { display: inline; opacity: 1; transition-delay: 0.05s; }
 
-    .student-del-badge {
-      display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px;
-      background-color: #dc3545; color: white; border-radius: 50%; font-size: 13px; font-weight: bold;
-      cursor: pointer; border: none; vertical-align: middle; margin: 0 auto; padding: 0;
-    }
+    .student-del-badge { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; background-color: #dc3545; color: white; border-radius: 50%; font-size: 13px; font-weight: bold; cursor: pointer; border: none; vertical-align: middle; margin: 0 auto; padding: 0; }
     .student-del-badge:hover { background-color: #a71d2a; }
 
-    .report-summary-memo {
-      position: fixed; top: 50%; left: 0; transform: translate(0, -50%);
-      width: 210px; background: #ffffff; border: none;
-      box-shadow: 2px 4px 15px rgba(0,0,0,0.1);
-      z-index: 150; display: none; flex-direction: row;
-      font-size: 13px; color: #495057; pointer-events: auto;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .report-summary-memo.collapsed {
-      transform: translate(-185px, -50%);
-    }
-    .memo-content-wrap {
-      flex: 1; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px; width: 185px; min-width: 185px;
-    }
-    .memo-toggle-handle {
-      width: 25px; min-width: 25px; background-color: #ced4da; color: #495057;
-      display: flex; align-items: center; justify-content: center; cursor: pointer;
-      font-size: 12px; font-weight: 900; transition: background-color 0.2s;
-    }
+    .report-summary-memo { position: fixed; top: 50%; left: 0; transform: translate(0, -50%); width: 210px; background: #ffffff; border: none; box-shadow: 2px 4px 15px rgba(0,0,0,0.1); z-index: 150; display: none; flex-direction: row; font-size: 13px; color: #495057; pointer-events: auto; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .report-summary-memo.collapsed { transform: translate(-185px, -50%); }
+    .memo-content-wrap { flex: 1; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px; width: 185px; min-width: 185px; }
+    .memo-toggle-handle { width: 25px; min-width: 25px; background-color: #ced4da; color: #495057; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: 900; transition: background-color 0.2s; }
     .memo-toggle-handle:hover { background-color: #adb5bd; }
     .memo-block { display: flex; flex-direction: column; gap: 2px; }
     .memo-label { color: #6c757d; font-weight: 600; font-size: 12px; }
     .memo-value { color: #111; font-weight: 800; font-size: 13px; padding-left: 8px; word-break: break-all; }
 
-    /* =========================================================
-       🟢 성적표 출력 디자인: A4 사이즈 고정 및 모던 테마
-       ========================================================= */
     #view_report { padding-bottom: 50px; background: transparent; }
     .report-container { width: 100%; overflow: visible; display: flex; flex-direction: column; gap: 30px; padding-bottom: 60px; align-items: center; }
-    
     .report-page { position: relative; width: 297mm; height: 210mm; flex-shrink: 0; margin: 0 auto; box-sizing: border-box; border: 1px solid #e2e8f0; border-radius: 20px; padding: 35px; display: flex; flex-direction: column; background: #fdfdfd; box-shadow: 0 8px 30px rgba(0,0,0,0.04); overflow: hidden; }
-    
     .report-header { display: flex; justify-content: flex-start; gap: 20px; align-items: center; margin-bottom: 25px; padding-bottom: 15px; flex-shrink: 0; }
-    
-    /* 🟢 2. 이미지 저장(html2canvas) 시 왼쪽 상단 로고 이미지 상하 늘어남 완벽 방지 */
-    .report-logo {
-      width: 172px;
-      min-width: 172px;
-      max-width: 172px;
-      height: 40px;
-      min-height: 40px;
-      max-height: 40px;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      flex-shrink: 0;
-      overflow: hidden;
-    }
-    .report-logo img {
-      width: auto !important;
-      height: auto !important;
-      max-width: 100% !important;
-      max-height: 100% !important;
-      display: block !important;
-      margin: 0 !important;
-      align-self: center !important;
-    } 
-    
+    .report-logo { width: 172px; min-width: 172px; max-width: 172px; height: 40px; min-height: 40px; max-height: 40px; display: flex; justify-content: flex-start; align-items: center; flex-shrink: 0; overflow: hidden; }
+    .report-logo img { width: auto !important; height: auto !important; max-width: 100% !important; max-height: 100% !important; display: block !important; margin: 0 !important; align-self: center !important; } 
     .report-info { display: flex; gap: 10px; align-items: stretch; flex: 1; min-width: 0; }
-    
     .info-badge { display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; }
-    
     .combined-badge { align-items: flex-start; text-align: left; flex: 1.65; width: auto; min-width: 0; max-width: none; }
     .info-badge.small-badge { flex: 1; width: auto; min-width: 0; max-width: none; }
-    
     .info-badge span { font-size: 11px; color: #64748b; font-weight: 600; }
     .info-badge strong { font-size: 13px; color: #0f172a; font-weight: 800; }
     .badge-divider { width: 1px; background-color: #e2e8f0; margin: 0 5px; flex-shrink: 0; height: 35px; align-self: center; }
@@ -339,9 +222,7 @@
     .report-grid { display: flex; gap: 20px; flex: 1; min-height: 0; }
     .dash-card { flex: 1; display: flex; flex-direction: column; background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .dash-card-content { flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
-
     .summary-col { width: 172px; min-width: 172px; max-width: 172px; flex: none; display: flex; flex-direction: column; gap: 15px; justify-content: space-between; }
-    
     .card-title { font-size: 15px; font-weight: 800; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
     .card-title::before { content: ''; display: block; width: 4px; height: 16px; background: #3b82f6; border-radius: 2px; }
     .card-title-green::before { background: #10b981 !important; }
@@ -349,34 +230,27 @@
     table.willow-table { width: 100%; border-collapse: collapse; text-align: center; table-layout: fixed; border-top: 2px solid; border-bottom: 2px solid; border-left: none; border-right: none; }
     table.willow-table th, table.willow-table td { padding: 6px 2px; height: 36px; white-space: normal; word-break: keep-all; line-height: 1.3; vertical-align: middle; border: 1px solid; }
     table.willow-table td { font-size: 13px !important; }
-    
     table.willow-table th:first-child, table.willow-table td:first-child { width: 55px; min-width: 55px; max-width: 55px; font-weight: 700; text-align: center; border-left: none; font-size: 11px !important; }
     table.willow-table th:last-child, table.willow-table td:last-child { border-right: none; }
     table.willow-table th { font-weight: 700; font-size: 11px; }
-    
     table.bg-head-blue { border-top-color: #60a5fa; border-bottom-color: #60a5fa; }
     table.bg-head-blue th, table.bg-head-blue td { border-color: #bfdbfe; }
     table.bg-head-blue th, table.bg-head-blue tr.bg-subhead td, table.bg-head-blue tr.bg-subhead th { background-color: #eff6ff !important; color: #1e3a8a; }
-    
     table.bg-head-green { border-top-color: #34d399; border-bottom-color: #34d399; }
     table.bg-head-green th, table.bg-head-green td { border-color: #a7f3d0; }
     table.bg-head-green th, table.bg-head-green tr.bg-subhead td, table.bg-head-green tr.bg-subhead th { background-color: #ecfdf5 !important; color: #065f46; }
     
     .chart-container-report { position: relative; display: flex; justify-content: center; align-items: center; padding-top: 15px; }
-    
     .kpi-card-white { background: #fff; border: 1px solid #f3f4f6; border-radius: 16px; padding: 12px 15px; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .kpi-card-white .kpi-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .kpi-card-white .kpi-info { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 2px; }
     .kpi-card-white .kpi-label { font-size: 13px !important; color: #64748b !important; font-weight: 700 !important; }
     .kpi-card-white .kpi-val { font-size: 16px !important; font-weight: 800 !important; color: #64748b !important; line-height: 1 !important; }
-    
     .doughnut-card { flex: 1; display: flex; flex-direction: column; background: transparent !important; border: none !important; box-shadow: none !important; align-items: center; justify-content: center; padding: 5px 0; position: relative; }
     .doughnut-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; }
     .doughnut-val { font-size: 18px; font-weight: 900; color: #111827; line-height: 1; }
-    
     .report-footer { margin-top: 15px; padding: 15px 20px; background-color: #f1f5f9; border-radius: 12px; font-size: 11px; color: #475569; line-height: 1.6; flex-shrink: 0; border: 1px solid #e2e8f0; }
 
-    /* 🟢 4. 인쇄 시 마지막 페이지 빈 페이지 완벽 방지 */
     @media print {
       body * { visibility: hidden; }
       html, body { overflow: visible !important; height: auto !important; background: #fff !important; }
@@ -388,10 +262,8 @@
       .report-page { border: none; box-shadow: none; padding: 10mm; width: 297mm; height: 210mm; page-break-after: always; border-radius: 0; background: #fff; margin: 0; flex-shrink: 1; }
       .report-page:last-child, .report-page:last-of-type { page-break-after: avoid !important; }
       .report-summary-memo, .no-capture, #reportBatchSaveWrap { display: none !important; }
-      
       .dash-card, .kpi-card-white { border: 1.5px solid #94a3b8 !important; box-shadow: none !important; }
       .doughnut-card { border: none !important; box-shadow: none !important; background: transparent !important; }
-      
       @page { size: A4 landscape; margin: 0; }
     }
   </style>
@@ -446,10 +318,7 @@
   <div class="modal-overlay" id="nextStudentModal">
     <div class="modal-box" style="width: 340px; padding: 24px 20px;">
       <div style="margin-bottom: 10px; color: #1366ce; display: flex; justify-content: center;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="8" r="4"></circle>
-          <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 0 0 1 4 4v2"></path>
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 0 0 1 4 4v2"></path></svg>
       </div>
       <div style="font-size: 16px; font-weight: bold; color: #333; margin-bottom: 20px;">
         <span id="nextStudentName" style="color: #1366ce; font-size: 18px;"></span> 학생의<br>채점을 이어서 진행합니다.
@@ -659,7 +528,7 @@
         </div>
       </div>
 
-      <!-- 🟢 데이터 확인 (대시보드) 화면 -->
+      <!-- 🟢 대시보드 화면 -->
       <div id="view_data" style="display: none;">
         <div id="dashEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
           과정을 확인하고 [데이터 조회]를 누르면 통합 데이터를 확인합니다.
@@ -690,7 +559,7 @@
               <div class="dash-chart-basic"><canvas id="dashScoreDistChart"></canvas></div>
             </div>
             <div class="dash-card-basic" style="flex: 1.2;">
-              <div class="dash-title" id="dashChart2Title">과정별/단원별 정답률</div>
+              <div class="dash-title" id="dashChart2Title">과정별 통합 정답률</div>
               <div class="dash-chart-basic"><canvas id="dashChart2"></canvas></div>
             </div>
           </div>
@@ -703,9 +572,9 @@
         </div>
       </div>
 
-    </div>
+    </div> <!-- 메인 화면 종료 -->
 
-    <!-- 🟢 관리자 화면: 시험 기본 세팅 (텍스트 및 레이아웃 완벽 복구 완료) -->
+    <!-- 🟢 관리자 화면: 시험 기본 세팅 (텍스트 및 레이아웃 완벽 보존) -->
     <div id="page-admin" class="page-content">
       <div class="filter-card admin-mode">
         <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="onSetupTestChanged()"></select></div>
@@ -742,7 +611,6 @@
       </div>
 
       <div class="admin-main-grid">
-        <!-- 🟢 잘려나갔던 텍스트 완벽 복구 구역 -->
         <div class="paste-zone" id="setupUploadZone" style="flex: 0 0 18%; width: 18%; padding: 24px 12px; margin-bottom: 0; overflow-y: auto;">
           <div style="font-size: 28px; margin-bottom: 8px;">📄</div>
           <h4 style="margin: 0 0 6px 0; color: #495057; font-size: 15px;">시험 출제표 (TXT/엑셀) 일괄 업로드</h4>
@@ -811,11 +679,12 @@
           meta.data.forEach((bar, index) => {
             const value = dataset.data[index];
             if (value > 0) {
-              ctx.fillStyle = '#d1e7dd'; // 가장 연한 녹색 텍스트
+              ctx.fillStyle = '#d1e7dd'; // 가장 연한 녹색
               ctx.font = 'bold 12px Pretendard';
               ctx.textAlign = 'left';
               ctx.textBaseline = 'middle';
-              ctx.fillText(value + '%', bar.base + 6, bar.y + 1);
+              // bar.y를 통해 막대의 정중앙에 완벽하게 텍스트 배치
+              ctx.fillText(value + '%', bar.base + 6, bar.y);
             }
           });
         });
@@ -1348,7 +1217,6 @@
       filterCampuses(prefix, forceReset);
     }
     
-    // 🟢 2. '데이터 확인' 탭에서 필터 변경 시 '전체(All)' 항목이 유지되도록 로직 복구
     function filterCampuses(prefix, forceReset = false) {
       const tt = getTermAndTest(prefix);
       const term = tt.term; const test = tt.test;
@@ -2973,7 +2841,8 @@
             type: 'bar',
             data: { 
               labels: reversedLabels, 
-              datasets: [{ label: '인원(명)', data: reversedData, backgroundColor: '#17a2b8', borderRadius: 4, barPercentage: 0.4 }] // 막대 절반 축소
+              // 🟢 최대 너비 35px 고정으로 다른 차트들과 통일
+              datasets: [{ label: '인원(명)', data: reversedData, backgroundColor: '#17a2b8', borderRadius: 4, maxBarThickness: 35 }] 
             },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
           }));
@@ -2997,7 +2866,7 @@
           const ctxChart2 = document.getElementById('dashChart2').getContext('2d');
           dashChartInstances.push(new Chart(ctxChart2, {
             type: 'bar',
-            data: { labels: d.chart2Labels || [], datasets: [{ label: '정답률(%)', data: d.chart2Data || [], backgroundColor: '#68488e', borderRadius: 4, barPercentage: 0.4 }] }, // 막대 절반 축소
+            data: { labels: d.chart2Labels || [], datasets: [{ label: '정답률(%)', data: d.chart2Data || [], backgroundColor: '#68488e', borderRadius: 4, maxBarThickness: 35 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
           }));
 
@@ -3023,18 +2892,21 @@
               let ctx = document.getElementById(`dashChart3_${i}`).getContext('2d');
               dashChartInstances.push(new Chart(ctx, {
                 type: 'bar',
-                data: { labels: cData.labels, datasets: [{ label: '평균 정답률(%)', data: cData.data, backgroundColor: '#28a745', borderRadius: 4, barPercentage: 0.4 }] }, // 높이 절반 축소
+                data: { labels: cData.labels, datasets: [{ label: '평균 정답률(%)', data: cData.data, backgroundColor: '#28a745', borderRadius: 4, barPercentage: 0.55 }] }, // 🟢 두께 120% 증가 (0.55)
                 options: { 
                   indexAxis: 'y',
                   responsive: true, 
                   maintainAspectRatio: false, 
                   plugins: { legend: { display: false } }, 
                   scales: { 
-                    x: { beginAtZero: true, max: 100, ticks: { stepSize: 10 } }, // 10점 단위로 변경
-                    y: { ticks: { align: 'start', crossAlign: 'near', font: { family: 'Pretendard', size: 12 }, color: '#333' } } // 단원명 좌측 정렬
+                    x: { beginAtZero: true, max: 100, ticks: { stepSize: 10 } }, // 🟢 10점 단위 표기
+                    y: { 
+                      ticks: { crossAlign: 'far', font: { family: 'Pretendard', size: 12 }, color: '#333' }, // 🟢 단원명 완벽한 상하 중앙 & 좌측 정렬
+                      afterFit: function(scale) { scale.width = 140; } // 🟢 긴 단원명 확보를 위해 그래프 시작점을 우측으로 140px 이동
+                    }
                   } 
                 },
-                plugins: [inlineDataLabelsPlugin] // 🟢 막대 안쪽 연녹색 퍼센트 표시 플러그인 연결
+                plugins: [inlineDataLabelsPlugin] // 🟢 연녹색 퍼센트 표시
               }));
             });
           }
