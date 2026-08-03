@@ -239,16 +239,27 @@
       display: inline; opacity: 1; transition-delay: 0.05s;
     }
 
-    /* 🟢 3. 데이터 백업 원형 플로팅 버튼: 30px 및 중앙 정렬 완벽 적용 */
+    /* 🟢 데이터 백업 버튼: 필수 환경설정 우측 배치용 (32px 크기업, 빨간색, 좌측 확장 효과) */
     .btn-backup-cloud {
-      height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s;
-      background-color: #28a745;
+      height: 32px; max-width: 32px; border-radius: 16px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s; flex-shrink: 0;
+      background-color: #dc3545; /* 빨간색 */
     }
-    .btn-backup-cloud:hover { max-width: 110px; padding: 0 14px; background-color: #218838; justify-content: center; }
-    .btn-backup-cloud .btn-icon-wrap { width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; }
+    .btn-backup-cloud:hover { max-width: 110px; padding: 0 14px; background-color: #a71d2a; justify-content: center; }
+    .btn-backup-cloud .btn-icon-wrap { width: 32px; height: 32px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; }
     .btn-backup-cloud:hover .btn-icon-wrap { display: none; }
-    .btn-backup-cloud .btn-text-wrap { display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 12px; white-space: nowrap; }
+    .btn-backup-cloud .btn-text-wrap { display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 13px; white-space: nowrap; }
     .btn-backup-cloud:hover .btn-text-wrap { display: inline; opacity: 1; transition-delay: 0.05s; }
+
+    /* 🟢 한글 변환기 다운로드 버튼: 좌측 하단 플로팅 위치 (기존 백업 버튼 자리) */
+    .btn-download-tool {
+      height: 30px; max-width: 30px; border-radius: 15px; padding: 0; overflow: hidden; white-space: nowrap; border: none; color: white; font-weight: bold; font-size: 12px; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.18); display: inline-flex; align-items: center; justify-content: center; transition: max-width 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s ease, background-color 0.2s;
+      background-color: #1366ce; /* 파란색 */
+    }
+    .btn-download-tool:hover { max-width: 130px; padding: 0 14px; background-color: #0f52a8; justify-content: center; }
+    .btn-download-tool .btn-icon-wrap { width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; }
+    .btn-download-tool:hover .btn-icon-wrap { display: none; }
+    .btn-download-tool .btn-text-wrap { display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 12px; white-space: nowrap; }
+    .btn-download-tool:hover .btn-text-wrap { display: inline; opacity: 1; transition-delay: 0.05s; }
 
     .student-del-badge {
       display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px;
@@ -721,6 +732,12 @@
             </svg>
             필수 환경설정
           </button>
+          <button class="btn-backup-cloud" onclick="openBackupModal()">
+            <span class="btn-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>
+            </span>
+            <span class="btn-text-wrap">데이터 백업</span>
+          </button>
         </div>
       </div>
 
@@ -770,13 +787,13 @@
         </div>
       </div>
 
-      <!-- 🟢 좌측 하단 고정: 데이터 백업 원형 플로팅 버튼 (마우스 오버 시 글자만 표시) -->
+      <!-- 🟢 교체된 부분: 좌측 하단 고정 다운로드 원형 플로팅 버튼 (파란색) -->
       <div style="position: fixed; bottom: 25px; left: 30px; z-index: 150;">
-        <button class="btn-backup-cloud" onclick="openBackupModal()">
+        <button class="btn-download-tool" onclick="window.open('https://drive.google.com/file/d/1_g1GWVlzgPYA8oMHs4XwpSMAgitWZxYy/view?usp=sharing', '_blank')">
           <span class="btn-icon-wrap">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           </span>
-          <span class="btn-text-wrap">데이터 백업</span>
+          <span class="btn-text-wrap">변환기 다운로드</span>
         </button>
       </div>
     </div>
