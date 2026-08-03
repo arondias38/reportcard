@@ -1762,7 +1762,13 @@
     function checkExistingSetup() {
       const tt = getTermAndTest('setup');
       const t = tt.term; const ts = tt.test;
-      const l = document.getElementById('setupLevel').value; const cr = document.getElementById('setupCourse').value; 
+      const l = document.getElementById('setupLevel')?.value; 
+      const cr = document.getElementById('setupCourse')?.value; 
+      
+      // 🟢 [핵심 수정 부분] 다른 과정이나 난이도 선택 시, 
+      // 서버에서 데이터를 불러오기 전에 즉시 화면의 기존 입력 데이터를 선제적으로 비워줍니다.
+      clearAllSetupData();
+
       if (!t || !ts || !l || !cr) return;
       
       showLoading(true, "기존 세팅 불러오는 중...");
@@ -1771,9 +1777,22 @@
         if(res.success && res.data) { 
            document.getElementById('setupStartNum').value = res.data.startNum; 
            document.getElementById('setupEndNum').value = res.data.startNum + res.data.totalCount - 1; 
+           
+           // renderSetupTable은 현재 화면의 입력값을 보존(preserve)하는 기능이 있으므로,
+           // 백엔드 데이터를 덮어쓰기 위해 다시 한번 확실히 비워줍니다.
+           clearAllSetupData();
            renderSetupTable();
-           res.data.items.forEach(item => { let u = document.getElementById(`unit_${item.num}`), s = document.getElementById(`score_${item.num}`); if(u) u.value = item.unit; if(s) { s.value = item.score; updateDiff(item.num); } }); 
-        } else { renderSetupTable(); }
+           
+           res.data.items.forEach(item => { 
+             let u = document.getElementById(`unit_${item.num}`);
+             let s = document.getElementById(`score_${item.num}`); 
+             if(u) u.value = item.unit; 
+             if(s) { s.value = item.score; updateDiff(item.num); } 
+           }); 
+        } else { 
+           // 서버에 데이터가 없을 경우, 이미 위에서 비워둔 깨끗한 표를 그대로 렌더링 유지
+           renderSetupTable(); 
+        }
       }).catch(err => { showLoading(false); handleError(err); });
     }
 
