@@ -946,6 +946,21 @@
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`button[onclick="switchNav('${navId}')"]`).classList.add('active');
 
+      const mainCourse = document.getElementById('mainCourse');
+      const mainCampus = document.getElementById('mainCampus');
+
+      // 1. 데이터 탭에서 다른 탭으로 나갈 때: "전체(All)"가 선택되어 있었다면 원래 진짜 값으로 복원 준비
+      if (document.getElementById('view_data').style.display === 'flex' && navId !== 'data') {
+         if (mainCourse && mainCourse.value === "전체") mainCourse.value = lastSelectedCourse || "";
+         if (mainCampus && mainCampus.value === "전체") mainCampus.value = lastSelectedCampus || "";
+      } 
+      // 2. 다른 탭에서 데이터 탭으로 들어올 때: 현재 선택되어 있는 진짜 값을 백업해둠
+      else if (document.getElementById('view_data').style.display !== 'flex' && navId === 'data') {
+         if (mainCourse && mainCourse.value && mainCourse.value !== "전체") lastSelectedCourse = mainCourse.value;
+         if (mainCampus && mainCampus.value && mainCampus.value !== "전체") lastSelectedCampus = mainCampus.value;
+      }
+
+      // 3. 뷰 화면 전환
       ['input', 'report', 'data'].forEach(id => {
           document.getElementById(`actionBtn_${id}`).style.display = 'none';
           document.getElementById(`view_${id}`).style.display = 'none';
@@ -953,38 +968,19 @@
       document.getElementById(`actionBtn_${navId}`).style.display = 'flex';
       document.getElementById(`view_${navId}`).style.display = 'flex';
 
-      const mainCampus = document.getElementById('mainCampus');
-      const mainCourse = document.getElementById('mainCourse');
-      
+      // 4. 하위 필터(선생님, 반) 노출 여부 토글
       if (navId === 'data') {
         document.getElementById('mainTeacherGroup').style.display = 'none';
         document.getElementById('mainClassGroup').style.display = 'none';
-        
-        if (!mainCourse.querySelector('option[value="전체"]')) {
-           lastSelectedCourse = mainCourse.value;
-           mainCourse.insertAdjacentHTML('afterbegin', '<option value="전체" style="color:#333;">전체 (All)</option>');
-           mainCourse.value = "전체";
-        }
-        if (!mainCampus.querySelector('option[value="전체"]')) {
-           lastSelectedCampus = mainCampus.value; 
-           mainCampus.insertAdjacentHTML('afterbegin', '<option value="전체" style="color:#333;">전체 (All)</option>');
-           mainCampus.value = "전체";
-        }
       } else {
         document.getElementById('mainTeacherGroup').style.display = 'flex';
         document.getElementById('mainClassGroup').style.display = 'flex';
-        
-        let optAllCourse = mainCourse.querySelector('option[value="전체"]');
-        if(optAllCourse) {
-            optAllCourse.remove();
-            mainCourse.value = lastSelectedCourse || (mainCourse.options[1] ? mainCourse.options[1].value : ""); 
-        }
-        let optAllCampus = mainCampus.querySelector('option[value="전체"]');
-        if(optAllCampus) {
-            optAllCampus.remove();
-            mainCampus.value = lastSelectedCampus || (mainCampus.options[1] ? mainCampus.options[1].value : ""); 
-        }
       }
+
+      // 🟢 핵심 해결: 뷰 전환 후 최상위 필터(과정)부터 강제로 재구축 호출. 
+      // 내부 로직이 현재 데이터 탭인지(isDataMode) 스스로 감지하여 '전체' 옵션을 알아서 넣고 빼며, 
+      // 과정 -> 캠퍼스 -> 선생님 -> 반 순서로 하위 목록을 완벽하게 부활시킵니다.
+      filterCourses('main');
     }
 
     function switchPage(pageId) {
