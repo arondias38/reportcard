@@ -666,44 +666,42 @@
           과정을 확인하고 [데이터 조회]를 누르면 통합 데이터를 확인합니다.
         </div>
         <div id="dashContainer" style="display: none; flex-direction: column;">
+          <!-- 🟢 1. 상단 4개 요약 카드 -->
           <div class="dash-grid">
             <div class="dash-card-basic">
               <div class="dash-title">총 응시 인원</div>
               <div class="dash-value" id="dashTotalStudents">0명</div>
             </div>
             <div class="dash-card-basic">
+              <div class="dash-title">만점 인원</div>
+              <div class="dash-value" id="dashPerfectCount" style="color: #28a745;">0명 / 0명</div>
+            </div>
+            <div class="dash-card-basic">
               <div class="dash-title">통합 평균 점수</div>
-              <div class="dash-value" id="dashTotalAvg">0.0점</div>
+              <div class="dash-value" id="dashTotalAvg" style="display:flex; align-items:baseline; gap:5px;">0.0점 <span style="font-size:13px; font-weight:normal; color:#6c757d;">(100점 환산 기준)</span></div>
             </div>
             <div class="dash-card-basic">
-              <div class="dash-title">최고 점수 (Top Score)</div>
-              <div class="dash-value" id="dashTopScore" style="color: #28a745;">0점</div>
-            </div>
-            <div class="dash-card-basic">
-              <div class="dash-title">90점 이상 고득점 비율</div>
-              <div class="dash-value" id="dashOver90Rate" style="color: #8b5cf6;">0%</div>
+              <div class="dash-title">평균 정답률 (%)</div>
+              <div class="dash-value" id="dashAvgPct" style="color: #8b5cf6;">0.0%</div>
             </div>
           </div>
+          
+          <!-- 🟢 2. 중앙 차트 (점수대 인원 분포 & 과정별/단원별 정답률) -->
           <div class="dash-grid">
             <div class="dash-card-basic" style="flex: 1.2;">
-              <div class="dash-title">점수대별 인원 분포 (명)</div>
+              <div class="dash-title">점수대별 인원 분포 (100점 환산)</div>
               <div class="dash-chart-basic"><canvas id="dashScoreDistChart"></canvas></div>
             </div>
             <div class="dash-card-basic" style="flex: 1.2;">
-              <div class="dash-title" id="dashGroupTitle">캠퍼스별 / 반별 평균 점수 비교</div>
-              <div class="dash-chart-basic"><canvas id="dashGroupAvgChart"></canvas></div>
+              <div class="dash-title" id="dashChart2Title">과정별/단원별 정답률</div>
+              <div class="dash-chart-basic"><canvas id="dashChart2"></canvas></div>
             </div>
           </div>
-          <div class="dash-grid">
-            <div class="dash-card-basic" style="flex: 1;">
-              <div class="dash-title">단원별 전체 정답률 분석 (%) - 취약 단원 파악</div>
-              <div class="dash-chart-basic" style="height: 260px;"><canvas id="dashUnitPctChart"></canvas></div>
-            </div>
-          </div>
+          
+          <!-- 🟢 3. 하단 동적 생성 차트 (과정 전체 선택 시 여러 개 생성됨) -->
+          <div id="dashDynamicUnitChartsWrap" style="display: flex; flex-direction: column; gap: 20px;"></div>
         </div>
       </div>
-
-    </div>
 
     <!-- 🟢 관리자 화면: 시험 기본 세팅 18%(업로드) : 18%(입력현황 표) : 64%(세팅 표) 3분할 레이아웃 -->
     <div id="page-admin" class="page-content">
@@ -2936,40 +2934,65 @@
           
           const d = res.data;
           
-          document.getElementById('dashTotalStudents').innerText = d.totalStudents + "명";
-          document.getElementById('dashTotalAvg').innerText = d.totalAvg + "점";
-          document.getElementById('dashTopScore').innerText = d.topScore + "점";
-          document.getElementById('dashOver90Rate').innerText = d.over90Rate + "%";
-          document.getElementById('dashGroupTitle').innerText = d.groupLabel;
+          // 1. 상단 4개 카드 업데이트
+          document.getElementById('dashTotalStudents').innerText = (d.totalStudents || 0) + "명";
+          document.getElementById('dashPerfectCount').innerText = (d.perfectCount || 0) + "명 / " + (d.totalStudents || 0) + "명";
+          document.getElementById('dashTotalAvg').innerHTML = (d.totalAvg100 || 0) + `점 <span style="font-size:13px; font-weight:normal; color:#6c757d;">(100점 환산 기준)</span>`;
+          document.getElementById('dashAvgPct').innerText = (d.avgPct || 0) + "%";
           
-          dashChartInstances.forEach(c => c.destroy()); dashChartInstances = [];
+          // 기존 차트들 초기화
+          dashChartInstances.forEach(c => c.destroy()); 
+          dashChartInstances = [];
           
+          // 2. 점수대별 인원 분포 (100점 환산)
           const ctxDist = document.getElementById('dashScoreDistChart').getContext('2d');
           dashChartInstances.push(new Chart(ctxDist, {
             type: 'bar',
-            data: { labels: ['90점 이상', '80점대', '70점대', '60점대', '60점 미만'], datasets: [{ label: '인원(명)', data: [d.dist.over90, d.dist.over80, d.dist.over70, d.dist.over60, d.dist.under60], backgroundColor: '#17a2b8', borderRadius: 6 }] },
+            data: { 
+              labels: ['100점', '90점대', '80점대', '70점대', '60점대', '50점대', '40점대', '30점대', '20점대', '10점대', '10점 미만'], 
+              datasets: [{ label: '인원(명)', data: d.dist100 || [], backgroundColor: '#17a2b8', borderRadius: 6 }] 
+            },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
           }));
 
-          const ctxCam = document.getElementById('dashGroupAvgChart').getContext('2d');
-          dashChartInstances.push(new Chart(ctxCam, {
+          // 3. 차트 2 (단일 과정: 단원별 정답률 / 전체: 과정별 통합 정답률)
+          document.getElementById('dashChart2Title').innerText = d.chart2Title || "단원별 정답률";
+          const ctxChart2 = document.getElementById('dashChart2').getContext('2d');
+          dashChartInstances.push(new Chart(ctxChart2, {
             type: 'bar',
-            data: { labels: d.groups, datasets: [{ label: '평균 점수', data: d.groupAvgs, backgroundColor: '#68488e', borderRadius: 6 }] },
+            data: { labels: d.chart2Labels || [], datasets: [{ label: '정답률(%)', data: d.chart2Data || [], backgroundColor: '#68488e', borderRadius: 6 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
           }));
 
-          const ctxUnit = document.getElementById('dashUnitPctChart').getContext('2d');
-          dashChartInstances.push(new Chart(ctxUnit, {
-            type: 'bar',
-            data: { labels: d.units, datasets: [{ label: '평균 정답률(%)', data: d.unitPcts, backgroundColor: '#28a745', borderRadius: 6 }] },
-            options: { 
-              indexAxis: 'y',
-              responsive: true, 
-              maintainAspectRatio: false, 
-              plugins: { legend: { display: false } }, 
-              scales: { x: { beginAtZero: true, max: 100, ticks: { stepSize: 20 } } } 
-            }
-          }));
+          // 4. 차트 3 (단원별 전체 정답률 분석) - 전체(All) 선택 시 여러 과정이 동적으로 생성됨
+          const dynamicWrap = document.getElementById('dashDynamicUnitChartsWrap');
+          dynamicWrap.innerHTML = '';
+          
+          if (d.chart3List && d.chart3List.length > 0) {
+            d.chart3List.forEach((cData, i) => {
+              let html = `
+                <div class="dash-grid" style="margin-bottom: 0;">
+                  <div class="dash-card-basic" style="flex: 1;">
+                    <div class="dash-title">[${cData.courseName}] 단원별 전체 정답률 분석 (%)</div>
+                    <div class="dash-chart-basic" style="height: 260px;"><canvas id="dashChart3_${i}"></canvas></div>
+                  </div>
+                </div>`;
+              dynamicWrap.insertAdjacentHTML('beforeend', html);
+              
+              let ctx = document.getElementById(`dashChart3_${i}`).getContext('2d');
+              dashChartInstances.push(new Chart(ctx, {
+                type: 'bar',
+                data: { labels: cData.labels, datasets: [{ label: '평균 정답률(%)', data: cData.data, backgroundColor: '#28a745', borderRadius: 6 }] },
+                options: { 
+                  indexAxis: 'y',
+                  responsive: true, 
+                  maintainAspectRatio: false, 
+                  plugins: { legend: { display: false } }, 
+                  scales: { x: { beginAtZero: true, max: 100, ticks: { stepSize: 20 } } } 
+                }
+              }));
+            });
+          }
 
         } else { showAlert("· Error: " + res.error); }
       }).catch(handleError);
