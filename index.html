@@ -270,7 +270,7 @@
 </head>
 <body>
 
-  <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycbyj4PVKoJp-KAyeaJgFlCS6nPP8r5re4luImoOmupUza1xEh3pTztXiY7iyLia9s-OH4g/exec">
+  <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycbyuba_GrtOKXJKcbWhE6x3uu1HGr-K8rzTKNttf0nC0mpD2myNnh71DKQ_8_IutNlamtQ/exec">
 
   <div class="spinner-overlay" id="globalSpinner"><div class="spinner"></div><div class="spinner-text" id="spinnerText">처리 중입니다...</div></div>
   
@@ -870,13 +870,24 @@
 
     window.onload = function() { fetchMetadata(); renderSetupTable(); };
 
+    // 🟢 [수정됨] 에러 페이지 HTML 응답(Unexpected token '<') 방어 로직 추가
     function fetchMetadata(silent = false, preserveState = false) {
       const url = document.getElementById('backendUrl').value.trim();
       if (url.includes('YOUR_GAS_ID_HERE')) return;
       if(!silent) showLoading(true, "시스템 로딩 중...");
       
       fetch(url, { method: 'POST', body: JSON.stringify({ action: 'getDropdownData' }) })
-      .then(res => res.json())
+      .then(async res => {
+        const text = await res.text();
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          if (text.includes('<!DOCTYPE') || text.includes('<html')) {
+            throw new Error("구글 웹앱 권한/세션 오류로 인해 데이터 대신 HTML 웹페이지가 반환되었습니다.<br><br>구글 웹앱 배포 시 '액세스 권한: 모든 사용자' 설정이 되어 있는지 확인하시거나, 크롬 시크릿 창에서 시도해 주세요.");
+          }
+          throw new Error("데이터 파싱 실패: " + e.message);
+        }
+      })
       .then(res => {
         if(!silent) showLoading(false);
         if(res.success) { 
