@@ -451,6 +451,7 @@
       </div>
     </div>
 
+    <!-- 🟢 메인 화면 -->
     <div id="page-main" class="page-content active">
       
       <div class="filter-card" id="mainFilterCard">
@@ -562,6 +563,7 @@
         </div>
       </div>
 
+      <!-- 🟢 대시보드 화면 -->
       <div id="view_data" style="display: none;">
         <div id="dashEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
           과정을 확인하고 [데이터 조회]를 누르면 통합 데이터를 확인합니다.
@@ -597,15 +599,17 @@
             </div>
           </div>
           
+          <!-- 제목을 한 번만 표기 -->
           <div class="dash-title" style="font-size: 16px; margin-top: 10px; margin-bottom: 15px; border-bottom: 2px solid #1366ce; padding-bottom: 8px;">단원별 전체 정답률 분석 (%)</div>
           
+          <!-- 동적 차트가 들어갈 영역 -->
           <div id="dashDynamicUnitChartsWrap" style="display: flex; flex-direction: column; gap: 20px;"></div>
         </div>
       </div>
 
-    </div>
+    </div> <!-- 메인 화면 종료 -->
 
-    <!-- 🟢 관리자 화면: 시험 기본 세팅 -->
+    <!-- 🟢 관리자 화면: 시험 기본 세팅 (텍스트 및 레이아웃 완벽 보존) -->
     <div id="page-admin" class="page-content">
       <div class="filter-card admin-mode">
         <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="onSetupTestChanged()"></select></div>
@@ -738,13 +742,15 @@
     let loadedExamContext = null;
     let currentBatchParsedRows = [];
 
+    // 🌟 [추가] 학원 약어 딕셔너리에 추가 매핑 데이터 보완
     const courseAbbrMap = {
       "7가": "중등 1-1", "7나": "중등 1-2", "중1-1": "중등 1-1", "중1-2": "중등 1-2",
       "8가": "중등 2-1", "8나": "중등 2-2", "중2-1": "중등 2-1", "중2-2": "중등 2-2",
       "9가": "중등 3-1", "9나": "중등 3-2", "중3-1": "중등 3-1", "중3-2": "중등 3-2",
       "10가": "고등 공통수학1", "10나": "고등 공통수학2", "공통수학1": "고등 공통수학1", "공통수학2": "고등 공통수학2",
       "수1": "고등 수학1", "수2": "고등 수학2", "수I": "고등 수학1", "수II": "고등 수학2",
-      "미적": "고등 미적분", "기하": "고등 기하", "확통": "고등 확률과 통계"
+      "미적": "고등 미적분", "미적1": "고등 미적분1", "미적2": "고등 미적분2",
+      "기하": "고등 기하", "확통": "고등 확률과 통계", "대수": "고등 대수"
     };
 
     function highlightCells(selectorOrElements) {
@@ -1182,6 +1188,7 @@
       return results;
     }
 
+    // 🌟 [수정] 띄어쓰기 및 언더바를 모두 무시하고 완벽하게 파싱하도록 로직 강화
     function processBatchSetupFiles(files) {
       const tt = getTermAndTest('setup');
       if (!tt.term || !tt.test) return showAlert("상단에서 먼저 테스트(학기+테스트)를 선택해 주세요.");
@@ -1223,22 +1230,30 @@
 
         let parsedRows = [];
         validFiles.forEach(fData => {
+          // 🌟 파일명에서 띄어쓰기와 언더바를 완전히 제거하여 압축
+          let normalizedFileName = fData.name.replace(/[\s_]+/g, ''); 
+          
           let matchedLevels = [];
           (globalData.settings.levels || []).forEach(lvl => {
-            if (fData.name.includes(lvl)) matchedLevels.push(lvl);
+            let normalizedLvl = lvl.replace(/[\s_]+/g, '');
+            if (normalizedLvl && normalizedFileName.includes(normalizedLvl)) {
+              matchedLevels.push(lvl);
+            }
           });
           if (matchedLevels.length === 0) matchedLevels.push(""); 
 
           let matchedCourse = "";
           let sortedCourses = [...(globalData.settings.courses || [])].sort((a,b) => b.length - a.length);
           for (let crs of sortedCourses) {
-            if (fData.name.replace(/\s+/g, '').includes(crs.replace(/\s+/g, ''))) {
+            let normalizedCrs = crs.replace(/[\s_]+/g, '');
+            if (normalizedCrs && normalizedFileName.includes(normalizedCrs)) {
               matchedCourse = crs; break;
             }
           }
           if (!matchedCourse) {
             for (let abbr in courseAbbrMap) {
-              if (fData.name.includes(abbr)) {
+              let normalizedAbbr = abbr.replace(/[\s_]+/g, '');
+              if (normalizedAbbr && normalizedFileName.includes(normalizedAbbr)) {
                 matchedCourse = courseAbbrMap[abbr]; break;
               }
             }
@@ -1285,7 +1300,6 @@
         let lvlOptions = '<option value="" style="color:#adb5bd;">선택</option>' + (globalData.settings.levels||[]).map(l => `<option value="${l}" ${row.level===l?'selected':''}>${l}</option>`).join('');
         let crsOptions = '<option value="" style="color:#adb5bd;">선택</option>' + (globalData.settings.courses||[]).map(c => `<option value="${c}" ${row.course===c?'selected':''}>${c}</option>`).join('');
 
-        // 🌟 [수정] No. 열 추가 및 체크박스 열 위치 조정
         tbody.innerHTML += `
         <tr id="batchRow_${idx}" style="border-bottom: 1px solid #eee;">
           <td style="font-weight:bold; color:#555;">${idx + 1}</td>
@@ -1300,7 +1314,6 @@
       document.getElementById('batchSetupModal').style.display = 'flex';
     }
 
-    // 🌟 [수정] 일괄 체크 기능 제거 및 개별 토글 로직 최적화
     function toggleBatchRow(idx) {
       const isChecked = document.getElementById(`batchChk_${idx}`).checked;
       const tr = document.getElementById(`batchRow_${idx}`);
