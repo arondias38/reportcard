@@ -392,7 +392,6 @@
     </div>
   </div>
 
-  <!-- 🌟 [추가] 다중 시험세팅 일괄 업로드 모달 -->
   <div class="modal-overlay" id="batchSetupModal">
     <div class="modal-box" style="width: 850px; max-width: 90vw; padding: 25px;">
       <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px;">시험 출제표 다중 일괄 등록</div>
@@ -737,7 +736,6 @@
     let loadedExamContext = null;
     let currentBatchParsedRows = [];
 
-    // 🌟 [추가] 파일명 자동 매핑을 위한 학원 약어 딕셔너리
     const courseAbbrMap = {
       "7가": "중등 1-1", "7나": "중등 1-2", "중1-1": "중등 1-1", "중1-2": "중등 1-2",
       "8가": "중등 2-1", "8나": "중등 2-2", "중2-1": "중등 2-1", "중2-2": "중등 2-2",
@@ -766,7 +764,6 @@
       if (memo.classList.contains('collapsed')) { icon.innerText = '▶'; } else { icon.innerText = '◀'; }
     }
 
-    // 🌟 [변경] Ctrl+S 단축키 로직 추가 반영
     document.addEventListener('keydown', function(e) {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault(); 
@@ -1066,7 +1063,6 @@
       diffInput.value = diff; if (document.getElementById(`unit_${qNum}`).value.trim() && diff) { statusCell.innerHTML = "✔"; statusCell.style.color = "#28a745"; statusCell.style.fontWeight = "bold"; } else { statusCell.innerHTML = "-"; statusCell.style.color = "#adb5bd"; }
     }
 
-    // 🌟 [변경] 시험세팅 파일 업로드 로직 (다중 처리 분기 추가)
     const setupUploadZone = document.getElementById('setupUploadZone'); const setupFileInput = document.getElementById('setupFileInput');
     setupUploadZone.addEventListener('click', () => setupFileInput.click()); 
     setupUploadZone.addEventListener('dragover', (e) => { e.preventDefault(); setupUploadZone.style.backgroundColor = '#e6f0ff'; }); 
@@ -1119,7 +1115,6 @@
       showSuccessAlert("출제 단원명과 배점이 입력되었습니다.", detailsHtml);
     }
 
-    // 🌟 [추가] 일괄 저장을 위한 내부 파싱 로직
     function extractAllQuestionsFromTxt(textData) {
       const lines = textData.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '');
       let results = [];
@@ -1185,7 +1180,6 @@
       return results;
     }
 
-    // 🌟 [추가] 다중 일괄 업로드 분석 및 팝업 표시
     function processBatchSetupFiles(files) {
       const tt = getTermAndTest('setup');
       if (!tt.term || !tt.test) return showAlert("상단에서 먼저 테스트(학기+테스트)를 선택해 주세요.");
@@ -1260,6 +1254,22 @@
               questions: fData.questions
             });
           });
+        });
+
+        // 🌟 [추가] 필수 환경설정 순서(난이도 -> 과정명)에 맞게 배열 정렬
+        parsedRows.sort((a, b) => {
+          let levels = globalData.settings.levels || [];
+          let courses = globalData.settings.courses || [];
+          
+          let lIdxA = levels.indexOf(a.level); if (lIdxA === -1) lIdxA = 9999;
+          let lIdxB = levels.indexOf(b.level); if (lIdxB === -1) lIdxB = 9999;
+          if (lIdxA !== lIdxB) return lIdxA - lIdxB;
+          
+          let cIdxA = courses.indexOf(a.course); if (cIdxA === -1) cIdxA = 9999;
+          let cIdxB = courses.indexOf(b.course); if (cIdxB === -1) cIdxB = 9999;
+          if (cIdxA !== cIdxB) return cIdxA - cIdxB;
+          
+          return a.fileName.localeCompare(b.fileName, 'ko');
         });
 
         openBatchSetupModal(parsedRows);
