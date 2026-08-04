@@ -252,7 +252,6 @@
     .doughnut-val { font-size: 18px; font-weight: 900; color: #111827; line-height: 1; }
     .report-footer { margin-top: 15px; padding: 15px 20px; background-color: #f1f5f9; border-radius: 12px; font-size: 11px; color: #475569; line-height: 1.6; flex-shrink: 0; border: 1px solid #e2e8f0; }
 
-    /* 🌟 [추가] 일괄 세팅 모달 비활성화 상태 스타일 */
     .batch-row-disabled td { color: #adb5bd !important; background-color: #f8f9fa !important; }
     .batch-row-disabled select, .batch-row-disabled input[type="number"] { background-color: #e9ecef !important; color: #adb5bd !important; border-color: #e9ecef !important; }
 
@@ -402,20 +401,19 @@
       <div style="font-size: 13px; color: #666; margin-bottom: 15px; text-align: left; line-height: 1.4;">
         ※ 업로드한 파일명 기반으로 난이도와 과정명이 자동 매핑되었습니다.<br>
         ※ 각 파일에 적용할 <b>시작번호</b>와 <b>종료번호</b>를 입력 후 [일괄 저장]을 클릭해 주세요.<br>
-        <span style="color: #dc3545; font-weight: bold;">※ 제외할 파일은 맨 앞 체크박스를 해제해 주세요.</span>
+        <span style="color: #dc3545; font-weight: bold;">※ 제외할 파일은 적용 열의 체크박스를 해제해 주세요.</span>
       </div>
-      <!-- 🌟 팝업 높이 550px로 증가 -->
       <div class="settings-table-wrapper" style="max-height: 550px; overflow-y: auto;">
         <table class="data-table" style="width: 100%;">
           <thead style="position: sticky; top: 0; z-index: 15;">
             <tr>
-              <!-- 🌟 체크박스 및 머릿글 고정 적용 -->
-              <th class="bg-gray" width="5%" style="position: sticky; top: 0; z-index: 10;"><input type="checkbox" id="batchCheckAll" checked onchange="toggleBatchAll(this)" style="cursor:pointer; width:15px; height:15px;"></th>
+              <th class="bg-gray" width="5%" style="position: sticky; top: 0; z-index: 10;">No.</th>
               <th class="bg-gray" width="30%" style="position: sticky; top: 0; z-index: 10;">파일명</th>
+              <th class="bg-gray" width="8%" style="position: sticky; top: 0; z-index: 10;">적용</th>
               <th class="bg-gray" width="15%" style="position: sticky; top: 0; z-index: 10;">난이도</th>
-              <th class="bg-gray" width="20%" style="position: sticky; top: 0; z-index: 10;">과정명</th>
-              <th class="bg-gray" width="15%" style="position: sticky; top: 0; z-index: 10;">시작번호</th>
-              <th class="bg-gray" width="15%" style="position: sticky; top: 0; z-index: 10;">종료번호</th>
+              <th class="bg-gray" width="16%" style="position: sticky; top: 0; z-index: 10;">과정명</th>
+              <th class="bg-gray" width="13%" style="position: sticky; top: 0; z-index: 10;">시작번호</th>
+              <th class="bg-gray" width="13%" style="position: sticky; top: 0; z-index: 10;">종료번호</th>
             </tr>
           </thead>
           <tbody id="batchSetupTableBody"></tbody>
@@ -453,7 +451,6 @@
       </div>
     </div>
 
-    <!-- 🟢 메인 화면 -->
     <div id="page-main" class="page-content active">
       
       <div class="filter-card" id="mainFilterCard">
@@ -565,7 +562,6 @@
         </div>
       </div>
 
-      <!-- 🟢 대시보드 화면 -->
       <div id="view_data" style="display: none;">
         <div id="dashEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
           과정을 확인하고 [데이터 조회]를 누르면 통합 데이터를 확인합니다.
@@ -601,17 +597,15 @@
             </div>
           </div>
           
-          <!-- 제목을 한 번만 표기 -->
           <div class="dash-title" style="font-size: 16px; margin-top: 10px; margin-bottom: 15px; border-bottom: 2px solid #1366ce; padding-bottom: 8px;">단원별 전체 정답률 분석 (%)</div>
           
-          <!-- 동적 차트가 들어갈 영역 -->
           <div id="dashDynamicUnitChartsWrap" style="display: flex; flex-direction: column; gap: 20px;"></div>
         </div>
       </div>
 
-    </div> <!-- 메인 화면 종료 -->
+    </div>
 
-    <!-- 🟢 관리자 화면: 시험 기본 세팅 (텍스트 및 레이아웃 완벽 보존) -->
+    <!-- 🟢 관리자 화면: 시험 기본 세팅 -->
     <div id="page-admin" class="page-content">
       <div class="filter-card admin-mode">
         <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="onSetupTestChanged()"></select></div>
@@ -1291,22 +1285,22 @@
         let lvlOptions = '<option value="" style="color:#adb5bd;">선택</option>' + (globalData.settings.levels||[]).map(l => `<option value="${l}" ${row.level===l?'selected':''}>${l}</option>`).join('');
         let crsOptions = '<option value="" style="color:#adb5bd;">선택</option>' + (globalData.settings.courses||[]).map(c => `<option value="${c}" ${row.course===c?'selected':''}>${c}</option>`).join('');
 
-        // 🌟 [추가] 각 행별로 체크박스를 포함한 고유 ID 할당
+        // 🌟 [수정] No. 열 추가 및 체크박스 열 위치 조정
         tbody.innerHTML += `
         <tr id="batchRow_${idx}" style="border-bottom: 1px solid #eee;">
-          <td><input type="checkbox" id="batchChk_${idx}" checked onchange="toggleBatchRow(${idx})" style="cursor:pointer; width:15px; height:15px;"></td>
+          <td style="font-weight:bold; color:#555;">${idx + 1}</td>
           <td style="text-align:left; padding:8px 6px; font-size:11px; white-space:normal; word-break:break-all;" title="${row.fileName}">${row.fileName}</td>
+          <td><input type="checkbox" id="batchChk_${idx}" checked onchange="toggleBatchRow(${idx})" style="cursor:pointer; width:15px; height:15px;"></td>
           <td><select id="batchLvl_${idx}" style="width:100%; border:1px solid #ced4da; border-radius:4px; padding:4px; font-size:12px;">${lvlOptions}</select></td>
           <td><select id="batchCrs_${idx}" style="width:100%; border:1px solid #ced4da; border-radius:4px; padding:4px; font-size:12px;">${crsOptions}</select></td>
           <td><input type="number" id="batchStart_${idx}" value="${row.startNum}" style="width:60px; text-align:center; border:1px solid #ced4da; border-radius:4px; padding:4px; font-size:13px; font-weight:bold;"></td>
           <td><input type="number" id="batchEnd_${idx}" value="${row.endNum}" style="width:60px; text-align:center; border:1px solid #ced4da; border-radius:4px; padding:4px; font-size:13px; font-weight:bold;"></td>
         </tr>`;
       });
-      document.getElementById('batchCheckAll').checked = true;
       document.getElementById('batchSetupModal').style.display = 'flex';
     }
 
-    // 🌟 [추가] 일괄 세팅 개별 체크박스 토글 함수 (비활성화 처리)
+    // 🌟 [수정] 일괄 체크 기능 제거 및 개별 토글 로직 최적화
     function toggleBatchRow(idx) {
       const isChecked = document.getElementById(`batchChk_${idx}`).checked;
       const tr = document.getElementById(`batchRow_${idx}`);
@@ -1319,22 +1313,6 @@
         tr.classList.add('batch-row-disabled');
         els.forEach(el => el.disabled = true);
       }
-      
-      const total = currentBatchParsedRows.length;
-      const checkedCount = document.querySelectorAll('input[id^="batchChk_"]:checked').length;
-      document.getElementById('batchCheckAll').checked = (total === checkedCount);
-    }
-
-    // 🌟 [추가] 일괄 세팅 전체 체크박스 토글 함수
-    function toggleBatchAll(chkObj) {
-      const isChecked = chkObj.checked;
-      currentBatchParsedRows.forEach((row, idx) => {
-        const chk = document.getElementById(`batchChk_${idx}`);
-        if(chk.checked !== isChecked) {
-          chk.checked = isChecked;
-          toggleBatchRow(idx);
-        }
-      });
     }
 
     function executeBatchSetup() {
@@ -1342,7 +1320,6 @@
       let setupsPayload = [];
 
       for (let idx = 0; idx < currentBatchParsedRows.length; idx++) {
-        // 🌟 [추가] 체크 해제된 항목은 무시
         if (!document.getElementById(`batchChk_${idx}`).checked) continue;
 
         let row = currentBatchParsedRows[idx];
