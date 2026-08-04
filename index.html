@@ -419,10 +419,9 @@
           <tbody id="batchSetupTableBody"></tbody>
         </table>
       </div>
-      <!-- 🌟 [수정] 버튼 폭 맞춤 및 중앙 정렬 -->
-      <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+      <div style="position: relative; display: flex; justify-content: center; align-items: center; margin-top: 15px; width: 100%;">
         <button class="modal-btn" style="background-color: #6c757d; width: 140px;" onclick="document.getElementById('batchSetupModal').style.display='none'">취소</button>
-        <button class="modal-btn" style="background-color: #28a745; width: 140px;" onclick="executeBatchSetup()">일괄 저장</button>
+        <button class="modal-btn" style="background-color: #28a745; width: 140px; position: absolute; right: 0;" onclick="executeBatchSetup()">일괄 저장</button>
       </div>
     </div>
   </div>
@@ -610,7 +609,7 @@
 
     </div> <!-- 메인 화면 종료 -->
 
-    <!-- 🟢 관리자 화면: 시험 기본 세팅 (텍스트 및 레이아웃 완벽 보존) -->
+    <!-- 🟢 관리자 화면: 시험 기본 세팅 -->
     <div id="page-admin" class="page-content">
       <div class="filter-card admin-mode">
         <div class="select-group"><label>테스트</label><select id="setupCombinedTest" required onchange="onSetupTestChanged()"></select></div>
@@ -1301,8 +1300,8 @@
         tbody.innerHTML += `
         <tr id="batchRow_${idx}" style="border-bottom: 1px solid #eee;">
           <td style="font-weight:bold; color:#555;">${idx + 1}</td>
-          <td><input type="checkbox" id="batchChk_${idx}" checked onchange="toggleBatchRow(${idx})" style="cursor:pointer; width:15px; height:15px;"></td>
           <td style="text-align:left; padding:8px 6px; font-size:11px; white-space:normal; word-break:break-all;" title="${row.fileName}">${row.fileName}</td>
+          <td><input type="checkbox" id="batchChk_${idx}" checked onchange="toggleBatchRow(${idx})" style="cursor:pointer; width:15px; height:15px;"></td>
           <td><select id="batchLvl_${idx}" style="width:100%; border:1px solid #ced4da; border-radius:4px; padding:4px; font-size:12px;">${lvlOptions}</select></td>
           <td><select id="batchCrs_${idx}" style="width:100%; border:1px solid #ced4da; border-radius:4px; padding:4px; font-size:12px;">${crsOptions}</select></td>
           <td><input type="number" id="batchStart_${idx}" value="${row.startNum}" style="width:60px; text-align:center; border:1px solid #ced4da; border-radius:4px; padding:4px; font-size:13px; font-weight:bold;"></td>
