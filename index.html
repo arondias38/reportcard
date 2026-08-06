@@ -39,8 +39,8 @@
     /* --- 스플래시 스크린 스타일 시작 --- */
     .intro-splash { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #f4f6f9; z-index: 99999; display: flex; justify-content: center; align-items: center; transition: opacity 0.8s ease-in-out, visibility 0.8s; }
     .intro-splash.hidden { opacity: 0; visibility: hidden; }
-    .intro-text { font-size: 80px; font-weight: 900; letter-spacing: 2px; text-align: center; background: linear-gradient(90deg, #1366ce, #e83e8c, #1366ce); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 3s linear infinite; }
-    @keyframes shine { to { background-position: 200% center; } }
+    .intro-text { font-size: 46px; font-weight: 900; letter-spacing: 2px; text-align: center; background: linear-gradient(90deg, #1366ce, #e83e8c, #1366ce); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 3s linear infinite; }
+    .intro-logo { position: absolute; bottom: 40px; height: 26px; opacity: 0.5; } /* 하단 중앙 로고 설정 */
     /* --- 스플래시 스크린 스타일 끝 --- */
 
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center; }
@@ -285,6 +285,7 @@
   <!-- 스플래시 스크린 -->
   <div id="introSplash" class="intro-splash">
     <div class="intro-text">LT REPORT CARD<br>SYSTEM</div>
+    <img class="intro-logo" src="https://i.imgur.com/PQRrCSI.png" alt="SG청운학원">
   </div>
 
   <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycbyj4PVKoJp-KAyeaJgFlCS6nPP8r5re4luImoOmupUza1xEh3pTztXiY7iyLia9s-OH4g/exec">
