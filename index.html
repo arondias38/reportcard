@@ -1668,7 +1668,7 @@
           dashChartInstances.push(new Chart(ctxChart2, {
             type: 'bar',
             data: { labels: d.chart2Labels || [], datasets: [{ label: '정답률(%)', data: d.chart2Data || [], backgroundColor: '#68488e', borderRadius: 4, maxBarThickness: 35 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } },
             plugins: [verticalDataLabelsPlugin]
           }));
 
