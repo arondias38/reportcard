@@ -36,6 +36,13 @@
     .spinner-text { margin-top: 15px; font-weight: bold; color: #1366ce; font-size: 15px; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+    /* --- 스플래시 스크린 스타일 시작 --- */
+    .intro-splash { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #f4f6f9; z-index: 99999; display: flex; justify-content: center; align-items: center; transition: opacity 0.8s ease-in-out, visibility 0.8s; }
+    .intro-splash.hidden { opacity: 0; visibility: hidden; }
+    .intro-text { font-size: 46px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(90deg, #1366ce, #e83e8c, #1366ce); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 3s linear infinite; }
+    @keyframes shine { to { background-position: 200% center; } }
+    /* --- 스플래시 스크린 스타일 끝 --- */
+
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center; }
     #customAlertModal { z-index: 10030 !important; }
     #customConfirmModal { z-index: 10025 !important; }
@@ -274,6 +281,11 @@
   </style>
 </head>
 <body>
+  
+  <!-- 스플래시 스크린 -->
+  <div id="introSplash" class="intro-splash">
+    <div class="intro-text">REPORT CARD SYSTEM</div>
+  </div>
 
   <input type="hidden" id="backendUrl" value="https://script.google.com/macros/s/AKfycbyj4PVKoJp-KAyeaJgFlCS6nPP8r5re4luImoOmupUza1xEh3pTztXiY7iyLia9s-OH4g/exec">
 
@@ -648,8 +660,8 @@
           <div style="font-size: 28px; margin-bottom: 8px;">📄</div>
           <h4 style="margin: 0 0 6px 0; color: #495057; font-size: 15px;">시험 출제표 (TXT/엑셀) 다중/일괄 업로드</h4>
           <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.4;">
-            <b>TXT 파일 또는 EXCEL 파일</b>을 이곳에 끌어다 놓거나 클릭하세요.<br><br>
-            (파일명 기준으로 <b>[난이도]와 [과정명]</b>이 자동 매핑되며 여러 파일 업로드도 가능합니다.)
+            <b>TXT 파일 또는 EXCEL 파일</b>을 이곳에 끌어다 놓거나 클릭하세요.
+            <span style="display: block; margin-top: 12px;">(파일명 기준으로 <b>[난이도]와 [과정명]</b>이 자동 매핑되며 여러 파일 업로드도 가능합니다.)</span>
           </p>
           <input type="file" id="setupFileInput" accept=".txt, .xlsx, .xls" style="display: none;" multiple>
         </div>
@@ -689,7 +701,7 @@
         </div>
       </div>
 
-      <div style="position: fixed; bottom: 30px; left: 35px; z-index: 150;">
+      <div style="position: fixed; bottom: 35px; left: 40px; z-index: 150;">
         <button class="btn-download-tool" onclick="window.open('https://drive.google.com/file/d/1_g1GWVlzgPYA8oMHs4XwpSMAgitWZxYy/view?usp=sharing', '_blank')">
           <span class="btn-icon-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -701,6 +713,8 @@
   </div>
 
   <script>
+    let isInitialAppLoad = true;
+
     const inlineDataLabelsPlugin = {
       id: 'inlineDataLabels',
       afterDatasetsDraw(chart) {
@@ -733,11 +747,10 @@
           meta.data.forEach((bar, index) => {
             const value = dataset.data[index];
             if (value > 0) {
-              ctx.fillStyle = '#ffffff'; // 보라색 막대 안에서 잘 보이도록 흰색 지정
+              ctx.fillStyle = '#ffffff'; 
               ctx.font = 'bold 12px Pretendard';
-              ctx.textAlign = 'center'; // 가로 중앙 정렬
-              ctx.textBaseline = 'bottom'; // 세로 하단 정렬
-              // 막대 하단(base)에서 위로 6px 띄워서 수치 출력
+              ctx.textAlign = 'center'; 
+              ctx.textBaseline = 'bottom'; 
               ctx.fillText(value + '%', bar.x, bar.base - 6);
             }
           });
@@ -954,7 +967,10 @@
     function fetchMetadata(silent = false, preserveState = false) {
       const url = document.getElementById('backendUrl').value.trim();
       if (url.includes('YOUR_GAS_ID_HERE')) return;
-      if(!silent) showLoading(true, "시스템 로딩 중...");
+      
+      if(!silent) {
+        if(!isInitialAppLoad) showLoading(true, "시스템 로딩 중...");
+      }
       
       fetch(url, { method: 'POST', body: JSON.stringify({ action: 'getDropdownData' }) })
       .then(async res => {
@@ -966,7 +982,21 @@
         }
       })
       .then(res => {
-        if(!silent) showLoading(false);
+        if(!silent) {
+          if(!isInitialAppLoad) showLoading(false);
+        }
+        
+        if(isInitialAppLoad) {
+          setTimeout(() => {
+            const splash = document.getElementById('introSplash');
+            if (splash) {
+              splash.classList.add('hidden');
+              setTimeout(() => splash.style.display = 'none', 800);
+            }
+            isInitialAppLoad = false;
+          }, 400); 
+        }
+
         if(res.success) { 
             globalData = res.data; 
             populateSettingsAndDropdowns(preserveState); 
@@ -975,7 +1005,19 @@
             if (res.status === "Running") showAlert("구글 계정 충돌 또는 권한 오류입니다. 크롬 시크릿 창(새 개인정보 보호 창)에서 실행하거나 계정 로그아웃 후 다시 시도해 주세요.");
             else showAlert(res.error || "서버 통신 지연 또는 데이터 용량 초과입니다. 잠시 후 다시 시도해 주세요."); 
         }
-      }).catch(handleError);
+      }).catch(err => {
+        if(isInitialAppLoad) {
+          const splash = document.getElementById('introSplash');
+          if (splash) {
+            splash.classList.add('hidden');
+            setTimeout(() => splash.style.display = 'none', 800);
+          }
+          isInitialAppLoad = false;
+        } else {
+          showLoading(false);
+        }
+        handleError(err);
+      });
     }
 
     function openSettingsModal() { renderSettingsGrid(); document.getElementById('settingsModal').style.display = 'flex'; }
