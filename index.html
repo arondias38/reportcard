@@ -723,6 +723,29 @@
       }
     };
 
+    const verticalDataLabelsPlugin = {
+      id: 'verticalDataLabels',
+      afterDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        ctx.save();
+        chart.data.datasets.forEach((dataset, i) => {
+          const meta = chart.getDatasetMeta(i);
+          meta.data.forEach((bar, index) => {
+            const value = dataset.data[index];
+            if (value > 0) {
+              ctx.fillStyle = '#ffffff'; // 보라색 막대 안에서 잘 보이도록 흰색 지정
+              ctx.font = 'bold 12px Pretendard';
+              ctx.textAlign = 'center'; // 가로 중앙 정렬
+              ctx.textBaseline = 'bottom'; // 세로 하단 정렬
+              // 막대 하단(base)에서 위로 6px 띄워서 수치 출력
+              ctx.fillText(value + '%', bar.x, bar.base - 6);
+            }
+          });
+        });
+        ctx.restore();
+      }
+    };
+
     let globalData = { settings: {}, setups: [], rosters: [] };
     let currentExamSetup = null;
     let chartInstances = []; 
@@ -1646,6 +1669,7 @@
             type: 'bar',
             data: { labels: d.chart2Labels || [], datasets: [{ label: '정답률(%)', data: d.chart2Data || [], backgroundColor: '#68488e', borderRadius: 4, maxBarThickness: 35 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+            plugins: [verticalDataLabelsPlugin]
           }));
 
           const dynamicWrap = document.getElementById('dashDynamicUnitChartsWrap'); dynamicWrap.innerHTML = '';
