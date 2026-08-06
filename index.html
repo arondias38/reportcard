@@ -932,7 +932,7 @@
         const text = await res.text();
         try { return JSON.parse(text); } 
         catch (e) {
-          if (text.includes('<!DOCTYPE') || text.includes('<html')) throw new Error("구글 웹앱 권한/세션 오류로 인해 데이터 대신 HTML 웹페이지가 반환되었습니다.<br><br>구글 웹앱 배포 시 '액세스 권한: 모든 사용자' 설정이 되어 있는지 확인하시거나, 크롬 시크릿 창에서 시도해 주세요.");
+          if (text.includes('<!DOCTYPE') || text.includes('<html')) throw new Error("구글 웹앱 권한/세션 오류로 인해 데이터 대신 HTML 웹페이지가 반환되었습니다.<br><br>브라우저 재실행 또는 크롬 시크릿 창에서 시도해 주세요.");
           throw new Error("데이터 파싱 실패: " + e.message);
         }
       })
