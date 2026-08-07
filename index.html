@@ -310,6 +310,25 @@
       .doughnut-card { border: none !important; box-shadow: none !important; background: transparent !important; }
       @page { size: A4 landscape; margin: 0; }
     }
+
+    /* --- 태블릿 및 좁은 가로화면 최적화 (1100px 이하) --- */
+    @media (max-width: 1100px) {
+      /* 1. 상단 네비게이션 겹침 방지 (절대 중앙 정렬 해제 및 유연한 배치) */
+      .top-nav-bar { justify-content: space-between; padding: 10px 15px; gap: 10px; overflow-x: auto; }
+      .nav-tabs { position: static; transform: none; flex: 1; justify-content: center; min-width: 280px; }
+      .main-title { font-size: 15px; white-space: nowrap; }
+      .main-title img { height: 20px; }
+      .nav-btn { width: auto; padding: 8px 15px; font-size: 13px; flex: 1; max-width: 110px; }
+
+      /* 2. 필터 카드(검색조건) 찌그러짐 방지 (가로 스와이프 스크롤 허용) */
+      .filter-card { padding: 0 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .select-group { flex-shrink: 0; } /* 요소가 찌그러지지 않고 원본 크기 유지 */
+      #mainCombinedTest, #mainCourse, #mainCampus, #mainTeacher, #mainClass { width: 140px; } /* 너비 소폭 축소 */
+      
+      /* 3. 관리자 화면: 입력 현황 및 업로드 존 크기 보호 */
+      #setupUploadZone, #setupStatusContainer { flex: 0 0 22%; min-width: 160px; }
+    }
+    
   </style>
 </head>
 <body>
