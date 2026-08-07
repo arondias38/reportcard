@@ -32,16 +32,16 @@
     }
 
     .spinner-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.8); z-index: 10005; justify-content: center; align-items: center; flex-direction: column; }
-    /* --- 사인 함수 물결 로딩 스피너 --- */
+    /* --- 부드러운 사인 함수 물결 로딩 스피너 --- */
     .spinner { 
       position: relative;
       width: 8px; 
       height: 40px; 
-      background-color: #1366ce; /* 청운학원 파란색 */
-      border: none; /* 기존 원형 테두리 덮어쓰기 */
+      background-color: #1366ce; 
+      border: none; 
       border-radius: 4px;
-      animation: sine-wave 1.2s infinite ease-in-out; 
-      animation-delay: -0.15s; 
+      animation: sine-wave 1.5s infinite ease-in-out; /* 1.2초 -> 1.5초로 속도 조절 */
+      animation-delay: -0.25s; 
     }
     .spinner::before, .spinner::after {
       content: '';
@@ -51,19 +51,19 @@
       height: 40px;
       background-color: #1366ce;
       border-radius: 4px;
-      animation: sine-wave 1.2s infinite ease-in-out;
+      animation: sine-wave 1.5s infinite ease-in-out;
     }
     .spinner::before {
       left: -16px;
-      animation-delay: -0.3s;
+      animation-delay: -0.5s; /* 파동 간격을 넓혀서 더 자연스러운 곡선 연출 */
     }
     .spinner::after {
       left: 16px;
       animation-delay: 0s;
     }
     @keyframes sine-wave {
-      0%, 40%, 100% { transform: scaleY(0.4); opacity: 0.5; }
-      20% { transform: scaleY(1); opacity: 1; }
+      0%, 100% { transform: scaleY(0.4); opacity: 0.5; } /* 멈추는 구간 없이 0~100 풀사이클 */
+      50% { transform: scaleY(1); opacity: 1; }
     }
 
     /* --- 스플래시 스크린 스타일 시작 --- */
