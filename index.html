@@ -522,7 +522,8 @@
       <div class="nav-tabs" id="navTabs">
         <button class="nav-btn active" onclick="switchNav('input')">성적 입력</button>
         <button class="nav-btn" onclick="switchNav('report')">성적표 출력</button>
-        <button class="nav-btn" onclick="switchNav('data')">데이터 확인</button>
+        <!-- 👇 탭 이름 변경: 데이터 확인 -> 성적 분석 👇 -->
+        <button class="nav-btn" onclick="switchNav('data')">성적 분석</button>
       </div>
 
       <div style="display: flex; align-items: center;">
@@ -542,11 +543,13 @@
       
       <div class="filter-card" id="mainFilterCard">
         <div class="select-group"><label>테스트</label><select id="mainCombinedTest" required onchange="filterCourses('main', true)"></select></div>
-        <div class="select-group"><label>과정</label><select id="mainCourse" required onchange="filterCampuses('main', true)"></select></div>
+        <!-- 👇 과정 선택 시 초기화(onchange) 이벤트 완전히 제거 👇 -->
+        <div class="select-group"><label>과정</label><select id="mainCourse" required></select></div>
         <div class="filter-divider"></div>
-        <div class="select-group"><label>캠퍼스</label><select id="mainCampus" required onchange="filterTeachers('main', true)"></select></div>
-        <div class="select-group" id="mainTeacherGroup"><label>선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
-        <div class="select-group" id="mainClassGroup"><label>반명</label><select id="mainClass" required></select></div>
+        <!-- 👇 캠퍼스, 선생님, 반명 라벨 폰트 색상 녹색(#28a745)으로 변경 👇 -->
+        <div class="select-group"><label style="color: #28a745;">캠퍼스</label><select id="mainCampus" required onchange="filterTeachers('main', true)"></select></div>
+        <div class="select-group" id="mainTeacherGroup"><label style="color: #28a745;">선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
+        <div class="select-group" id="mainClassGroup"><label style="color: #28a745;">반명</label><select id="mainClass" required></select></div>
         
         <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #495057;" onclick="loadGradesData()">명단 불러오기</button>
@@ -579,7 +582,8 @@
         </div>
 
         <div id="actionBtn_data" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
-          <button class="btn-primary" style="background-color: #495057;" onclick="generateDashboard()">데이터 조회</button>
+          <!-- 👇 버튼명 변경: 데이터 조회 -> 성적 분석 👇 -->
+          <button class="btn-primary" style="background-color: #495057;" onclick="generateDashboard()">성적 분석</button>
           <button class="icon-btn" style="width: 32px; height: 32px; margin-left: 4px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           </button>
@@ -651,7 +655,7 @@
 
       <div id="view_data" style="display: none;">
         <div id="dashEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
-          과정을 확인하고 [데이터 조회]를 누르면 통합 데이터를 확인합니다.
+          과정을 확인하고 [성적 분석]을 누르면 통합 데이터를 확인합니다.
         </div>
         <div id="dashContainer" style="display: none; flex-direction: column;">
           <div class="dash-grid">
