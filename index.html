@@ -582,8 +582,8 @@
         </div>
 
         <div id="actionBtn_data" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
-          <!-- 👇 버튼명 변경: 데이터 조회 -> 성적 분석 👇 -->
-          <button class="btn-primary" style="background-color: #495057;" onclick="generateDashboard()">성적 분석</button>
+          <!-- 👇 실행 버튼은 다시 '데이터 조회'로 롤백 👇 -->
+          <button class="btn-primary" style="background-color: #495057;" onclick="generateDashboard()">데이터 조회</button>
           <button class="icon-btn" style="width: 32px; height: 32px; margin-left: 4px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           </button>
@@ -655,7 +655,7 @@
 
       <div id="view_data" style="display: none;">
         <div id="dashEmptyState" style="text-align: center; padding: 100px 0; color: #888; font-weight: bold; border: 2px dashed #dee2e6; border-radius: 8px; background-color: #fff; flex: 1;">
-          과정을 확인하고 [성적 분석]을 누르면 통합 데이터를 확인합니다.
+          과정을 확인하고 [데이터 조회]를 누르면 통합 데이터를 확인합니다.
         </div>
         <div id="dashContainer" style="display: none; flex-direction: column;">
           <div class="dash-grid">
