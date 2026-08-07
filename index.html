@@ -542,15 +542,24 @@
     <div id="page-main" class="page-content active">
       
       <div class="filter-card" id="mainFilterCard">
+        <!-- 1. 테스트 선택 -->
         <div class="select-group"><label>테스트</label><select id="mainCombinedTest" required onchange="filterCourses('main', true)"></select></div>
-        <!-- 👇 과정 선택 시 초기화(onchange) 이벤트 완전히 제거 👇 -->
-        <div class="select-group"><label>과정</label><select id="mainCourse" required></select></div>
+        
+        <!-- 첫 번째 구분선 -->
         <div class="filter-divider"></div>
-        <!-- 👇 캠퍼스, 선생님, 반명 라벨 폰트 색상 녹색(#28a745)으로 변경 👇 -->
+        
+        <!-- 2. 캠퍼스 - 선생님 - 반명 (녹색) -->
         <div class="select-group"><label style="color: #28a745;">캠퍼스</label><select id="mainCampus" required onchange="filterTeachers('main', true)"></select></div>
         <div class="select-group" id="mainTeacherGroup"><label style="color: #28a745;">선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
         <div class="select-group" id="mainClassGroup"><label style="color: #28a745;">반명</label><select id="mainClass" required></select></div>
         
+        <!-- 👇 추가된 두 번째 회색 구분선 👇 -->
+        <div class="filter-divider"></div>
+        
+        <!-- 3. 과정 선택 (주황색, 위치를 맨 마지막으로 이동) -->
+        <div class="select-group"><label style="color: #e87708;">과정</label><select id="mainCourse" required></select></div>
+        
+        <!-- 액션 버튼들 (성적입력 화면) -->
         <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #495057;" onclick="loadGradesData()">명단 불러오기</button>
           <button class="icon-btn" style="width: 32px; height: 32px; margin-left: 4px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()">
@@ -566,6 +575,7 @@
           </div>
         </div>
 
+        <!-- 액션 버튼들 (성적표출력 화면) -->
         <div id="actionBtn_report" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
           <button class="btn-primary" style="background-color: #495057;" onclick="generateReports()">성적표 렌더링</button>
           <button class="icon-btn" style="width: 32px; height: 32px; margin-left: 4px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()">
@@ -581,8 +591,8 @@
           </div>
         </div>
 
+        <!-- 액션 버튼들 (데이터확인 화면) -->
         <div id="actionBtn_data" style="display: none; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
-          <!-- 👇 실행 버튼은 다시 '데이터 조회'로 롤백 👇 -->
           <button class="btn-primary" style="background-color: #495057;" onclick="generateDashboard()">데이터 조회</button>
           <button class="icon-btn" style="width: 32px; height: 32px; margin-left: 4px; background-color: #f1f3f5; border-color: #dee2e6;" onclick="resetMainFilters()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#495057" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
