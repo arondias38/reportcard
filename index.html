@@ -76,29 +76,24 @@
     .intro-splash.hidden { opacity: 0; visibility: hidden; }
     
     .intro-text { 
-      font-family: 'Pretendard', sans-serif; /* 어색하게 늘어나던 대체 폰트 롤백 */
+      font-family: 'Pretendard', sans-serif; 
       font-size: 80px; font-weight: 900; letter-spacing: 2px; text-align: center; line-height: 1.2; 
       background: linear-gradient(90deg, #1366ce, #e83e8c, #1366ce); background-size: 200% auto; 
       color: transparent; -webkit-text-fill-color: transparent; -webkit-background-clip: text; background-clip: text; 
-      /* 👇 0.4초 동안 투명에서 선명해지며 튀어나오는 페이드인 추가 👇 */
       animation: splash-fade-in 0.4s ease-out, shine 3s linear infinite; 
     }
     
     .intro-logo { 
       position: absolute; bottom: 40px; height: 26px; 
-      opacity: 0; /* 처음엔 완전 투명하게 숨김 */
-      /* 👇 텍스트보다 살짝(0.2초) 늦게 아래에서 위로 나타나는 고급스러운 연출 👇 */
-      animation: logo-fade-in 0.5s ease-out 0.2s forwards; 
+      opacity: 0;
+      /* 👇 텍스트와 완벽하게 동일한 애니메이션 적용 (등장 타이밍만 0.2초 늦춤) 👇 */
+      animation: splash-fade-in 0.4s ease-out 0.2s forwards; 
     }
 
-    /* 👇 페이드인 애니메이션 키프레임 👇 */
+    /* 👇 동일한 페이드인 애니메이션 하나로 통일 👇 */
     @keyframes splash-fade-in {
-      0% { opacity: 0; transform: scale(0.95); } /* 투명하고 살짝 작았다가 */
-      100% { opacity: 1; transform: scale(1); } /* 선명하고 원래 크기로 */
-    }
-    @keyframes logo-fade-in {
-      0% { opacity: 0; transform: translateY(10px); } /* 살짝 아래에서 */
-      100% { opacity: 1; transform: translateY(0); } /* 제자리로 올라오며 등장 */
+      0% { opacity: 0; transform: scale(0.95); } 
+      100% { opacity: 1; transform: scale(1); } 
     }
     @keyframes shine { to { background-position: 200% center; } }
     /* --- 스플래시 스크린 스타일 끝 --- */
