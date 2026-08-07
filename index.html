@@ -41,7 +41,7 @@
       border: none; 
       border-radius: 4px;
       animation: sine-wave 1.5s infinite ease-in-out; /* 1.2초 -> 1.5초로 속도 조절 */
-      animation-delay: 0s; 
+      animation-delay: -0.25s; 
     }
     .spinner::before, .spinner::after {
       content: '';
@@ -62,8 +62,9 @@
       animation-delay: 0s;
     }
     @keyframes sine-wave {
-      0%, 100% { transform: scaleY(0.4); opacity: 0.5; } /* 멈추는 구간 없이 0~100 풀사이클 */
-      50% { transform: scaleY(1); opacity: 1; }
+      /* 0~80% 구간에서만 파동이 일어나고, 80%~100% 구간은 멈춰서 대기합니다 */
+      0%, 80%, 100% { transform: scaleY(0.4); opacity: 0.5; } 
+      40% { transform: scaleY(1); opacity: 1; } /* 파동의 최고점 */
     }
 
     /* --- 스플래시 스크린 스타일 시작 --- */
