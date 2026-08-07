@@ -74,9 +74,33 @@
     /* --- 스플래시 스크린 스타일 시작 --- */
     .intro-splash { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #f4f6f9; z-index: 99999; display: flex; justify-content: center; align-items: center; transition: opacity 0.8s ease-in-out, visibility 0.8s; }
     .intro-splash.hidden { opacity: 0; visibility: hidden; }
-    .intro-text { font-family: 'Pretendard', 'Arial Black', 'Impact', sans-serif; font-size: 80px; font-weight: 900; letter-spacing: 2px; text-align: center; line-height: 1.2; background: linear-gradient(90deg, #1366ce, #e83e8c, #1366ce); background-size: 200% auto; color: transparent; -webkit-text-fill-color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 3s linear infinite; }
+    
+    .intro-text { 
+      font-family: 'Pretendard', sans-serif; /* 어색하게 늘어나던 대체 폰트 롤백 */
+      font-size: 80px; font-weight: 900; letter-spacing: 2px; text-align: center; line-height: 1.2; 
+      background: linear-gradient(90deg, #1366ce, #e83e8c, #1366ce); background-size: 200% auto; 
+      color: transparent; -webkit-text-fill-color: transparent; -webkit-background-clip: text; background-clip: text; 
+      /* 👇 0.4초 동안 투명에서 선명해지며 튀어나오는 페이드인 추가 👇 */
+      animation: splash-fade-in 0.4s ease-out, shine 3s linear infinite; 
+    }
+    
+    .intro-logo { 
+      position: absolute; bottom: 40px; height: 26px; 
+      opacity: 0; /* 처음엔 완전 투명하게 숨김 */
+      /* 👇 텍스트보다 살짝(0.2초) 늦게 아래에서 위로 나타나는 고급스러운 연출 👇 */
+      animation: logo-fade-in 0.5s ease-out 0.2s forwards; 
+    }
+
+    /* 👇 페이드인 애니메이션 키프레임 👇 */
+    @keyframes splash-fade-in {
+      0% { opacity: 0; transform: scale(0.95); } /* 투명하고 살짝 작았다가 */
+      100% { opacity: 1; transform: scale(1); } /* 선명하고 원래 크기로 */
+    }
+    @keyframes logo-fade-in {
+      0% { opacity: 0; transform: translateY(10px); } /* 살짝 아래에서 */
+      100% { opacity: 1; transform: translateY(0); } /* 제자리로 올라오며 등장 */
+    }
     @keyframes shine { to { background-position: 200% center; } }
-    .intro-logo { position: absolute; bottom: 40px; height: 26px; opacity: 1; }
     /* --- 스플래시 스크린 스타일 끝 --- */
 
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center; }
