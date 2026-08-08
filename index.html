@@ -65,10 +65,10 @@
     .select-group { display: flex; align-items: center; gap: 6px; }
     .select-group label { font-weight: bold; font-size: 13px; color: #1366ce; white-space: nowrap; }
     .admin-mode .select-group label { color: #495057; }
-    .select-group select { padding: 4px 30px 4px 8px; height: 30px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 16px; color: #333; }
+    .select-group select { padding: 4px 30px 4px 8px; height: 30px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; background-size: 16px; color: #333; transition: color 0.2s, font-weight 0.2s; }
     #mainCombinedTest, #mainCourse, #mainCampus, #mainTeacher, #mainClass { width: 185px; }
     .select-group select:invalid { color: #888; } 
-    .select-group select option { color: #333; }
+    .select-group select option { color: #333; font-weight: normal; }
     .select-group input { height: 30px; padding: 4px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; outline: none; }
     .select-group select:focus, input:focus { border-color: #1366ce; }
     
@@ -393,11 +393,11 @@
         <!-- 2. 캠퍼스 - 선생님 - 반명 -->
         <div class="select-group"><label style="color: #28a745;">캠퍼스</label><select id="mainCampus" required onchange="filterTeachers('main', true)"></select></div>
         <div class="select-group" id="mainTeacherGroup"><label style="color: #28a745;">선생님</label><select id="mainTeacher" required onchange="filterClasses('main', true)"></select></div>
-        <!-- 반명 onchange 시 과정명 자동 색상 변경 -->
-        <div class="select-group" id="mainClassGroup"><label style="color: #28a745;">반명</label><select id="mainClass" required onchange="updateCourseColors()"></select></div>
+        <!-- 반명 onchange 시 색상 업데이트 연동 -->
+        <div class="select-group" id="mainClassGroup"><label style="color: #28a745;">반명</label><select id="mainClass" required onchange="updateClassColors(); updateCourseColors();"></select></div>
         <div class="filter-divider"></div>
-        <!-- 3. 과정 선택 -->
-        <div class="select-group"><label>과정</label><select id="mainCourse" required></select></div>
+        <!-- 3. 과정 선택 (과정 onchange 시 색상 업데이트 연동) -->
+        <div class="select-group"><label>과정</label><select id="mainCourse" required onchange="updateCourseColors();"></select></div>
         
         <!-- 액션 버튼들 -->
         <div id="actionBtn_input" style="display: flex; gap: 8px; margin-left: 8px; align-items: center; width: 100%;">
@@ -533,7 +533,21 @@
     function showConfirmModal(msg, onConfirm, onCancel) { document.getElementById('confirmMessage').innerHTML = msg; document.getElementById('customConfirmModal').style.display = 'flex'; confirmCallback = onConfirm; cancelCallback = onCancel; }
     function closeConfirm(isConfirmed) { document.getElementById('customConfirmModal').style.display = 'none'; if (isConfirmed && confirmCallback) confirmCallback(); else if (!isConfirmed && cancelCallback) cancelCallback(); }
 
-    function resetMainFilters() { document.getElementById('mainCombinedTest').value = ""; document.getElementById('mainCourse').innerHTML = '<option value="" disabled selected hidden>과정 선택</option>'; document.getElementById('mainCampus').innerHTML = '<option value="" disabled selected hidden>캠퍼스 선택</option>'; document.getElementById('mainTeacher').innerHTML = '<option value="" disabled selected hidden>선생님 선택</option>'; document.getElementById('mainClass').innerHTML = '<option value="" disabled selected hidden>반 선택</option>'; document.getElementById('inputTableContainer').style.display = 'none'; document.getElementById('inputEmptyState').style.display = 'block'; document.getElementById('reportContainer').style.display = 'none'; document.getElementById('reportEmptyState').style.display = 'block'; document.getElementById('reportSummaryMemo').style.display = 'none'; document.getElementById('reportBatchSaveWrap').style.display = 'none'; document.getElementById('dashContainer').style.display = 'none'; document.getElementById('dashEmptyState').style.display = 'block'; loadedExamContext = null; filterCourses('main', true); showSuccessAlert("검색 조건이 초기화되었습니다."); }
+    function resetMainFilters() { 
+        document.getElementById('mainCombinedTest').value = ""; 
+        document.getElementById('mainCourse').innerHTML = '<option value="" disabled selected hidden>과정 선택</option>'; 
+        document.getElementById('mainCampus').innerHTML = '<option value="" disabled selected hidden>캠퍼스 선택</option>'; 
+        document.getElementById('mainTeacher').innerHTML = '<option value="" disabled selected hidden>선생님 선택</option>'; 
+        document.getElementById('mainClass').innerHTML = '<option value="" disabled selected hidden>반 선택</option>'; 
+        // 리셋 시 select 박스 고유 색상도 초기화
+        document.getElementById('mainClass').style.color = "#333";
+        document.getElementById('mainClass').style.fontWeight = "normal";
+        document.getElementById('mainCourse').style.color = "#333";
+        document.getElementById('mainCourse').style.fontWeight = "normal";
+
+        document.getElementById('inputTableContainer').style.display = 'none'; document.getElementById('inputEmptyState').style.display = 'block'; document.getElementById('reportContainer').style.display = 'none'; document.getElementById('reportEmptyState').style.display = 'block'; document.getElementById('reportSummaryMemo').style.display = 'none'; document.getElementById('reportBatchSaveWrap').style.display = 'none'; document.getElementById('dashContainer').style.display = 'none'; document.getElementById('dashEmptyState').style.display = 'block'; 
+        loadedExamContext = null; filterCourses('main', true); showSuccessAlert("검색 조건이 초기화되었습니다."); 
+    }
 
     function sortTestNames(arr) { const seasonRank = { "겨울": 4, "가을": 3, "여름": 2, "봄": 1 }, examRank = { "기말": 2, "중간": 1 }; return arr.slice().sort((a, b) => { const getYear = s => { const m = s.match(/(\d{4})/); return m ? parseInt(m[1], 10) : 0; }; const getSeason = s => { for (let k in seasonRank) if (s.includes(k)) return seasonRank[k]; return 0; }; const getExam = s => { for (let k in examRank) if (s.includes(k)) return examRank[k]; return 0; }; const yDiff = getYear(b) - getYear(a); if (yDiff !== 0) return yDiff; const sDiff = getSeason(b) - getSeason(a); if (sDiff !== 0) return sDiff; const eDiff = getExam(b) - getExam(a); if (eDiff !== 0) return eDiff; return b.localeCompare(a, 'ko'); }); }
     function sortBySettingsOrder(arr, settingsList) { if (!settingsList || !settingsList.length) return arr; return arr.slice().sort((a, b) => { let idxA = settingsList.indexOf(a), idxB = settingsList.indexOf(b); if (idxA === -1) idxA = 9999; if (idxB === -1) idxB = 9999; if (idxA !== idxB) return idxA - idxB; return a.localeCompare(b, 'ko'); }); }
@@ -634,11 +648,12 @@
       filterClasses(prefix, forceReset);
     }
 
-    // 반명 선택 시, 성적이 입력된 이력이 있으면 옵션을 녹색 표시
+    // 🟢 반명 선택 로직 (성적 입력된 이력이 있으면 녹색 + 굵게 표시)
     function filterClasses(prefix, forceReset = false) {
       const tt = getTermAndTest(prefix); const term = tt.term; const test = tt.test; const campus = document.getElementById(`${prefix}Campus`)?.value; const teacher = document.getElementById(`${prefix}Teacher`)?.value; const sel = document.getElementById(`${prefix}Class`); if(!sel) return; 
       const prevVal = forceReset ? "" : sel.value; sel.innerHTML = `<option value="" disabled selected hidden>반 선택</option>`;
       
+      let hasSelectedGrade = false;
       if(term && test && campus && teacher) { 
           let classes = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus && r.teacher === teacher).map(r => r.className))].sort(); 
           classes.forEach(c => {
@@ -649,16 +664,54 @@
               let color = hasGrade ? "#28a745" : "#333";
               let fw = hasGrade ? "bold" : "normal";
               sel.innerHTML += `<option value="${c}" style="color:${color}; font-weight:${fw};">${c}</option>`;
+              
+              if (prevVal === c && hasGrade) {
+                  hasSelectedGrade = true;
+              }
           });
       }
-      if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal; else sel.value = "";
+      
+      if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) {
+          sel.value = prevVal;
+      } else {
+          sel.value = "";
+          hasSelectedGrade = false;
+      }
+      
+      // select 태그 자체 스타일 업데이트
+      sel.style.color = hasSelectedGrade ? "#28a745" : "#333";
+      sel.style.fontWeight = hasSelectedGrade ? "bold" : "normal";
       
       if (prefix === 'main') {
           updateCourseColors();
       }
     }
 
-    // 과정명 색상 업데이트 (선택된 반에 해당 과정 성적 입력 이력이 있으면 파란색)
+    // 🟢 반명 변경 시 select 태그 자체 색상 업데이트
+    function updateClassColors() {
+        const tt = getTermAndTest('main'); const term = tt.term; const test = tt.test;
+        const campus = document.getElementById('mainCampus')?.value;
+        const teacher = document.getElementById('mainTeacher')?.value;
+        const classSel = document.getElementById('mainClass');
+        
+        if(!classSel) return;
+        let hasSelectedGrade = false;
+        Array.from(classSel.options).forEach(opt => {
+            if(opt.value && opt.value !== "") {
+                let hasGrade = false;
+                if (globalData.gradeRecords) {
+                    hasGrade = globalData.gradeRecords.some(g => g.term===term && g.test===test && g.campus===campus && g.teacher===teacher && g.className===opt.value);
+                }
+                opt.style.color = hasGrade ? "#28a745" : "#333";
+                opt.style.fontWeight = hasGrade ? "bold" : "normal";
+                if (opt.selected && hasGrade) hasSelectedGrade = true;
+            }
+        });
+        classSel.style.color = hasSelectedGrade ? "#28a745" : "#333";
+        classSel.style.fontWeight = hasSelectedGrade ? "bold" : "normal";
+    }
+
+    // 🟢 과정명 변경 시 select 태그 자체 색상 업데이트
     function updateCourseColors() {
         const tt = getTermAndTest('main'); const term = tt.term; const test = tt.test;
         const campus = document.getElementById('mainCampus')?.value;
@@ -667,6 +720,7 @@
         const courseSel = document.getElementById('mainCourse');
 
         if(!courseSel) return;
+        let hasSelectedGrade = false;
         Array.from(courseSel.options).forEach(opt => {
             if(opt.value && opt.value !== "전체" && opt.value !== "") {
                 let hasGrade = false;
@@ -675,9 +729,15 @@
                 }
                 opt.style.color = hasGrade ? "#1366ce" : "#333";
                 opt.style.fontWeight = hasGrade ? "bold" : "normal";
+                
+                if (opt.selected && hasGrade) hasSelectedGrade = true;
             }
         });
+        
+        courseSel.style.color = hasSelectedGrade ? "#1366ce" : "#333";
+        courseSel.style.fontWeight = hasSelectedGrade ? "bold" : "normal";
     }
+
 
     function renderSetupTable() {
       const startNum = parseInt(document.getElementById('setupStartNum').value) || 1; const endNum = parseInt(document.getElementById('setupEndNum').value) || 45; const totalCount = endNum - startNum + 1; const tbody = document.getElementById('setupTableBody');
