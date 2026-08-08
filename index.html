@@ -950,7 +950,7 @@
       filterClasses(prefix, forceReset);
     }
 
-    // 👇 변경점: 반명 옵션 리스트 렌더링 시 ✔ 특수문자 부착 👇
+    // 반명 옵션 리스트 렌더링 시 ✔ 특수문자 부착 (기본 normal 폰트)
     function filterClasses(prefix, forceReset = false) {
       const tt = getTermAndTest(prefix); const term = tt.term; const test = tt.test; const campus = document.getElementById(`${prefix}Campus`)?.value; const teacher = document.getElementById(`${prefix}Teacher`)?.value; const sel = document.getElementById(`${prefix}Class`); if(!sel) return; 
       const prevVal = forceReset ? "" : sel.value; sel.innerHTML = `<option value="" disabled selected hidden>반 선택</option>`;
@@ -962,9 +962,8 @@
               if (globalData.gradeRecords) {
                   hasGrade = globalData.gradeRecords.some(g => g.term===term && g.test===test && g.campus===campus && g.teacher===teacher && g.className===c);
               }
-              // 옵션의 'value' 속성은 오직 반 이름만 들어가도록 유지하고, 'text' 부분만 ✔를 추가합니다.
               let displayText = hasGrade ? `${c} ✔` : c;
-              sel.innerHTML += `<option value="${c}" style="font-weight:${hasGrade?'bold':'normal'};">${displayText}</option>`;
+              sel.innerHTML += `<option value="${c}" style="color:#333; font-weight:normal;">${displayText}</option>`;
           });
       }
       
@@ -975,7 +974,7 @@
       }
     }
 
-    // 👇 변경점: select 태그 및 과정명 옵션 리스트 렌더링 시 ✔ 특수문자 부착 👇
+    // 반명 및 과정명 목록 검사 및 ✔ 특수문자 부착 (볼드 제거, 원래 normal 폰트 유지)
     function syncMainDropdownColors() {
         if (!globalData.gradeRecords) return;
         const tt = getTermAndTest('main');
@@ -986,8 +985,7 @@
         const classSel = document.getElementById('mainClass');
         const courseSel = document.getElementById('mainCourse');
 
-        // 1. 반(Class) 목록 검사 및 스타일링 (선택 시 겉면 박스 글씨 굵기 유지)
-        let hasSelectedClassGrade = false;
+        // 1. 반(Class) 목록 검사 및 ✔ 표시 (폰트 굵기는 기본 normal 유지)
         if (classSel) {
             Array.from(classSel.options).forEach(opt => {
                 if (opt.value && opt.value !== "") {
@@ -997,17 +995,14 @@
                         g.className === opt.value
                     );
                     opt.text = hasGrade ? `${opt.value} ✔` : opt.value;
-                    opt.style.fontWeight = hasGrade ? "bold" : "normal";
-                    if (opt.selected && hasGrade) hasSelectedClassGrade = true;
+                    opt.style.fontWeight = "normal";
                 }
             });
-            // select 태그 겉면은 볼드 처리만 적용하고 색상은 기본 유지
-            classSel.style.fontWeight = hasSelectedClassGrade ? "bold" : "normal";
+            classSel.style.fontWeight = "normal";
         }
 
-        // 2. 과정(Course) 목록 검사 및 스타일링
+        // 2. 과정(Course) 목록 검사 및 ✔ 표시 (폰트 굵기는 기본 normal 유지)
         const selectedClass = classSel?.value;
-        let hasSelectedCourseGrade = false;
         if (courseSel) {
             Array.from(courseSel.options).forEach(opt => {
                 if (opt.value && opt.value !== "전체" && opt.value !== "") {
@@ -1020,11 +1015,10 @@
                         );
                     }
                     opt.text = hasGrade ? `${opt.value} ✔` : opt.value;
-                    opt.style.fontWeight = hasGrade ? "bold" : "normal";
-                    if (opt.selected && hasGrade) hasSelectedCourseGrade = true;
+                    opt.style.fontWeight = "normal";
                 }
             });
-            courseSel.style.fontWeight = hasSelectedCourseGrade ? "bold" : "normal";
+            courseSel.style.fontWeight = "normal";
         }
     }
 
@@ -1576,7 +1570,7 @@
     function executeBackupTerms(terms) { showLoading(true, "구글 드라이브 새 파일로 백업 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'backupTermData', terms: terms }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success) { askDeleteAfterBackup(terms); } else { showAlert(res.error); document.getElementById('backupModal').style.display = 'flex'; } }).catch(handleError); }
     function askDeleteAfterBackup(terms) { showConfirmModal(`해당 학기 데이터가 백업 되었습니다.<br>해당 데이터를 삭제할까요?<br><span style="color:#28a745; font-size:13px;"><b>[백업 완료 학기]</b><br><b>${terms.join("<br>")}</b></span>`, function() { executeDeleteTerms(terms); }, function() { showSuccessAlert("백업만 완료되었으며, 원본 시트는 삭제되지 않고 유지됩니다."); }); }
     function executeDeleteTerms(terms) { showLoading(true, "원본 학기 시트 삭제 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'deleteTermSheets', terms: terms }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success) { showSuccessAlert("백업 및 원본 시트 삭제가 안전하게 완료되었습니다."); fetchMetadata(true, true); } else { showAlert(res.error); } }).catch(handleError); }
-    function downloadTermExcel(termName) { showLoading(true, `[${termName}] 명단 및 성적DB 데이터 조회 중...`); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getTermExcelData', term: termName }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success && res.data) { const wb = XLSX.utils.book_new(); if (res.data.rosterData && res.data.rosterData.length > 0) { const wsRoster = XLSX.utils.aoa_to_sheet(res.data.rosterData); XLSX.utils.book_append_sheet(wb, wsRoster, termName + "_명단"); } else { const wsEmpty = XLSX.utils.aoa_to_sheet([["해당 학기의 명단 데이터가 없습니다."]]); XLSX.utils.book_append_sheet(wb, wsEmpty, termName + "_명단"); } if (res.data.dbData && res.data.dbData.length > 0) { const wsDb = XLSX.utils.aoa_to_sheet(res.data.dbData); XLSX.utils.book_append_sheet(wb, wsDb, termName + "_성적DB"); } else { const wsEmpty = XLSX.utils.aoa_to_sheet([["해당 학기의 성적DB 데이터가 없습니다."]]); XLSX.utils.book_append_sheet(wb, wsEmpty, termName + "_성적DB"); } XLSX.writeFile(wb, `${termName}_데이터.xlsx`); showSuccessAlert(`[${termName}] 명단 및 성적DB 엑셀 다운로드가 완료되었습니다.`); } else { showAlert(res.error || "엑셀 데이터를 불러오지 못했습니다."); } }).catch(handleError); }
+    function downloadTermExcel(termName) { showLoading(true, `[${termName}] 명단 및 성적DB 데이터 조회 중...`); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getTermExcelData', term: termName }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success && res.data) { const wb = XLSX.utils.book_new(); if (res.data.rosterData && res.data.rosterData.length > 0) { const wsRoster = XLSX.utils.aoa_to_sheet(res.data.rosterData); XLSX.utils.book_append_sheet(wb, wsRoster, termName + "_명단"); } else { const wsEmpty = XLSX.utils.aoa_to_sheet([["해당 학기의 명단 데이터가 없습니다."]]); XLSX.utils.book_append_sheet(wb, wsEmpty, termName + "_명단"); } if (res.data.dbData && res.data.dbData.length > 0) { const wsDb = XLSX.utils.aoa_to_sheet(res.data.dbData); XLSX.utils.book_append_sheet(wb, wsDb, termName + "_성적DB"); } else { const wsEmpty = XLSX.utils.aoa_to_sheet([["해당 학기의 성적DB 데이터가 없습니다."]]); XLSX.utils.book_append_sheet(wb, wsDb, termName + "_성적DB"); } XLSX.writeFile(wb, `${termName}_데이터.xlsx`); showSuccessAlert(`[${termName}] 명단 및 성적DB 엑셀 다운로드가 완료되었습니다.`); } else { showAlert(res.error || "엑셀 데이터를 불러오지 못했습니다."); } }).catch(handleError); }
 
     function generateDashboard() {
       const tt = getTermAndTest('main'); const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value; if (!term || !test || !campus || !course) return showAlert("[테스트, 과정, 캠퍼스]를 모두 선택해주세요."); showLoading(true, "분석 중...");
