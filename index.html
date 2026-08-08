@@ -831,6 +831,7 @@
       document.getElementById(`actionBtn_${navId}`).style.display = 'flex'; document.getElementById(`view_${navId}`).style.display = 'flex';
       if (navId === 'data') { document.getElementById('mainTeacherGroup').style.display = 'none'; document.getElementById('mainClassGroup').style.display = 'none'; } else { document.getElementById('mainTeacherGroup').style.display = 'flex'; document.getElementById('mainClassGroup').style.display = 'flex'; }
       filterCourses('main');
+      syncMainDropdownColors();
     }
 
     function switchPage(pageId) { document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active')); document.getElementById(pageId).classList.add('active'); const adminBtn = document.getElementById('headerAdminBtn'), mainBtn = document.getElementById('headerMainBtn'), headerTitle = document.getElementById('mainHeaderTitle'), navTabs = document.getElementById('navTabs'); if (pageId === 'page-main') { adminBtn.style.display = 'flex'; mainBtn.style.display = 'none'; navTabs.style.display = 'flex'; headerTitle.innerHTML = `<img src="https://i.imgur.com/PQRrCSI.png" alt="로고"> 성적표 통합 시스템`; } else { adminBtn.style.display = 'none'; mainBtn.style.display = 'flex'; navTabs.style.display = 'none'; headerTitle.innerHTML = `<img src="https://i.imgur.com/PQRrCSI.png" alt="로고"> 시험 기본 세팅 (관리자)`; renderSetupStatusTable(); } }
@@ -974,7 +975,7 @@
       }
     }
 
-    // 반명 및 과정명 목록 검사 및 ✔ 특수문자 부착 (볼드 제거, 원래 normal 폰트 유지)
+    // 반명 및 과정명 목록 검사 및 ✔ 특수문자 부착 (성적 분석 탭에서는 과정명에 ✔ 미부착)
     function syncMainDropdownColors() {
         if (!globalData.gradeRecords) return;
         const tt = getTermAndTest('main');
@@ -984,6 +985,7 @@
         
         const classSel = document.getElementById('mainClass');
         const courseSel = document.getElementById('mainCourse');
+        const isDataTab = (document.getElementById('view_data')?.style.display === 'flex');
 
         // 1. 반(Class) 목록 검사 및 ✔ 표시 (폰트 굵기는 기본 normal 유지)
         if (classSel) {
@@ -1001,20 +1003,29 @@
             classSel.style.fontWeight = "normal";
         }
 
-        // 2. 과정(Course) 목록 검사 및 ✔ 표시 (폰트 굵기는 기본 normal 유지)
+        // 2. 과정(Course) 목록 검사 (성적 분석 탭에서는 체크표시 안 나오게 처리)
         const selectedClass = classSel?.value;
         if (courseSel) {
             Array.from(courseSel.options).forEach(opt => {
                 if (opt.value && opt.value !== "전체" && opt.value !== "") {
                     let hasGrade = false;
-                    if (selectedClass) { 
-                        hasGrade = globalData.gradeRecords.some(g => 
-                            g.term === term && g.test === test && 
-                            g.campus === campus && g.teacher === teacher && 
-                            g.className === selectedClass && g.course === opt.value
-                        );
+                    if (!isDataTab) {
+                        if (selectedClass) { 
+                            hasGrade = globalData.gradeRecords.some(g => 
+                                g.term === term && g.test === test && 
+                                g.campus === campus && g.teacher === teacher && 
+                                g.className === selectedClass && g.course === opt.value
+                            );
+                        } else {
+                            hasGrade = globalData.gradeRecords.some(g => 
+                                g.term === term && g.test === test && 
+                                (campus ? g.campus === campus : true) && 
+                                (teacher ? g.teacher === teacher : true) && 
+                                g.course === opt.value
+                            );
+                        }
                     }
-                    opt.text = hasGrade ? `${opt.value} ✔` : opt.value;
+                    opt.text = (!isDataTab && hasGrade) ? `${opt.value} ✔` : opt.value;
                     opt.style.fontWeight = "normal";
                 }
             });
@@ -1538,7 +1549,7 @@
         let unitAvgs = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.avg}</td>`).join(''); let unitPcts = unitsDataPadded.map(u => `<td>${u.max === 0 ? '-' : u.avgPct + '%'}</td>`).join(''); 
         let activeDiffs = st.diffsData.filter(d => d.max > 0); let diffsDataPadded = [...activeDiffs]; while (diffsDataPadded.length < 4) { diffsDataPadded.push({ name: '-', max: 0, score: 0, avg: 0, pct: 0, avgPct: 0 }); } diffsDataPadded = diffsDataPadded.slice(0, 4);
         let diffCols = diffsDataPadded.map(d => `<th style="width:${100/diffsDataPadded.length}%;">${d.max === 0 ? '-' : d.name}</th>`).join(''); let diffMaxs = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.max}</td>`).join('');
-        let diffScores = diffsDataPadded.map(d => { if (d.max === 0) return `<td>-</td>`; let intAvg = Math.floor(d.avg); let diffIcon = '', color = '#111827'; if (d.score > intAvg) { diffIcon = '▲'; color = '#3b82f6'; } else if (u.score === intAvg) { diffIcon = ''; color = '#3b82f6'; } else { diffIcon = '▼'; color = '#ef4444'; } return `<td style="position:relative; color:${color}; font-weight:800;"><span style="display:block; text-align:center;">${d.score}</span>${diffIcon ? `<span style="position:absolute; right:4px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span>` : ''}</td>`; }).join('');
+        let diffScores = diffsDataPadded.map(d => { if (d.max === 0) return `<td>-</td>`; let intAvg = Math.floor(d.avg); let diffIcon = '', color = '#111827'; if (d.score > intAvg) { diffIcon = '▲'; color = '#3b82f6'; } else if (d.score === intAvg) { diffIcon = ''; color = '#3b82f6'; } else { diffIcon = '▼'; color = '#ef4444'; } return `<td style="position:relative; color:${color}; font-weight:800;"><span style="display:block; text-align:center;">${d.score}</span>${diffIcon ? `<span style="position:absolute; right:4px; top:50%; transform:translateY(-50%); font-size:10px;">${diffIcon}</span>` : ''}</td>`; }).join('');
         let diffAvgs = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.avg}</td>`).join(''); let diffPcts = diffsDataPadded.map(d => `<td>${d.max === 0 ? '-' : d.avgPct + '%'}</td>`).join('');
         let unitLabels = unitsDataPadded.map(u => { if (u.max === 0) return '-'; let str = String(u.name); if (str.length > 6) { let mid = Math.ceil(str.length / 2); return [str.slice(0, mid), str.slice(mid)]; } return str; });
         let unitMyData = unitsDataPadded.map(u => u.max === 0 ? null : u.pct); let unitAvgData = unitsDataPadded.map(u => u.max === 0 ? null : u.avgPct);
