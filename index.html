@@ -280,6 +280,37 @@
     .batch-row-disabled td { color: #adb5bd !important; background-color: #f8f9fa !important; }
     .batch-row-disabled select, .batch-row-disabled input[type="number"] { background-color: #e9ecef !important; color: #adb5bd !important; border-color: #e9ecef !important; }
 
+    /* 추가된 전광판 CSS */
+    .admin-marquee-wrapper {
+      position: relative;
+      width: 100%;
+      height: 20px;
+      overflow: hidden;
+      margin-top: 10px;
+      margin-bottom: 5px;
+      flex-shrink: 0;
+      background-color: transparent;
+      border: none;
+      display: flex;
+      align-items: center;
+    }
+    .admin-marquee-text {
+      position: absolute;
+      white-space: nowrap;
+      color: #555;
+      font-size: 13px;
+      font-weight: 700;
+      animation: adminMarqueeFlow 30s linear infinite;
+      left: 100%;
+    }
+    /* 30초 중 25초간 흐르고, 5초간 대기 */
+    @keyframes adminMarqueeFlow {
+      0% { left: 100%; transform: translateX(0); opacity: 1; }
+      83.33% { left: 0; transform: translateX(-100%); opacity: 1; }
+      83.34% { left: 100%; transform: translateX(0); opacity: 0; }
+      100% { left: 100%; transform: translateX(0); opacity: 0; }
+    }
+
     @media print {
       body * { visibility: hidden; }
       html, body { overflow: visible !important; height: auto !important; background: #fff !important; }
@@ -742,7 +773,13 @@
         </div>
       </div>
 
-      <div style="position: fixed; bottom: 35px; left: 40px; z-index: 150;">
+      <!-- 🟢 추가된 전광판 영역 -->
+      <div class="admin-marquee-wrapper">
+        <span class="admin-marquee-text">※ 기존에 입력된 단원명 및 배점을 수정할 경우, 성적이 입력된 반(및 학생)은 다시 한 번 저장을 해야 수정 사항이 적용됩니다.</span>
+      </div>
+
+      <!-- 다운로드 버튼 위치 bottom: 55px 로 상향 조정 -->
+      <div style="position: fixed; bottom: 55px; left: 40px; z-index: 150;">
         <button class="btn-download-tool" onclick="window.open('https://drive.google.com/file/d/1_g1GWVlzgPYA8oMHs4XwpSMAgitWZxYy/view?usp=sharing', '_blank')">
           <span class="btn-icon-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -1536,7 +1573,7 @@
       showLoading(true, "성적 분석 및 렌더링 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getReportData', term, test, campus, course, teacher, className }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success) { document.getElementById('reportEmptyState').style.display = 'none'; document.getElementById('reportContainer').style.display = 'flex'; renderReportCards(res.data.examInfo, res.data.students); } else { showAlert(res.error); } }).catch(handleError);
     }
 
-    // 💡 (수정됨) 동일과정 상위 % 계산 로직 변경: (Rank - 1) / Total * 100
+    // 💡 (수정됨) 동일과정 상위 % 계산 로직: 1등 파란색 100%, 꼴등 파란색 0%
     function renderReportCards(examInfo, students) {
       chartInstances.forEach(chart => chart.destroy()); chartInstances = []; const container = document.getElementById('reportContainer'); container.innerHTML = '';
       if(students.length === 0) { container.innerHTML = '<h3 style="text-align:center; color:#ef4444; padding:40px;">데이터가 없습니다.</h3>'; return; }
@@ -1558,9 +1595,18 @@
         let diffMyData = diffsDataPadded.map(d => d.max === 0 ? null : d.pct); let diffAvgData = diffsDataPadded.map(d => d.max === 0 ? null : d.avgPct);
         
         // --- 수정된 '동일과정 상위 %' 로직 ---
-        let calcTopPct = examInfo.totalCount > 0 ? Math.round(((st.rank - 1) / examInfo.totalCount) * 100) : 100;
+        // 텍스트 비율: (등수 - 1) / (전체인원 - 1) * 100 
+        // 전체 인원이 1명일 때는 예외로 1% 처리
+        let calcTopPct = 100;
+        if (examInfo.totalCount > 1) {
+            calcTopPct = Math.round(((st.rank - 1) / (examInfo.totalCount - 1)) * 100);
+        } else if (examInfo.totalCount === 1) {
+            calcTopPct = 0;
+        }
         calcTopPct = Math.max(1, calcTopPct); // 0%가 나오면 최소 1%로 보정
-        let bluePct = 100 - calcTopPct; 
+        
+        // 도넛 그래프 파란색 채우기 로직 (1등 = 100%, 꼴등 = 0%)
+        let bluePct = examInfo.totalCount > 1 ? Math.round(((examInfo.totalCount - st.rank) / (examInfo.totalCount - 1)) * 100) : 100;
         let startAngle = 360 - (bluePct * 3.6);
         // ----------------------------------
 
@@ -1573,7 +1619,9 @@
           let chartOpts = { responsive: true, maintainAspectRatio: false, animation: false, events: [], layout: { padding: { top: 15, bottom: 0, left: 0, right: 0 } }, scales: { x: { ticks: { display: true, font: { family: 'Pretendard', size: 10 }, color: '#475569', maxRotation: 0, minRotation: 0 }, grid: { display: false, drawBorder: false } }, y: { beginAtZero: true, max: 100, ticks: { stepSize: 10, color: '#6b7280', font: { family: 'Pretendard' } }, border: { display: false }, grid: { color: '#f3f4f6' }, afterFit: function(scale) { scale.width = 55; } } }, plugins: { legend: { display: false } } };
           chartInstances.push(new Chart(document.getElementById(`chart_unit_${idx}`).getContext('2d'), { type: 'bar', data: { labels: unitLabels, datasets: [{ label: st.name, data: unitMyData, backgroundColor: '#3b82f6', barPercentage: 0.5, borderRadius: 4 }, { label: '전체평균', data: unitAvgData, backgroundColor: '#d1d5db', barPercentage: 0.5, borderRadius: 4 }]}, options: chartOpts }));
           chartInstances.push(new Chart(document.getElementById(`chart_diff_${idx}`).getContext('2d'), { type: 'bar', data: { labels: diffLabels, datasets: [{ label: st.name, data: diffMyData, backgroundColor: '#10b981', barPercentage: 0.5, borderRadius: 4 }, { label: '전체평균', data: diffAvgData, backgroundColor: '#d1d5db', barPercentage: 0.5, borderRadius: 4 }]}, options: chartOpts }));
-          chartInstances.push(new Chart(document.getElementById(`chart_doughnut_${idx}`).getContext('2d'), { type: 'doughnut', data: { labels: ['내 비율', '나머지'], datasets: [{ data: [bluePct, calcTopPct], backgroundColor: ['#3b82f6', '#d1d5db'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, animation: false, events: [], cutout: '65%', rotation: startAngle, plugins: { legend: { display: false }, tooltip: { enabled: false } } } }));
+          
+          // 파란색 비율과 나머지(회색) 비율을 정확히 합이 100이 되도록 차트에 전달
+          chartInstances.push(new Chart(document.getElementById(`chart_doughnut_${idx}`).getContext('2d'), { type: 'doughnut', data: { labels: ['내 비율', '나머지'], datasets: [{ data: [bluePct, 100 - bluePct], backgroundColor: ['#3b82f6', '#d1d5db'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, animation: false, events: [], cutout: '65%', rotation: startAngle, plugins: { legend: { display: false }, tooltip: { enabled: false } } } }));
         }, 100);
       });
       const batchBtnWrap = document.getElementById('reportBatchSaveWrap'); if (batchBtnWrap) batchBtnWrap.style.display = 'block';
@@ -1589,7 +1637,6 @@
     function askDeleteAfterBackup(terms) { showConfirmModal(`해당 학기 데이터가 백업 되었습니다.<br>해당 데이터를 삭제할까요?<br><span style="color:#28a745; font-size:13px;"><b>[백업 완료 학기]</b><br><b>${terms.join("<br>")}</b></span>`, function() { executeDeleteTerms(terms); }, function() { showSuccessAlert("백업만 완료되었으며, 원본 시트는 삭제되지 않고 유지됩니다."); }); }
     function executeDeleteTerms(terms) { showLoading(true, "원본 학기 시트 삭제 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'deleteTermSheets', terms: terms }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success) { showSuccessAlert("백업 및 원본 시트 삭제가 안전하게 완료되었습니다."); fetchMetadata(true, true); } else { showAlert(res.error); } }).catch(handleError); }
     
-    // 💡 (수정됨) 엑셀 다운로드 시 'xlsx-js-style' 라이브러리를 활용해 폰트 크기 11 일괄 적용
     function downloadTermExcel(termName) { 
         showLoading(true, `[${termName}] 명단, 성적DB, 시험세팅 데이터 조회 중...`); 
         fetch(document.getElementById('backendUrl').value.trim(), { 
@@ -1600,7 +1647,6 @@
             if (res.success && res.data) { 
                 const wb = XLSX.utils.book_new(); 
                 
-                // 엑셀 스타일 일괄 적용 헬퍼 (폰트 사이즈 11)
                 const applyStyle = (ws) => {
                     for (let cell in ws) {
                         if (cell[0] === '!') continue;
@@ -1613,7 +1659,6 @@
                     return ws;
                 };
 
-                // 1. 명단 시트 추가
                 if (res.data.rosterData && res.data.rosterData.length > 0) { 
                     const wsRoster = XLSX.utils.aoa_to_sheet(res.data.rosterData); 
                     XLSX.utils.book_append_sheet(wb, applyStyle(wsRoster), termName + "_명단"); 
@@ -1622,7 +1667,6 @@
                     XLSX.utils.book_append_sheet(wb, applyStyle(wsEmpty), termName + "_명단"); 
                 } 
                 
-                // 2. 성적DB 시트 추가
                 if (res.data.dbData && res.data.dbData.length > 0) { 
                     const wsDb = XLSX.utils.aoa_to_sheet(res.data.dbData); 
                     XLSX.utils.book_append_sheet(wb, applyStyle(wsDb), termName + "_성적DB"); 
@@ -1631,7 +1675,6 @@
                     XLSX.utils.book_append_sheet(wb, applyStyle(wsEmpty), termName + "_성적DB"); 
                 } 
                 
-                // 3. 시험세팅 시트 추가
                 if (res.data.setupData && res.data.setupData.length > 0) {
                     const wsSetup = XLSX.utils.aoa_to_sheet(res.data.setupData);
                     XLSX.utils.book_append_sheet(wb, applyStyle(wsSetup), termName + "_시험세팅");
