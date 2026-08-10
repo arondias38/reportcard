@@ -926,6 +926,159 @@
       }; reader.readAsArrayBuffer(file);
     }
 
+    function filterCourses(prefix, forceReset = false) {
+      const tt = getTermAndTest(prefix); const term = tt.term; const test = tt.test; const sel = document.getElementById(`${prefix}Course`); if(!sel) return;
+      const prevVal = forceReset ? "" : sel.value; const isDataMode = (document.getElementById('view_data')?.style.display === 'flex');
+      let optionsHtml = isDataMode ? '<option value="전체" style="color:#333;">전체 (All)</option>' : '<option value="" disabled selected hidden>과정 선택</option>';
+      if(term && test) { let courses = [...new Set(globalData.setups.filter(s => s.term === term && s.test === test).map(s => s.course))]; courses = sortCombinedCourses(courses, globalData.settings.levels, globalData.settings.courses); courses.forEach(c => optionsHtml += `<option value="${c}" style="color:#333;">${c}</option>`); }
+      sel.innerHTML = optionsHtml; if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal; else sel.value = isDataMode ? "전체" : "";
+      filterCampuses(prefix, forceReset);
+    }
+    
+    function filterCampuses(prefix, forceReset = false) {
+      const tt = getTermAndTest(prefix); const term = tt.term; const test = tt.test; const sel = document.getElementById(`${prefix}Campus`); if(!sel) return;
+      const prevVal = forceReset ? "" : sel.value; const isDataMode = (document.getElementById('view_data')?.style.display === 'flex');
+      let optionsHtml = isDataMode ? '<option value="전체" style="color:#333;">전체 (All)</option>' : '<option value="" disabled selected hidden>캠퍼스 선택</option>';
+      if(term && test) { let campuses = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test).map(r => r.campus))]; campuses = sortBySettingsOrder(campuses, globalData.settings.campuses); campuses.forEach(c => optionsHtml += `<option value="${c}" style="color:#333;">${c}</option>`); }
+      sel.innerHTML = optionsHtml; if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal; else sel.value = isDataMode ? "전체" : "";
+      filterTeachers(prefix, forceReset);
+    }
+
+    function filterTeachers(prefix, forceReset = false) {
+      const tt = getTermAndTest(prefix); const term = tt.term; const test = tt.test; const campus = document.getElementById(`${prefix}Campus`)?.value; const sel = document.getElementById(`${prefix}Teacher`); if(!sel) return; 
+      const prevVal = forceReset ? "" : sel.value; sel.innerHTML = `<option value="" disabled selected hidden>선생님 선택</option>`;
+      if(term && test && campus && campus !== "전체") { let teachers = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus).map(r => r.teacher))].sort((a, b) => a.localeCompare(b, 'ko')); teachers.forEach(t => sel.innerHTML += `<option value="${t}" style="color:#333;">${t}</option>`); }
+      if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal; else sel.value = "";
+      filterClasses(prefix, forceReset);
+    }
+
+    // 반명 옵션 리스트 렌더링 시 ✔ 특수문자 부착 (기본 normal 폰트)
+    function filterClasses(prefix, forceReset = false) {
+      const tt = getTermAndTest(prefix); const term = tt.term; const test = tt.test; const campus = document.getElementById(`${prefix}Campus`)?.value; const teacher = document.getElementById(`${prefix}Teacher`)?.value; const sel = document.getElementById(`${prefix}Class`); if(!sel) return; 
+      const prevVal = forceReset ? "" : sel.value; sel.innerHTML = `<option value="" disabled selected hidden>반 선택</option>`;
+      
+      if(term && test && campus && teacher) { 
+          let classes = [...new Set(globalData.rosters.filter(r => r.term === term && r.test === test && r.campus === campus && r.teacher === teacher).map(r => r.className))].sort(); 
+          classes.forEach(c => {
+              let hasGrade = false;
+              if (globalData.gradeRecords) {
+                  hasGrade = globalData.gradeRecords.some(g => g.term===term && g.test===test && g.campus===campus && g.teacher===teacher && g.className===c);
+              }
+              let displayText = hasGrade ? `${c} ✔` : c;
+              sel.innerHTML += `<option value="${c}" style="color:#333; font-weight:normal;">${displayText}</option>`;
+          });
+      }
+      
+      if (prevVal && sel.querySelector(`option[value="${prevVal}"]`)) sel.value = prevVal; else sel.value = "";
+      
+      if (prefix === 'main') {
+          syncMainDropdownColors();
+      }
+    }
+
+    // 반명 및 과정명 목록 검사 및 ✔ 특수문자 부착 (성적 분석 탭에서는 과정명에 ✔ 미부착)
+    function syncMainDropdownColors() {
+        if (!globalData.gradeRecords) return;
+        const tt = getTermAndTest('main');
+        const term = tt.term, test = tt.test;
+        const campus = document.getElementById('mainCampus')?.value;
+        const teacher = document.getElementById('mainTeacher')?.value;
+        
+        const classSel = document.getElementById('mainClass');
+        const courseSel = document.getElementById('mainCourse');
+        const isDataTab = (document.getElementById('view_data')?.style.display === 'flex');
+
+        // 1. 반(Class) 목록 검사 및 ✔ 표시 (폰트 굵기는 기본 normal 유지)
+        if (classSel) {
+            Array.from(classSel.options).forEach(opt => {
+                if (opt.value && opt.value !== "") {
+                    let hasGrade = globalData.gradeRecords.some(g => 
+                        g.term === term && g.test === test && 
+                        g.campus === campus && g.teacher === teacher && 
+                        g.className === opt.value
+                    );
+                    opt.text = hasGrade ? `${opt.value} ✔` : opt.value;
+                    opt.style.fontWeight = "normal";
+                }
+            });
+            classSel.style.fontWeight = "normal";
+        }
+
+        // 2. 과정(Course) 목록 검사 (성적 분석 탭에서는 체크표시 안 나오게 처리)
+        const selectedClass = classSel?.value;
+        if (courseSel) {
+            Array.from(courseSel.options).forEach(opt => {
+                if (opt.value && opt.value !== "전체" && opt.value !== "") {
+                    let hasGrade = false;
+                    if (!isDataTab) {
+                        if (selectedClass) { 
+                            hasGrade = globalData.gradeRecords.some(g => 
+                                g.term === term && g.test === test && 
+                                g.campus === campus && g.teacher === teacher && 
+                                g.className === selectedClass && g.course === opt.value
+                            );
+                        } else {
+                            hasGrade = globalData.gradeRecords.some(g => 
+                                g.term === term && g.test === test && 
+                                (campus ? g.campus === campus : true) && 
+                                (teacher ? g.teacher === teacher : true) && 
+                                g.course === opt.value
+                            );
+                        }
+                    }
+                    opt.text = (!isDataTab && hasGrade) ? `${opt.value} ✔` : opt.value;
+                    opt.style.fontWeight = "normal";
+                }
+            });
+            courseSel.style.fontWeight = "normal";
+        }
+    }
+
+    function renderSetupTable() {
+      const startNum = parseInt(document.getElementById('setupStartNum').value) || 1; const endNum = parseInt(document.getElementById('setupEndNum').value) || 45; const totalCount = endNum - startNum + 1; const tbody = document.getElementById('setupTableBody');
+      let preservedData = {}; document.querySelectorAll('#setupTableBody tr').forEach(tr => { let td = tr.querySelector('td:first-child'); if (!td) return; let num = parseInt(td.innerText, 10); let unitInput = document.getElementById(`unit_${num}`); let scoreInput = document.getElementById(`score_${num}`); if (!isNaN(num) && unitInput && scoreInput) { preservedData[num] = { unit: unitInput.value, score: scoreInput.value }; } });
+      tbody.innerHTML = ''; if (totalCount < 1) return; 
+      for (let i = 0; i < totalCount; i++) { let qNum = startNum + i; let prevUnit = preservedData[qNum] ? preservedData[qNum].unit.replace(/"/g, '&quot;') : ''; let prevScore = preservedData[qNum] ? preservedData[qNum].score : ''; tbody.innerHTML += `<tr><td class="bg-gray" style="text-align:center; font-weight:bold;">${qNum}</td><td><input type="text" class="setup-input unit-input" id="unit_${qNum}" value="${prevUnit}"></td><td><input type="number" class="setup-input score-input" id="score_${qNum}" min="1" max="5" value="${prevScore}" oninput="updateDiff(${qNum})" placeholder=""></td><td><input type="text" class="setup-input diff-input" id="diff_${qNum}" readonly style="background-color:transparent; text-align:center; border:none; padding:0; color:#495057;"></td><td id="status_${qNum}" style="color:#adb5bd; text-align:center;">-</td></tr>`; }
+      for (let i = 0; i < totalCount; i++) { let qNum = startNum + i; if (preservedData[qNum]) { updateDiff(qNum); } }
+    }
+
+    function confirmClearSetup() { showConfirmModal("입력된 출제 단원명과 배점을 전체 삭제 하시겠습니까?", function() { clearAllSetupData(); }, function() {}); }
+    function clearAllSetupData() { document.querySelectorAll('#setupTableBody tr').forEach(tr => { let td = tr.querySelector('td:first-child'); if (!td) return; let qNum = parseInt(td.innerText, 10); let uInput = document.getElementById(`unit_${qNum}`); let sInput = document.getElementById(`score_${qNum}`); if (uInput) uInput.value = ''; if (sInput) sInput.value = ''; updateDiff(qNum); }); }
+    function updateDiff(qNum) { const scoreEl = document.getElementById(`score_${qNum}`); let score = scoreEl.value.replace(/[^1-5]/g, '').slice(0, 1); if (scoreEl.value !== score) scoreEl.value = score; const diffInput = document.getElementById(`diff_${qNum}`), statusCell = document.getElementById(`status_${qNum}`); let diff = ""; if (score == "1") diff = "최하"; else if (score == "2") diff = "하"; else if (score == "3") diff = "중"; else if (score == "4") diff = "상"; else if (score == "5") diff = "최상"; diffInput.value = diff; if (document.getElementById(`unit_${qNum}`).value.trim() && diff) { statusCell.innerHTML = "✔"; statusCell.style.color = "#28a745"; statusCell.style.fontWeight = "bold"; } else { statusCell.innerHTML = "-"; statusCell.style.color = "#adb5bd"; } }
+
+    const setupUploadZone = document.getElementById('setupUploadZone'); const setupFileInput = document.getElementById('setupFileInput');
+    setupUploadZone.addEventListener('click', () => setupFileInput.click()); 
+    setupUploadZone.addEventListener('dragover', (e) => { e.preventDefault(); setupUploadZone.style.backgroundColor = '#e6f0ff'; }); 
+    setupUploadZone.addEventListener('dragleave', (e) => { e.preventDefault(); setupUploadZone.style.backgroundColor = '#fff'; }); 
+    setupUploadZone.addEventListener('drop', (e) => { 
+      e.preventDefault(); setupUploadZone.style.backgroundColor = '#fff'; 
+      if (e.dataTransfer.files.length) handleSetupFiles(e.dataTransfer.files); 
+    }); 
+    setupFileInput.addEventListener('change', (e) => { 
+      if (e.target.files.length) {
+        handleSetupFiles(e.target.files); 
+        setupFileInput.value = ''; 
+      }
+    });
+
+    function handleSetupFiles(files) {
+      if (files.length === 1 && document.getElementById('setupLevel').value && document.getElementById('setupCourse').value) {
+        processSetupFile(files[0]); 
+      } else {
+        processBatchSetupFiles(files);
+      }
+    }
+
+    function decodeTextBuffer(buffer) { const uint8 = new Uint8Array(buffer); if (uint8.length >= 2 && uint8[0] === 0xFF && uint8[1] === 0xFE) { return new TextDecoder('utf-16le').decode(buffer); } if (uint8.length >= 2 && uint8[0] === 0xFE && uint8[1] === 0xFF) { return new TextDecoder('utf-16be').decode(buffer); } if (uint8.length >= 3 && uint8[0] === 0xEF && uint8[1] === 0xBB && uint8[2] === 0xBF) { return new TextDecoder('utf-8').decode(buffer); } try { return new TextDecoder('utf-8', { fatal: true }).decode(buffer); } catch (e) { return new TextDecoder('euc-kr').decode(buffer); } }
+    function parseQuestionNumber(rawStr) { const len = rawStr.length; if (len % 2 === 0 && len >= 2) { const half1 = rawStr.slice(0, len / 2); const half2 = rawStr.slice(len / 2); if (half1 === half2) { return parseInt(half1, 10); } } return parseInt(rawStr, 10); }
+
+    function processSetupFile(file) {
+      const ext = file.name.split('.').pop().toLowerCase(); showLoading(true, "출제표 파일 분석 중...");
+      if (ext === 'txt') { const reader = new FileReader(); reader.onload = function(e) { try { const textData = decodeTextBuffer(e.target.result); parseTxtSetupData(textData); showLoading(false); } catch(err) { showLoading(false); showAlert("🚫 TXT 분석 에러: " + err.message); } }; reader.readAsArrayBuffer(file); } 
+      else if (ext === 'xlsx' || ext === 'xls') { const reader = new FileReader(); reader.onload = function(e) { try { parseExcelSetupData(e.target.result); showLoading(false); } catch(err) { showLoading(false); showAlert("🚫 엑셀 분석 에러: " + err.message); } }; reader.readAsArrayBuffer(file); } 
+      else { showLoading(false); showAlert("지원하지 않는 파일 형식입니다. (.txt, .xlsx, .xls 파일만 가능합니다)"); }
+    }
+
     function parseTxtSetupData(textData) {
       const lines = textData.split(/\r?\n/).map(l => l.trim()).filter(l => l !== ''); const startNum = parseInt(document.getElementById('setupStartNum').value) || 1; const endNum = parseInt(document.getElementById('setupEndNum').value) || 45; let parsedCount = 0; let unitNameMap = {}; let modifiedList = [];
       for (let i = 0; i < lines.length; i++) { const qMatch = lines[i].match(/(?:문제|문항)\s*(\d+)/); if (qMatch) { let qNum = parseQuestionNumber(qMatch[1]); if (qNum >= startNum && qNum <= endNum) { let unitName = lines[i + 1] || ''; let scoreVal = lines[i + 2] || ''; if (!/^[1-5](?:점)?$/.test(scoreVal) && /^[1-5](?:점)?$/.test(lines[i + 3] || '')) { scoreVal = lines[i + 3]; } let scoreDigit = String(scoreVal).replace(/[^1-5]/g, '').slice(0, 1); let spaceless = unitName.replace(/\s+/g, ''); if (spaceless) { if (!unitNameMap[spaceless]) { unitNameMap[spaceless] = unitName; } else if (unitName !== unitNameMap[spaceless]) { modifiedList.push({ qNum: qNum, before: unitName, after: unitNameMap[spaceless] }); unitName = unitNameMap[spaceless]; } else { unitName = unitNameMap[spaceless]; } } const unitInput = document.getElementById(`unit_${qNum}`); const scoreInput = document.getElementById(`score_${qNum}`); if (unitInput && scoreInput && /^[1-5]$/.test(scoreDigit)) { unitInput.value = unitName; scoreInput.value = scoreDigit; updateDiff(qNum); parsedCount++; } } } }
