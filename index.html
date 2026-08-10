@@ -1581,7 +1581,52 @@
     function executeBackupTerms(terms) { showLoading(true, "구글 드라이브 새 파일로 백업 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'backupTermData', terms: terms }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success) { askDeleteAfterBackup(terms); } else { showAlert(res.error); document.getElementById('backupModal').style.display = 'flex'; } }).catch(handleError); }
     function askDeleteAfterBackup(terms) { showConfirmModal(`해당 학기 데이터가 백업 되었습니다.<br>해당 데이터를 삭제할까요?<br><span style="color:#28a745; font-size:13px;"><b>[백업 완료 학기]</b><br><b>${terms.join("<br>")}</b></span>`, function() { executeDeleteTerms(terms); }, function() { showSuccessAlert("백업만 완료되었으며, 원본 시트는 삭제되지 않고 유지됩니다."); }); }
     function executeDeleteTerms(terms) { showLoading(true, "원본 학기 시트 삭제 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'deleteTermSheets', terms: terms }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success) { showSuccessAlert("백업 및 원본 시트 삭제가 안전하게 완료되었습니다."); fetchMetadata(true, true); } else { showAlert(res.error); } }).catch(handleError); }
-    function downloadTermExcel(termName) { showLoading(true, `[${termName}] 명단 및 성적DB 데이터 조회 중...`); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getTermExcelData', term: termName }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success && res.data) { const wb = XLSX.utils.book_new(); if (res.data.rosterData && res.data.rosterData.length > 0) { const wsRoster = XLSX.utils.aoa_to_sheet(res.data.rosterData); XLSX.utils.book_append_sheet(wb, wsRoster, termName + "_명단"); } else { const wsEmpty = XLSX.utils.aoa_to_sheet([["해당 학기의 명단 데이터가 없습니다."]]); XLSX.utils.book_append_sheet(wb, wsEmpty, termName + "_명단"); } if (res.data.dbData && res.data.dbData.length > 0) { const wsDb = XLSX.utils.aoa_to_sheet(res.data.dbData); XLSX.utils.book_append_sheet(wb, wsDb, termName + "_성적DB"); } else { const wsEmpty = XLSX.utils.aoa_to_sheet([["해당 학기의 성적DB 데이터가 없습니다."]]); XLSX.utils.book_append_sheet(wb, wsDb, termName + "_성적DB"); } XLSX.writeFile(wb, `${termName}_데이터.xlsx`); showSuccessAlert(`[${termName}] 명단 및 성적DB 엑셀 다운로드가 완료되었습니다.`); } else { showAlert(res.error || "엑셀 데이터를 불러오지 못했습니다."); } }).catch(handleError); }
+    
+    // [수정됨] downloadTermExcel 함수: 성적DB, 명단에 이어 '시험세팅' 데이터도 엑셀에 새 탭으로 추가하도록 반영
+    function downloadTermExcel(termName) { 
+        showLoading(true, `[${termName}] 명단, 성적DB, 시험세팅 데이터 조회 중...`); 
+        fetch(document.getElementById('backendUrl').value.trim(), { 
+            method: 'POST', 
+            body: JSON.stringify({ action: 'getTermExcelData', term: termName }) 
+        }).then(res => res.json()).then(res => { 
+            showLoading(false); 
+            if (res.success && res.data) { 
+                const wb = XLSX.utils.book_new(); 
+                
+                // 1. 명단 시트 추가
+                if (res.data.rosterData && res.data.rosterData.length > 0) { 
+                    const wsRoster = XLSX.utils.aoa_to_sheet(res.data.rosterData); 
+                    XLSX.utils.book_append_sheet(wb, wsRoster, termName + "_명단"); 
+                } else { 
+                    const wsEmpty = XLSX.utils.aoa_to_sheet([["해당 학기의 명단 데이터가 없습니다."]]); 
+                    XLSX.utils.book_append_sheet(wb, wsEmpty, termName + "_명단"); 
+                } 
+                
+                // 2. 성적DB 시트 추가
+                if (res.data.dbData && res.data.dbData.length > 0) { 
+                    const wsDb = XLSX.utils.aoa_to_sheet(res.data.dbData); 
+                    XLSX.utils.book_append_sheet(wb, wsDb, termName + "_성적DB"); 
+                } else { 
+                    const wsEmpty = XLSX.utils.aoa_to_sheet([["해당 학기의 성적DB 데이터가 없습니다."]]); 
+                    XLSX.utils.book_append_sheet(wb, wsEmpty, termName + "_성적DB"); 
+                } 
+                
+                // 3. [추가됨] 시험세팅 시트 추가
+                if (res.data.setupData && res.data.setupData.length > 0) {
+                    const wsSetup = XLSX.utils.aoa_to_sheet(res.data.setupData);
+                    XLSX.utils.book_append_sheet(wb, wsSetup, termName + "_시험세팅");
+                } else {
+                    const wsEmpty = XLSX.utils.aoa_to_sheet([["해당 학기의 시험세팅 데이터가 없습니다."]]);
+                    XLSX.utils.book_append_sheet(wb, wsEmpty, termName + "_시험세팅");
+                }
+
+                XLSX.writeFile(wb, `${termName}_데이터.xlsx`); 
+                showSuccessAlert(`[${termName}] 명단, 성적DB, 시험세팅 엑셀 다운로드가 완료되었습니다.`); 
+            } else { 
+                showAlert(res.error || "엑셀 데이터를 불러오지 못했습니다."); 
+            } 
+        }).catch(handleError); 
+    }
 
     function generateDashboard() {
       const tt = getTermAndTest('main'); const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value; if (!term || !test || !campus || !course) return showAlert("[테스트, 과정, 캠퍼스]를 모두 선택해주세요."); showLoading(true, "분석 중...");
