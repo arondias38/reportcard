@@ -781,7 +781,7 @@
 
       <!-- 🟢 추가된 전광판 영역 -->
       <div class="admin-marquee-wrapper">
-        <span class="admin-marquee-text">※ 기존 저장된 단원명 및 배점을 수정할 경우, 성적이 입력된 반(및 학생)은 '다시 한 번 저장'을 해야 수정 사항이 적용됩니다.</span>
+        <span class="admin-marquee-text">※ 시험 세팅(단원명/배점)을 수정하여 저장할 경우, 해당 과정 성적이 입력된 전체 학생의 총점과 등수는 '자동으로 재계산'되어 업데이트됩니다</span>
       </div>
 
       <!-- 다운로드 버튼 위치 bottom: 52px 로 상향 조정 (입력내용삭제 버튼과 동일 선상) -->
@@ -1400,7 +1400,7 @@
       if (setupsPayload.length === 0) return;
 
       if (duplicateCourses.length > 0) {
-        showConfirmModal(`다음 과정들의 시험 세팅이 이미 존재합니다.<br><b>[${duplicateCourses.join(", ")}]</b><br>덮어쓰시겠습니까?<br><span style="color:#dc3545; font-size:12px;">(저장 시 해당 과정 학생들의 성적/등수가 <b>자동으로 재계산</b>됩니다.)</span>`, function() { 
+        showConfirmModal(`다음 과정들의 시험 세팅이 이미 존재합니다.<br><b>[${duplicateCourses.join(", ")}]</b><br>덮어쓰시겠습니까?<br><br><span style="color:#dc3545; font-size:12px;">(저장 시 해당 과정 학생들의 성적/등수는 <b>자동으로 재계산</b>됩니다.)</span>`, function() { 
           performBatchSave(setupsPayload); 
         }, function(){});
       } else {
@@ -1443,7 +1443,7 @@
       let isDuplicate = globalData.setups && globalData.setups.some(s => s.term === term && s.test === test && s.course === (level + " " + course));
       
       if (isDuplicate) {
-        showConfirmModal(`[<b>${level} ${course}</b>] 과정의 시험 세팅이 이미 존재합니다.<br>덮어쓰시겠습니까?<br><span style="color:#dc3545; font-size:12px;">(저장 시, 이미 성적이 입력된 전체 학생의 총점 및 등수가 <b>자동으로 재계산</b>되어 업데이트됩니다.)</span>`, function() { 
+        showConfirmModal(`[<b>${level} ${course}</b>] 과정의 시험 세팅이 이미 존재합니다.<br>덮어쓰시겠습니까?<br><br><span style="color:#dc3545; font-size:12px;">(저장 시, 이미 성적이 입력된 전체 학생의 총점 및 등수는 <b>자동으로 재계산</b>되어 업데이트됩니다.)</span>`, function() { 
           executeSaveExamSetup(term, test, level, course, totalCount, startNum, items); 
         }, function(){});
       } else {
