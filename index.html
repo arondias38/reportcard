@@ -280,14 +280,14 @@
     .batch-row-disabled td { color: #adb5bd !important; background-color: #f8f9fa !important; }
     .batch-row-disabled select, .batch-row-disabled input[type="number"] { background-color: #e9ecef !important; color: #adb5bd !important; border-color: #e9ecef !important; }
 
-    /* 추가된 전광판 CSS */
+    /* 수정된 전광판 CSS */
     .admin-marquee-wrapper {
       position: relative;
       width: 100%;
-      height: 20px;
+      height: 22px; /* 폰트 14px에 맞춘 컴팩트한 높이 */
       overflow: hidden;
-      margin-top: 10px;
-      margin-bottom: 5px;
+      margin-top: 6px;   /* 상단 간격 조금 확보 */
+      margin-bottom: 0px; /* 하단 간격 완전히 없앰 */
       flex-shrink: 0;
       background-color: transparent;
       border: none;
@@ -297,17 +297,17 @@
     .admin-marquee-text {
       position: absolute;
       white-space: nowrap;
-      color: #555;
-      font-size: 13px;
+      color: #555;       /* 진한 회색 */
+      font-size: 14px;   /* 기존 13px에서 1포인트 키움 */
       font-weight: 700;
-      animation: adminMarqueeFlow 30s linear infinite;
+      animation: adminMarqueeFlow 40s linear infinite; /* 30초 -> 40초로 감속 (약 30% 느려짐) */
       left: 100%;
     }
-    /* 30초 중 25초간 흐르고, 5초간 대기 */
+    /* 40초 중 35초간 흐르고, 5초간 대기 (87.5% 비율) */
     @keyframes adminMarqueeFlow {
       0% { left: 100%; transform: translateX(0); opacity: 1; }
-      83.33% { left: 0; transform: translateX(-100%); opacity: 1; }
-      83.34% { left: 100%; transform: translateX(0); opacity: 0; }
+      87.5% { left: 0; transform: translateX(-100%); opacity: 1; }
+      87.51% { left: 100%; transform: translateX(0); opacity: 0; }
       100% { left: 100%; transform: translateX(0); opacity: 0; }
     }
 
@@ -778,8 +778,8 @@
         <span class="admin-marquee-text">※ 기존에 입력된 단원명 및 배점을 수정할 경우, 성적이 입력된 반(및 학생)은 다시 한 번 저장을 해야 수정 사항이 적용됩니다.</span>
       </div>
 
-      <!-- 다운로드 버튼 위치 bottom: 55px 로 상향 조정 -->
-      <div style="position: fixed; bottom: 55px; left: 40px; z-index: 150;">
+      <!-- 다운로드 버튼 위치 bottom: 78px 로 상향 조정 (입력내용삭제 버튼과 동일 선상) -->
+      <div style="position: fixed; bottom: 78px; left: 40px; z-index: 150;">
         <button class="btn-download-tool" onclick="window.open('https://drive.google.com/file/d/1_g1GWVlzgPYA8oMHs4XwpSMAgitWZxYy/view?usp=sharing', '_blank')">
           <span class="btn-icon-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -1573,7 +1573,8 @@
       showLoading(true, "성적 분석 및 렌더링 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getReportData', term, test, campus, course, teacher, className }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success) { document.getElementById('reportEmptyState').style.display = 'none'; document.getElementById('reportContainer').style.display = 'flex'; renderReportCards(res.data.examInfo, res.data.students); } else { showAlert(res.error); } }).catch(handleError);
     }
 
-    // 💡 (수정됨) 동일과정 상위 % 계산 로직: 1등 파란색 100%, 꼴등 파란색 0%
+    // 💡 (수정됨) 동일과정 상위 % 계산 로직 변경: (Rank - 1) / (Total - 1) * 100
+    // 전체 인원이 1명일 때는 예외로 1% 처리
     function renderReportCards(examInfo, students) {
       chartInstances.forEach(chart => chart.destroy()); chartInstances = []; const container = document.getElementById('reportContainer'); container.innerHTML = '';
       if(students.length === 0) { container.innerHTML = '<h3 style="text-align:center; color:#ef4444; padding:40px;">데이터가 없습니다.</h3>'; return; }
@@ -1594,9 +1595,7 @@
         let diffLabels = diffsDataPadded.map(d => { if (d.max === 0) return '-'; let str = String(d.name); if (str.length > 6) { let mid = Math.ceil(str.length / 2); return [str.slice(0, mid), str.slice(mid)]; } return str; });
         let diffMyData = diffsDataPadded.map(d => d.max === 0 ? null : d.pct); let diffAvgData = diffsDataPadded.map(d => d.max === 0 ? null : d.avgPct);
         
-        // --- 수정된 '동일과정 상위 %' 로직 ---
-        // 텍스트 비율: (등수 - 1) / (전체인원 - 1) * 100 
-        // 전체 인원이 1명일 때는 예외로 1% 처리
+        // --- 텍스트 비율: (등수 - 1) / (전체인원 - 1) * 100 
         let calcTopPct = 100;
         if (examInfo.totalCount > 1) {
             calcTopPct = Math.round(((st.rank - 1) / (examInfo.totalCount - 1)) * 100);
@@ -1605,10 +1604,9 @@
         }
         calcTopPct = Math.max(1, calcTopPct); // 0%가 나오면 최소 1%로 보정
         
-        // 도넛 그래프 파란색 채우기 로직 (1등 = 100%, 꼴등 = 0%)
+        // --- 도넛 그래프 파란색 비율: (전체인원 - 등수) / (전체인원 - 1) ---
         let bluePct = examInfo.totalCount > 1 ? Math.round(((examInfo.totalCount - st.rank) / (examInfo.totalCount - 1)) * 100) : 100;
         let startAngle = 360 - (bluePct * 3.6);
-        // ----------------------------------
 
         let studentClassName = st.className || examInfo.className; let studentTeacherName = st.teacher || examInfo.teacher;
 
