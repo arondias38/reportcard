@@ -805,7 +805,47 @@
     let globalData = { settings: {}, setups: [], rosters: [], gradeRecords: [] };
     let currentExamSetup = null; let chartInstances = []; let dashChartInstances = []; let currentStudentsCount = 0; let currentStudentsList = []; let pendingNextStudentIdx = -1; let currentGlobalOtherScores = []; let isDeleteMode = false; let studentUndoSnapshots = {}; let lastSelectedCampus = ""; let lastSelectedCourse = ""; let confirmCallback = null; let cancelCallback = null; let loadedExamContext = null; let currentBatchParsedRows = [];
 
+    // 💡 [추가] 임시 저장 및 상태 관리용 변수
+    let hasUnsavedChanges = false;
+
     const courseAbbrMap = { "3가": "초등 3-1", "3나": "초등 3-2", "초3-1": "초등 3-1", "초3-2": "초등 3-2", "4가": "초등 4-1", "4나": "초등 4-2", "초4-1": "초등 4-1", "초4-2": "초등 4-2", "5가": "초등 5-1", "5나": "초등 5-2", "초5-1": "초등 5-1", "초5-2": "초등 5-2", "6가": "초등 6-1", "6나": "초등 6-2", "초6-1": "초등 6-1", "초6-2": "초등 6-2", "7가": "중등 1-1", "7나": "중등 1-2", "중1-1": "중등 1-1", "중1-2": "중등 1-2", "8가": "중등 2-1", "8나": "중등 2-2", "중2-1": "중등 2-1", "중2-2": "중등 2-2", "9가": "중등 3-1", "9나": "중등 3-2", "중3-1": "중등 3-1", "중3-2": "중등 3-2", "10가": "고등 공통수학1", "10나": "고등 공통수학2", "공통수학1": "고등 공통수학1", "공통수학2": "고등 공통수학2", "공수1": "고등 공통수학1", "공수2": "고등 공통수학2", "수학1": "고등 수학1", "수학2": "고등 수학2", "수1": "고등 수학1", "수2": "고등 수학2", "수I": "고등 수학1", "수II": "고등 수학2", "미적": "고등 미적분", "미적1": "고등 미적분1", "미적2": "고등 미적분2", "기하": "고등 기하", "확통": "고등 확률과 통계", "대수": "고등 대수" };
+
+    // 💡 [추가] 임시 저장(Draft) 기능 함수들
+    function getDraftKey(ctx) { return `LT_Draft_${ctx.term}_${ctx.test}_${ctx.campus}_${ctx.course}_${ctx.teacher}_${ctx.className}`; }
+    
+    function markAsUnsaved() {
+        hasUnsavedChanges = true;
+        if (!loadedExamContext || !currentExamSetup) return;
+        const key = getDraftKey(loadedExamContext);
+        let draftStudents = currentStudentsList.map(st => ({...st}));
+        let draftGrades = [];
+        currentStudentsList.forEach((st, sIdx) => {
+            if (!st.isEmpty && !st.isDeleted) {
+                let totalEl = document.getElementById(`totalScore_${sIdx}`);
+                let g = { name: st.name, totalScore: totalEl ? totalEl.innerText : '-', answers: {} };
+                document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => {
+                    let qNum = currentExamSetup.startNum + parseInt(input.dataset.q);
+                    g.answers[qNum] = input.value;
+                });
+                draftGrades.push(g);
+            }
+        });
+        localStorage.setItem(key, JSON.stringify({ students: draftStudents, grades: draftGrades }));
+    }
+
+    function clearUnsavedState() {
+        hasUnsavedChanges = false;
+        if (loadedExamContext) localStorage.removeItem(getDraftKey(loadedExamContext));
+    }
+
+    // 💡 [추가] 브라우저 창 닫힘/새로고침 방지 (네이티브 팝업 호출)
+    window.addEventListener('beforeunload', function (e) {
+        if (hasUnsavedChanges) {
+            markAsUnsaved(); // 닫히기 전 최종 상태 한 번 더 임시저장
+            e.preventDefault();
+            e.returnValue = ''; // 크롬 등에서 네이티브 팝업을 띄우기 위한 필수 설정
+        }
+    });
 
     function highlightCells(selectorOrElements) { let els = typeof selectorOrElements === 'string' ? document.querySelectorAll(selectorOrElements) : selectorOrElements; els.forEach(el => { if (!el) return; let targetEl = (el.tagName === 'INPUT' && el.parentElement) ? el.parentElement : el; targetEl.classList.remove('cell-blink'); void targetEl.offsetWidth; targetEl.classList.add('cell-blink'); }); }
     function toggleSummaryMemo() { const memo = document.getElementById('reportSummaryMemo'); const icon = document.getElementById('memoToggleIcon'); if (!memo || !icon) return; memo.classList.toggle('collapsed'); if (memo.classList.contains('collapsed')) { icon.innerText = '▶'; } else { icon.innerText = '◀'; } }
@@ -855,7 +895,6 @@
       document.getElementById('inputTableContainer').style.display = 'none'; document.getElementById('inputEmptyState').style.display = 'block'; document.getElementById('reportContainer').style.display = 'none'; document.getElementById('reportEmptyState').style.display = 'block'; document.getElementById('reportSummaryMemo').style.display = 'none'; document.getElementById('reportBatchSaveWrap').style.display = 'none'; document.getElementById('dashContainer').style.display = 'none'; document.getElementById('dashEmptyState').style.display = 'block'; loadedExamContext = null; filterCourses('main', true); showSuccessAlert("검색 조건이 초기화되었습니다."); 
     }
 
-    // 💡 관리자 화면 초기화(리셋) 헬퍼 함수
     function resetAdminFilters() {
       document.getElementById('setupCombinedTest').value = "";
       document.getElementById('setupLevel').value = "";
@@ -878,7 +917,19 @@
     function renderSetupStatusTable() { const tt = getTermAndTest('setup'); const tbody = document.getElementById('setupStatusTableBody'); if (!tbody) return; if (!tt.term || !tt.test) { tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; color: #888; text-align: center;">테스트를 선택하세요.</td></tr>'; return; } const levels = globalData.settings.levels || [], courses = globalData.settings.courses || []; if (levels.length === 0 || courses.length === 0) { tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; color: #888; text-align: center;">환경설정에서 난이도와 과정을 등록해주세요.</td></tr>'; return; } let html = ''; levels.forEach((level, levelIdx) => { let levelBg = (levelIdx % 2 === 0) ? '#ffffff' : '#f8f9fa'; courses.forEach(course => { let combined = level + " " + course; let isSaved = globalData.setups.some(s => s.term === tt.term && s.test === tt.test && ((s.level === level && s.courseName === course) || s.course === combined)); html += `<tr style="cursor: pointer; border-bottom: 1px solid #eee; background-color: ${levelBg};" onclick="selectSetupFromStatus('${level}', '${course}')"><td style="padding: 6px 4px; color: #333;">${level}</td><td style="padding: 6px 4px; color: #333; text-align: left; padding-left: 8px;">${course}</td><td style="padding: 6px 4px; color: ${isSaved ? '#28a745' : '#adb5bd'}; font-weight: bold;">${isSaved ? '✔' : '-'}</td></tr>`; }); }); tbody.innerHTML = html; }
     function selectSetupFromStatus(level, course) { document.getElementById('setupLevel').value = level; document.getElementById('setupCourse').value = course; checkExistingSetup(); }
 
+    // 💡 [수정] 네비게이션 이동 시 변경사항 확인 팝업 추가
     function switchNav(navId) {
+      const currentActive = document.querySelector('.nav-btn.active');
+      const navNames = { 'input': '성적 입력', 'report': '성적표 출력', 'data': '성적 분석' };
+      
+      if (hasUnsavedChanges && currentActive && !currentActive.innerText.includes(navNames[navId])) {
+          showConfirmModal(`저장되지 않은 변경 사항이 있습니다.<br>정말 <b>[${navNames[navId]}]</b>(으)로 이동하시겠습니까?`, function() {
+              hasUnsavedChanges = false;
+              switchNav(navId);
+          }, function() {});
+          return;
+      }
+
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active')); document.querySelector(`button[onclick="switchNav('${navId}')"]`).classList.add('active');
       const mainCourse = document.getElementById('mainCourse'); const mainCampus = document.getElementById('mainCampus');
       if (document.getElementById('view_data').style.display === 'flex' && navId !== 'data') { if (mainCourse && mainCourse.value === "전체") mainCourse.value = lastSelectedCourse || ""; if (mainCampus && mainCampus.value === "전체") mainCampus.value = lastSelectedCampus || ""; } 
@@ -890,7 +941,20 @@
       syncMainDropdownColors();
     }
 
-    function switchPage(pageId) { document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active')); document.getElementById(pageId).classList.add('active'); const adminBtn = document.getElementById('headerAdminBtn'), mainBtn = document.getElementById('headerMainBtn'), headerTitle = document.getElementById('mainHeaderTitle'), navTabs = document.getElementById('navTabs'); if (pageId === 'page-main') { adminBtn.style.display = 'flex'; mainBtn.style.display = 'none'; navTabs.style.display = 'flex'; headerTitle.innerHTML = `<img src="https://i.imgur.com/PQRrCSI.png" alt="로고"> 성적표 통합 시스템`; } else { adminBtn.style.display = 'none'; mainBtn.style.display = 'flex'; navTabs.style.display = 'none'; headerTitle.innerHTML = `<img src="https://i.imgur.com/PQRrCSI.png" alt="로고"> 시험 기본 세팅 (관리자)`; renderSetupStatusTable(); } }
+    // 💡 [수정] 관리자/메인 페이지 이동 시 변경사항 확인 팝업 추가
+    function switchPage(pageId) { 
+      const isActive = document.getElementById(pageId).classList.contains('active');
+      if (hasUnsavedChanges && !isActive) {
+          let pageName = pageId === 'page-admin' ? '시험 기본 세팅 (관리자)' : '메인 화면';
+          showConfirmModal(`저장되지 않은 변경 사항이 있습니다.<br>정말 <b>[${pageName}]</b>(으)로 이동하시겠습니까?`, function() {
+              hasUnsavedChanges = false; 
+              switchPage(pageId);
+          }, function() {});
+          return;
+      }
+
+      document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active')); document.getElementById(pageId).classList.add('active'); const adminBtn = document.getElementById('headerAdminBtn'), mainBtn = document.getElementById('headerMainBtn'), headerTitle = document.getElementById('mainHeaderTitle'), navTabs = document.getElementById('navTabs'); if (pageId === 'page-main') { adminBtn.style.display = 'flex'; mainBtn.style.display = 'none'; navTabs.style.display = 'flex'; headerTitle.innerHTML = `<img src="https://i.imgur.com/PQRrCSI.png" alt="로고"> 성적표 통합 시스템`; } else { adminBtn.style.display = 'none'; mainBtn.style.display = 'flex'; navTabs.style.display = 'none'; headerTitle.innerHTML = `<img src="https://i.imgur.com/PQRrCSI.png" alt="로고"> 시험 기본 세팅 (관리자)`; renderSetupStatusTable(); } 
+    }
 
     window.onload = function() { fetchMetadata(); renderSetupTable(); };
 
@@ -1203,7 +1267,7 @@
       } else { 
         for (let i = headerRowIdx + 1; i < jsonArr.length; i++) { 
           let row = jsonArr[i]; if (!row || row.length === 0) continue; 
-          let qNum = colMap.num !== -1 ? parseInt(row[colMap.num]) : (startNum + i - headerRowIdx - 1); 
+          let qNum = colMap.num !== -1 ? parseInt(row[colMap.num]) : (1 + i - headerRowIdx - 1); 
           let unitVal = String(row[colMap.unit] || '').trim(); 
           let scoreVal = String(row[colMap.score] || '').replace(/[^1-5]/g, '').slice(0, 1); 
           if (unitVal && /^[1-5]$/.test(scoreVal)) { 
@@ -1352,7 +1416,6 @@
       }
     }
 
-    // 💡 다중 일괄 등록 시 덮어쓰기 팝업 로직 추가
     function executeBatchSetup() {
       const tt = getTermAndTest('setup');
       if (!tt.term || !tt.test) return showAlert("상단에서 테스트를 선택해주세요.");
@@ -1434,7 +1497,6 @@
       fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getExamSetup', term: t, test: ts, level: l, course: cr }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success && res.data) { document.getElementById('setupStartNum').value = res.data.startNum; document.getElementById('setupEndNum').value = res.data.startNum + res.data.totalCount - 1; clearAllSetupData(); renderSetupTable(); res.data.items.forEach(item => { let u = document.getElementById(`unit_${item.num}`); let s = document.getElementById(`score_${item.num}`); if(u) u.value = item.unit; if(s) { s.value = item.score; updateDiff(item.num); } }); } else { renderSetupTable(); } }).catch(err => { showLoading(false); handleError(err); });
     }
 
-    // 💡 단일 저장 시 덮어쓰기 팝업 로직 추가
     function saveExamSetup() {
       const tt = getTermAndTest('setup'); const term = tt.term, test = tt.test, level = document.getElementById('setupLevel').value, course = document.getElementById('setupCourse').value; if(!term || !test || !level || !course) return showAlert("상단 항목을 모두 선택하세요.");
       const startNum = parseInt(document.getElementById('setupStartNum').value) || 1; const endNum = parseInt(document.getElementById('setupEndNum').value) || 45; const totalCount = endNum - startNum + 1; const items = [];
@@ -1455,10 +1517,23 @@
       showLoading(true, "저장 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveExamSetup', term, test, level, course, totalCount, startNum, items }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success) { showSuccessAlert("시험 기본 세팅 정보가 안전하게 저장되었습니다."); fetchMetadata(true, true); } else { showAlert(res.error); } }).catch(handleError);
     }
 
+    // 💡 [수정] 명단 로딩 시 저장되지 않은 데이터 덮어쓰기 방지 추가
     function loadGradesData(afterLoadMsg = null, highlightedStudentName = null) {
         const tt = getTermAndTest('main'); const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value; 
         if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
         
+        if (hasUnsavedChanges) {
+            showConfirmModal("저장되지 않은 변경 사항이 있습니다.<br>정말 다른 명단을 불러오시겠습니까?<br><span style='color:#dc3545; font-size:12px;'>(현재 작성 중인 데이터는 임시 저장됩니다.)</span>", function() {
+                hasUnsavedChanges = false;
+                checkExistingAndExecuteLoad(term, test, campus, course, teacher, className, afterLoadMsg, highlightedStudentName);
+            }, function() {});
+            return;
+        }
+
+        checkExistingAndExecuteLoad(term, test, campus, course, teacher, className, afterLoadMsg, highlightedStudentName);
+    }
+
+    function checkExistingAndExecuteLoad(term, test, campus, course, teacher, className, afterLoadMsg, highlightedStudentName) {
         let existingCourses = [];
         if (globalData.gradeRecords) {
             globalData.gradeRecords.forEach(g => {
@@ -1481,13 +1556,42 @@
         executeLoadGradesData(term, test, campus, course, teacher, className, afterLoadMsg, highlightedStudentName);
     }
 
+    // 💡 [수정] 임시 저장 데이터(Draft) 발견 시 복구 팝업 로직 추가
     function executeLoadGradesData(term, test, campus, course, teacher, className, afterLoadMsg, highlightedStudentName) {
         studentUndoSnapshots = {}; isDeleteMode = false; const delBtn = document.getElementById('toggleDeleteBtn'); if(delBtn) { delBtn.classList.remove('active'); const textWrap = delBtn.querySelector('.btn-text-wrap'); if(textWrap) textWrap.innerText = '학생삭제'; }
         showLoading(true, "데이터 불러오는 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, test, campus, course, teacher, className }) }).then(res => res.json()).then(res => { 
             showLoading(false); 
             if(res.success) { 
               loadedExamContext = { term, test, campus, course, teacher, className };
-              currentGlobalOtherScores = res.data.globalOtherScores || []; renderInputTable(res.data.setupData, res.data.students, res.data.grades); if (afterLoadMsg) { setTimeout(() => showSuccessAlert(afterLoadMsg), 50); } if (highlightedStudentName) { let targetIdx = res.data.students.findIndex(s => s.name.trim() === highlightedStudentName.trim()); if (targetIdx !== -1) { setTimeout(() => { highlightCells(document.querySelectorAll(`.grid-nav[data-s="${targetIdx}"], #totalScore_${targetIdx}, #rank_${targetIdx}`)); }, 150); } } 
+              const draftKey = getDraftKey(loadedExamContext);
+              const savedDraft = localStorage.getItem(draftKey);
+
+              if (savedDraft) {
+                  showConfirmModal(`이전에 작성하다가 저장하지 않은 임시 데이터가<br>발견되었습니다.<br>복구하시겠습니까?`, function() {
+                      // 임시 데이터 복구 (예)
+                      let parsedDraft = JSON.parse(savedDraft);
+                      currentGlobalOtherScores = res.data.globalOtherScores || []; 
+                      renderInputTable(res.data.setupData, parsedDraft.students, parsedDraft.grades);
+                      hasUnsavedChanges = true; 
+                      if (afterLoadMsg) { setTimeout(() => showSuccessAlert(afterLoadMsg), 50); } 
+                      if (highlightedStudentName) { let targetIdx = parsedDraft.students.findIndex(s => s.name.trim() === highlightedStudentName.trim()); if (targetIdx !== -1) { setTimeout(() => { highlightCells(document.querySelectorAll(`.grid-nav[data-s="${targetIdx}"], #totalScore_${targetIdx}, #rank_${targetIdx}`)); }, 150); } } 
+                  }, function() {
+                      // 임시 데이터 무시 및 삭제 (아니오)
+                      localStorage.removeItem(draftKey);
+                      hasUnsavedChanges = false;
+                      currentGlobalOtherScores = res.data.globalOtherScores || []; 
+                      renderInputTable(res.data.setupData, res.data.students, res.data.grades);
+                      if (afterLoadMsg) { setTimeout(() => showSuccessAlert(afterLoadMsg), 50); } 
+                      if (highlightedStudentName) { let targetIdx = res.data.students.findIndex(s => s.name.trim() === highlightedStudentName.trim()); if (targetIdx !== -1) { setTimeout(() => { highlightCells(document.querySelectorAll(`.grid-nav[data-s="${targetIdx}"], #totalScore_${targetIdx}, #rank_${targetIdx}`)); }, 150); } } 
+                  });
+              } else {
+                  // 임시 데이터가 없는 정상적인 로드
+                  hasUnsavedChanges = false;
+                  currentGlobalOtherScores = res.data.globalOtherScores || []; 
+                  renderInputTable(res.data.setupData, res.data.students, res.data.grades); 
+                  if (afterLoadMsg) { setTimeout(() => showSuccessAlert(afterLoadMsg), 50); } 
+                  if (highlightedStudentName) { let targetIdx = res.data.students.findIndex(s => s.name.trim() === highlightedStudentName.trim()); if (targetIdx !== -1) { setTimeout(() => { highlightCells(document.querySelectorAll(`.grid-nav[data-s="${targetIdx}"], #totalScore_${targetIdx}, #rank_${targetIdx}`)); }, 150); } } 
+              }
             } else { showAlert(res.error); } 
         }).catch(handleError);
     }
@@ -1495,7 +1599,7 @@
     function renderInputTable(setupData, rawStudents, grades) {
       document.getElementById('inputEmptyState').style.display = 'none'; const tableContainer = document.getElementById('inputTableContainer'); tableContainer.style.display = 'block'; document.getElementById('inputBottomControls').style.display = 'flex';
       const availableWidth = tableContainer.clientWidth - 260; const minCols = Math.max(0, Math.floor(availableWidth / 60)); 
-      currentExamSetup = setupData; let parsedStudents = rawStudents.map(st => ({ ...st, name: st.name.replace(/\([^)]*\)/g, '').trim(), isEmpty: false, isNew: st.isNew || false, isDeleted: st.isDeleted || false })); while(parsedStudents.length < minCols) parsedStudents.push({ name: '-', isEmpty: true, isNew: false, isDeleted: false });
+      currentExamSetup = setupData; let parsedStudents = rawStudents.map(st => ({ ...st, name: st.name.replace(/\([^)]*\)/g, '').trim(), isEmpty: st.isEmpty || false, isNew: st.isNew || false, isDeleted: st.isDeleted || false })); while(parsedStudents.length < minCols) parsedStudents.push({ name: '-', isEmpty: true, isNew: false, isDeleted: false });
       currentStudentsList = parsedStudents; currentStudentsCount = parsedStudents.filter(s => !s.isEmpty).length; const thead = document.getElementById('inputTableHeader'); const tbody = document.getElementById('inputTableBody'); const tfoot = document.getElementById('inputTableFooter'); let maxTotalScore = setupData.items.reduce((sum, item) => sum + (Number(item.score) || 0), 0);
       let htmlThead = `<tr><th colspan="3" class="sticky-col-all sticky-top-1 bg-gray" style="height:28px; padding:0;"><div style="display:flex; align-items:center; width:100%; height:100%;"><span style="flex:1;"></span><span style="width:60px; min-width:60px; max-width:60px; flex-shrink:0; text-align:center; font-weight:bold; letter-spacing:1px; color:#333;">No.</span></div></th>`;
       parsedStudents.forEach((st, sIdx) => { let headerContent = st.isEmpty ? '-' : String(sIdx + 1).padStart(2, '0'); if (!st.isEmpty && st.isDeleted) { headerContent = `<button class="student-del-badge" style="background-color:#28a745; width:22px; height:22px;" onclick="restoreDeletedStudent(${sIdx})"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg></button>`; } else if (!st.isEmpty && isDeleteMode) { headerContent = `<button class="student-del-badge" onclick="markDeleteStudent('${st.name}')"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/></line></svg></button>`; } htmlThead += `<th class="sticky-top-1 bg-gray" style="color:#6c757d;">${headerContent}</th>`; });
@@ -1519,19 +1623,23 @@
       document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { let qIdx = input.dataset.q; snapshot.answers[qIdx] = input.value; }); studentUndoSnapshots[sIdx] = snapshot;
       document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { input.value = val; input.classList.remove('val-o', 'val-x'); if (val === 'O') input.classList.add('val-o'); else if (val === 'X') input.classList.add('val-x'); });
       calculateStudentScore(sIdx); updateAllRanks();
+      markAsUnsaved(); // 💡 상태 변경 임시저장
     }
 
     function undoStudentAnswers(sIdx) {
       if (currentStudentsList[sIdx].isDeleted) return; let snapshot = studentUndoSnapshots[sIdx]; if (!snapshot) { return showAlert("해당 학생의 되돌릴 직전 일괄 입력 기록이 없습니다."); }
       document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { let qIdx = input.dataset.q; let prevVal = snapshot.answers[qIdx] || ''; input.value = prevVal; input.classList.remove('val-o', 'val-x'); if (prevVal === 'O') input.classList.add('val-o'); else if (prevVal === 'X') input.classList.add('val-x'); });
       calculateStudentScore(sIdx); updateAllRanks();
+      markAsUnsaved(); // 💡 상태 변경 임시저장
     }
 
     function handleOxInput(e, qIdx, sIdx) {
       let inputEl = e.target; let val = inputEl.value.trim().toLowerCase(); inputEl.classList.remove('val-o', 'val-x'); let isValidInput = false;
-      if (['1', 'o', '0', 'ㅇ', 'ㅐ'].includes(val)) { inputEl.value = 'O'; inputEl.classList.add('val-o'); isValidInput = true; } else if (['2', 'x', 'ㅂ', 'ㅌ'].includes(val)) { inputEl.value = 'X'; inputEl.classList.add('val-x'); isValidInput = true; } else { inputEl.value = ''; }
+      if (['1', 'o', '0', 'ㅇ', 'ㅐ'].includes(val)) { inputEl.value = 'O'; inputEl.classList.add('val-o'); isValidInput = true; } else if (['2', 'x', 'ㅂ', 'ㅌ'].includes(val)) { inputEl.value = 'X'; inputEl.classList.add('val-x'); isValidInput = true; } else { inputEl.value = ''; isValidInput = (val === ''); }
       calculateStudentScore(sIdx); updateAllRanks();
-      if (isValidInput) { if (qIdx === currentExamSetup.totalCount - 1) { let nextValidIdx = -1; for (let i = sIdx + 1; i < currentStudentsCount; i++) { if (!currentStudentsList[i].isEmpty && !currentStudentsList[i].isDeleted) { nextValidIdx = i; break; } } if (nextValidIdx !== -1) { pendingNextStudentIdx = nextValidIdx; document.getElementById('nextStudentName').innerText = currentStudentsList[pendingNextStudentIdx].name; document.getElementById('nextStudentModal').style.display = 'flex'; } else { showAlert("모든 학생의 채점이 완료되었습니다."); } } else { let next = document.querySelector(`.grid-nav[data-q="${qIdx + 1}"][data-s="${sIdx}"]`); focusNextCell(next); } }
+      markAsUnsaved(); // 💡 입력 즉시 임시저장 트리거
+
+      if (isValidInput && val !== '') { if (qIdx === currentExamSetup.totalCount - 1) { let nextValidIdx = -1; for (let i = sIdx + 1; i < currentStudentsCount; i++) { if (!currentStudentsList[i].isEmpty && !currentStudentsList[i].isDeleted) { nextValidIdx = i; break; } } if (nextValidIdx !== -1) { pendingNextStudentIdx = nextValidIdx; document.getElementById('nextStudentName').innerText = currentStudentsList[pendingNextStudentIdx].name; document.getElementById('nextStudentModal').style.display = 'flex'; } else { showAlert("모든 학생의 채점이 완료되었습니다."); } } else { let next = document.querySelector(`.grid-nav[data-q="${qIdx + 1}"][data-s="${sIdx}"]`); focusNextCell(next); } }
     }
 
     function focusNextCell(nextInput) { if (nextInput) { nextInput.focus({ preventScroll: true }); nextInput.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); if (nextInput.value) nextInput.select(); } }
@@ -1571,7 +1679,9 @@
       currentStudentsList.forEach((st, sIdx) => { if (!st.isEmpty) { let totalEl = document.getElementById(`totalScore_${sIdx}`); let g = { name: st.name, totalScore: totalEl ? totalEl.innerText : '-', answers: {} }; document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { let qNum = currentExamSetup.startNum + parseInt(input.dataset.q); g.answers[qNum] = input.value; }); currentGrades.push(g); } });
       let emptyIdx = currentStudentsList.findIndex(s => s.isEmpty); let newStudentObj = { name: name, school: school, grade: grade, isEmpty: false, isNew: true, isDeleted: false };
       if (emptyIdx !== -1) { currentStudentsList[emptyIdx] = newStudentObj; } else { currentStudentsList.push(newStudentObj); }
-      document.getElementById('addStudentModal').style.display = 'none'; renderInputTable(currentExamSetup, currentStudentsList, currentGrades);
+      document.getElementById('addStudentModal').style.display = 'none'; 
+      renderInputTable(currentExamSetup, currentStudentsList, currentGrades);
+      markAsUnsaved(); // 💡 상태 변경 임시저장
     }
 
     function toggleStudentDeleteMode() {
@@ -1582,11 +1692,11 @@
     }
 
     function markDeleteStudent(studentName) {
-      showConfirmModal(`[<b>${studentName}</b>] 학생을 삭제 예정 상태로 변경하시겠습니까?<br><span style="color:#dc3545; font-size:12px;">(저장 후, 명단에서 최종 삭제됩니다.)</span>`, function() { let stIdx = currentStudentsList.findIndex(s => s.name === studentName); if (stIdx !== -1) { if (currentStudentsList[stIdx].isNew) { currentStudentsList.splice(stIdx, 1); currentStudentsList.push({ name: '-', isEmpty: true, isNew: false, isDeleted: false }); } else { currentStudentsList[stIdx].isDeleted = true; } let currentGrades = []; currentStudentsList.forEach((st, sIdx) => { if (!st.isEmpty && !st.isDeleted) { let totalEl = document.getElementById(`totalScore_${sIdx}`); let g = { name: st.name, totalScore: totalEl ? totalEl.innerText : '-', answers: {} }; document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { let qNum = currentExamSetup.startNum + parseInt(input.dataset.q); g.answers[qNum] = input.value; }); currentGrades.push(g); } }); renderInputTable(currentExamSetup, currentStudentsList, currentGrades); } }, function() {});
+      showConfirmModal(`[<b>${studentName}</b>] 학생을 삭제 예정 상태로 변경하시겠습니까?<br><span style="color:#dc3545; font-size:12px;">(저장 후, 명단에서 최종 삭제됩니다.)</span>`, function() { let stIdx = currentStudentsList.findIndex(s => s.name === studentName); if (stIdx !== -1) { if (currentStudentsList[stIdx].isNew) { currentStudentsList.splice(stIdx, 1); currentStudentsList.push({ name: '-', isEmpty: true, isNew: false, isDeleted: false }); } else { currentStudentsList[stIdx].isDeleted = true; } let currentGrades = []; currentStudentsList.forEach((st, sIdx) => { if (!st.isEmpty && !st.isDeleted) { let totalEl = document.getElementById(`totalScore_${sIdx}`); let g = { name: st.name, totalScore: totalEl ? totalEl.innerText : '-', answers: {} }; document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { let qNum = currentExamSetup.startNum + parseInt(input.dataset.q); g.answers[qNum] = input.value; }); currentGrades.push(g); } }); renderInputTable(currentExamSetup, currentStudentsList, currentGrades); markAsUnsaved(); } }, function() {});
     }
 
     function restoreDeletedStudent(sIdx) {
-      if (currentStudentsList[sIdx]) { currentStudentsList[sIdx].isDeleted = false; let currentGrades = []; currentStudentsList.forEach((st, idx) => { if (!st.isEmpty && !st.isDeleted) { let totalEl = document.getElementById(`totalScore_${idx}`); let g = { name: st.name, totalScore: totalEl ? totalEl.innerText : '-', answers: {} }; document.querySelectorAll(`.grid-nav[data-s="${idx}"]`).forEach(input => { let qNum = currentExamSetup.startNum + parseInt(input.dataset.q); g.answers[qNum] = input.value; }); currentGrades.push(g); } }); renderInputTable(currentExamSetup, currentStudentsList, currentGrades); }
+      if (currentStudentsList[sIdx]) { currentStudentsList[sIdx].isDeleted = false; let currentGrades = []; currentStudentsList.forEach((st, idx) => { if (!st.isEmpty && !st.isDeleted) { let totalEl = document.getElementById(`totalScore_${idx}`); let g = { name: st.name, totalScore: totalEl ? totalEl.innerText : '-', answers: {} }; document.querySelectorAll(`.grid-nav[data-s="${idx}"]`).forEach(input => { let qNum = currentExamSetup.startNum + parseInt(input.dataset.q); g.answers[qNum] = input.value; }); currentGrades.push(g); } }); renderInputTable(currentExamSetup, currentStudentsList, currentGrades); markAsUnsaved(); }
     }
 
     function saveGrades() {
@@ -1597,8 +1707,23 @@
       executeSaveGrades(); 
     }
 
-    function fillMissingWithXAndSave() { for (let sIdx = 0; sIdx < currentStudentsCount; sIdx++) { if (currentStudentsList[sIdx].isDeleted) continue; let totalEl = document.getElementById(`totalScore_${sIdx}`); if (totalEl.dataset.valid === 'true') { document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { if (!input.value) { input.value = 'X'; input.classList.add('val-x'); } }); calculateStudentScore(sIdx); } } updateAllRanks(); executeSaveGrades(); }
+    function fillMissingWithXAndSave() { 
+      for (let sIdx = 0; sIdx < currentStudentsCount; sIdx++) { 
+        if (currentStudentsList[sIdx].isDeleted) continue; 
+        let totalEl = document.getElementById(`totalScore_${sIdx}`); 
+        if (totalEl.dataset.valid === 'true') { 
+          document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { 
+            if (!input.value) { input.value = 'X'; input.classList.add('val-x'); } 
+          }); 
+          calculateStudentScore(sIdx); 
+        } 
+      } 
+      updateAllRanks(); 
+      markAsUnsaved(); 
+      executeSaveGrades(); 
+    }
 
+    // 💡 [수정] 성적 저장 완료 시 임시 데이터 초기화 (초안 삭제)
     function executeSaveGrades() {
       if (!loadedExamContext || !loadedExamContext.term) return showAlert("저장할 명단 정보가 없습니다. 명단을 다시 불러와 주세요.");
       const { term, test, campus, course, teacher, className } = loadedExamContext;
@@ -1606,7 +1731,17 @@
       let studentsData = []; let rosterUpdates = { added: [], deleted: [], restored: [] };
       for (let sIdx = 0; sIdx < currentStudentsCount; sIdx++) { let stObj = currentStudentsList[sIdx]; if (stObj.isDeleted) { if (!stObj.isNew) rosterUpdates.deleted.push(stObj.name); continue; } if (stObj.isNew) { rosterUpdates.added.push({ name: stObj.name, school: stObj.school || '', grade: stObj.grade || '' }); } else { rosterUpdates.restored.push(stObj.name); } let totalEl = document.getElementById(`totalScore_${sIdx}`); let rankEl = document.getElementById(`rank_${sIdx}`); if (totalEl.dataset.valid === 'true') { let total = totalEl.innerText; let rank = rankEl ? rankEl.innerText : ''; let answers = {}; document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { let qNum = currentExamSetup.startNum + parseInt(input.dataset.q); answers[qNum] = input.value; }); studentsData.push({ name: stObj.name, school: stObj.school || '', grade: stObj.grade || '', totalScore: total, rank: rank, answers: answers }); } }
       if (studentsData.length === 0 && rosterUpdates.added.length === 0 && rosterUpdates.deleted.length === 0 && rosterUpdates.restored.length === 0) { return showAlert("저장할 성적 또는 명단 변경 데이터가 없습니다."); }
-      showLoading(true, "결과 및 명단 변경사항 저장 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveStudentGrades', term, test, campus, course, teacher, className, students: studentsData, rosterUpdates: rosterUpdates }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success) { showSuccessAlert("결과 및 명단 변경사항이 안전하게 저장되었습니다."); currentStudentsList.forEach(s => s.isNew = false); fetchMetadata(true, true); } else { showAlert(res.error); } }).catch(handleError);
+      showLoading(true, "결과 및 명단 변경사항 저장 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveStudentGrades', term, test, campus, course, teacher, className, students: studentsData, rosterUpdates: rosterUpdates }) }).then(res => res.json()).then(res => { 
+        showLoading(false); 
+        if(res.success) { 
+          clearUnsavedState(); // 💡 DB저장 성공 시 임시저장 내용 초기화
+          showSuccessAlert("결과 및 명단 변경사항이 안전하게 저장되었습니다."); 
+          currentStudentsList.forEach(s => s.isNew = false); 
+          fetchMetadata(true, true); 
+        } else { 
+          showAlert(res.error); 
+        } 
+      }).catch(handleError);
     }
 
     function executePrint() { const reportContainer = document.getElementById('reportContainer'); if (!reportContainer || reportContainer.innerHTML.trim() === '' || reportContainer.style.display === 'none') { showAlert("성적표를 렌더링 한 후 인쇄를 진행해주세요."); return; } window.print(); }
@@ -1616,7 +1751,6 @@
       showLoading(true, "성적 분석 및 렌더링 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getReportData', term, test, campus, course, teacher, className }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success) { document.getElementById('reportEmptyState').style.display = 'none'; document.getElementById('reportContainer').style.display = 'flex'; renderReportCards(res.data.examInfo, res.data.students); } else { showAlert(res.error); } }).catch(handleError);
     }
 
-    // 💡 (수정됨) 동일과정 상위 % 계산 로직: 1등 파란색 100%, 꼴등 파란색 0%
     function renderReportCards(examInfo, students) {
       chartInstances.forEach(chart => chart.destroy()); chartInstances = []; const container = document.getElementById('reportContainer'); container.innerHTML = '';
       if(students.length === 0) { container.innerHTML = '<h3 style="text-align:center; color:#ef4444; padding:40px;">데이터가 없습니다.</h3>'; return; }
@@ -1637,19 +1771,15 @@
         let diffLabels = diffsDataPadded.map(d => { if (d.max === 0) return '-'; let str = String(d.name); if (str.length > 6) { let mid = Math.ceil(str.length / 2); return [str.slice(0, mid), str.slice(mid)]; } return str; });
         let diffMyData = diffsDataPadded.map(d => d.max === 0 ? null : d.pct); let diffAvgData = diffsDataPadded.map(d => d.max === 0 ? null : d.avgPct);
         
-        // --- 텍스트 비율: (등수 - 1) / (전체인원 - 1) * 100 
         let calcTopPct = 100;
         if (examInfo.totalCount > 1) {
             calcTopPct = Math.round(((st.rank - 1) / (examInfo.totalCount - 1)) * 100);
         } else if (examInfo.totalCount === 1) {
             calcTopPct = 0;
         }
-        calcTopPct = Math.max(1, calcTopPct); // 0%가 나오면 최소 1%로 보정
+        calcTopPct = Math.max(1, calcTopPct); 
         
-        // --- 도넛 그래프 파란색 비율: (전체인원 - 등수) / (전체인원 - 1) ---
-        // 1등은 100% 꽉참. 꼴등(등수===전체인원)은 0% 하나도 없음.
         let bluePct = examInfo.totalCount > 1 ? Math.round(((examInfo.totalCount - st.rank) / (examInfo.totalCount - 1)) * 100) : 100;
-        
         let startAngle = 360 - (bluePct * 3.6);
 
         let studentClassName = st.className || examInfo.className; let studentTeacherName = st.teacher || examInfo.teacher;
@@ -1662,7 +1792,6 @@
           chartInstances.push(new Chart(document.getElementById(`chart_unit_${idx}`).getContext('2d'), { type: 'bar', data: { labels: unitLabels, datasets: [{ label: st.name, data: unitMyData, backgroundColor: '#3b82f6', barPercentage: 0.5, borderRadius: 4 }, { label: '전체평균', data: unitAvgData, backgroundColor: '#d1d5db', barPercentage: 0.5, borderRadius: 4 }]}, options: chartOpts }));
           chartInstances.push(new Chart(document.getElementById(`chart_diff_${idx}`).getContext('2d'), { type: 'bar', data: { labels: diffLabels, datasets: [{ label: st.name, data: diffMyData, backgroundColor: '#10b981', barPercentage: 0.5, borderRadius: 4 }, { label: '전체평균', data: diffAvgData, backgroundColor: '#d1d5db', barPercentage: 0.5, borderRadius: 4 }]}, options: chartOpts }));
           
-          // 파란색 비율과 나머지(회색) 비율을 정확히 합이 100이 되도록 차트에 전달
           chartInstances.push(new Chart(document.getElementById(`chart_doughnut_${idx}`).getContext('2d'), { type: 'doughnut', data: { labels: ['내 비율', '나머지'], datasets: [{ data: [bluePct, 100 - bluePct], backgroundColor: ['#3b82f6', '#d1d5db'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, animation: false, events: [], cutout: '65%', rotation: startAngle, plugins: { legend: { display: false }, tooltip: { enabled: false } } } }));
         }, 100);
       });
@@ -1679,7 +1808,6 @@
     function askDeleteAfterBackup(terms) { showConfirmModal(`해당 학기 데이터가 백업 되었습니다.<br>해당 데이터를 삭제할까요?<br><span style="color:#28a745; font-size:13px;"><b>[백업 완료 학기]</b><br><b>${terms.join("<br>")}</b></span>`, function() { executeDeleteTerms(terms); }, function() { showSuccessAlert("백업만 완료되었으며, 원본 시트는 삭제되지 않고 유지됩니다."); }); }
     function executeDeleteTerms(terms) { showLoading(true, "원본 학기 시트 삭제 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'deleteTermSheets', terms: terms }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success) { showSuccessAlert("백업 및 원본 시트 삭제가 안전하게 완료되었습니다."); fetchMetadata(true, true); } else { showAlert(res.error); } }).catch(handleError); }
     
-    // 💡 엑셀 다운로드 시 'xlsx-js-style' 라이브러리를 활용해 폰트 크기 11 일괄 적용
     function downloadTermExcel(termName) { 
         showLoading(true, `[${termName}] 명단, 성적DB, 시험세팅 데이터 조회 중...`); 
         fetch(document.getElementById('backendUrl').value.trim(), { 
@@ -1690,7 +1818,6 @@
             if (res.success && res.data) { 
                 const wb = XLSX.utils.book_new(); 
                 
-                // 엑셀 스타일 일괄 적용 헬퍼 (폰트 사이즈 11)
                 const applyStyle = (ws) => {
                     for (let cell in ws) {
                         if (cell[0] === '!') continue;
@@ -1703,7 +1830,6 @@
                     return ws;
                 };
 
-                // 1. 명단 시트 추가
                 if (res.data.rosterData && res.data.rosterData.length > 0) { 
                     const wsRoster = XLSX.utils.aoa_to_sheet(res.data.rosterData); 
                     XLSX.utils.book_append_sheet(wb, applyStyle(wsRoster), termName + "_명단"); 
@@ -1712,7 +1838,6 @@
                     XLSX.utils.book_append_sheet(wb, applyStyle(wsEmpty), termName + "_명단"); 
                 } 
                 
-                // 2. 성적DB 시트 추가
                 if (res.data.dbData && res.data.dbData.length > 0) { 
                     const wsDb = XLSX.utils.aoa_to_sheet(res.data.dbData); 
                     XLSX.utils.book_append_sheet(wb, applyStyle(wsDb), termName + "_성적DB"); 
@@ -1721,7 +1846,6 @@
                     XLSX.utils.book_append_sheet(wb, applyStyle(wsEmpty), termName + "_성적DB"); 
                 } 
                 
-                // 3. 시험세팅 시트 추가
                 if (res.data.setupData && res.data.setupData.length > 0) {
                     const wsSetup = XLSX.utils.aoa_to_sheet(res.data.setupData);
                     XLSX.utils.book_append_sheet(wb, applyStyle(wsSetup), termName + "_시험세팅");
