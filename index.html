@@ -781,7 +781,7 @@
       </div>
 
       <div class="admin-marquee-wrapper">
-        <span class="admin-marquee-text">※ 시험 세팅(단원명/배점)을 수정하여 저장할 경우, 이미 성적이 입력된 전체 학생의 총점과 등수가 '자동으로 재계산'되어 업데이트됩니다.</span>
+        <span class="admin-marquee-text">※ 시험 세팅(단원명/배점)을 수정하여 저장할 경우, 이미 입력된 학생들의 성적은 자동 업데이트됩니다.</span>
       </div>
 
       <div style="position: fixed; bottom: 52px; left: 40px; z-index: 150;">
@@ -1507,7 +1507,7 @@
       let isDuplicate = globalData.setups && globalData.setups.some(s => s.term === term && s.test === test && s.course === (level + " " + course));
       
       if (isDuplicate) {
-        showConfirmModal(`[<b>${level} ${course}</b>] 과정의 시험 세팅이 이미 존재합니다.<br><br>덮어쓰시겠습니까?<br><br><span style="color:#dc3545; font-size:12px;">(저장 시, 이미 성적이 입력된 전체 학생의 총점 및 등수는<br>자동으로 <b>업데이트</b>됩니다.)</span>`, function() { 
+        showConfirmModal(`[<b>${level} ${course}</b>] 과정의 시험 세팅이 이미 존재합니다.<br>덮어쓰시겠습니까?<br><br><span style="color:#dc3545; font-size:12px;">(저장 시, 이미 성적이 입력된 전체 학생의 총점 및 등수는<br>자동으로 <b>업데이트</b>됩니다.)</span>`, function() { 
           executeSaveExamSetup(term, test, level, course, totalCount, startNum, items); 
         }, function(){});
       } else {
