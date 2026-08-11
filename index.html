@@ -193,7 +193,6 @@
     .btn-roster-add-main:hover, .btn-roster-delete-main:hover, .btn-roster-delete-main.active { max-width: 110px; padding: 0 14px; justify-content: center; }
     .btn-roster-delete-main.active { background-color: #8b0000; box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
     .btn-roster-add-main .btn-icon-wrap, .btn-roster-delete-main .btn-icon-wrap { width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; flex-shrink: 0; font-style: normal; font-size: 1.3em; font-weight: 900; line-height: 0; padding-bottom: 2px; }
-    /* 💡 수정사항 반영: 삭제버튼이 .active 일때도 .btn-icon-wrap 숨김 */
     .btn-roster-add-main:hover .btn-icon-wrap, .btn-roster-delete-main:hover .btn-icon-wrap, .btn-roster-delete-main.active .btn-icon-wrap { display: none; }
     .btn-roster-add-main .btn-text-wrap, .btn-roster-delete-main .btn-text-wrap { display: none; opacity: 0; transition: opacity 0.1s ease-in; font-size: 12px; white-space: nowrap; }
     .btn-roster-add-main:hover .btn-text-wrap, .btn-roster-delete-main:hover .btn-text-wrap, .btn-roster-delete-main.active .btn-text-wrap { display: inline; opacity: 1; transition-delay: 0.05s; }
@@ -279,7 +278,6 @@
     .report-footer { margin-top: 15px; padding: 15px 20px; background-color: #f1f5f9; border-radius: 12px; font-size: 11px; color: #475569; line-height: 1.6; flex-shrink: 0; border: 1px solid #e2e8f0; }
 
     .batch-row-disabled td { color: #adb5bd !important; background-color: #f8f9fa !important; }
-    /* 💡 수정사항 반영: 90% 수준으로 너비 줄임 (130px -> 117px) */
     .batch-row-disabled select, .batch-row-disabled input[type="number"] { background-color: #e9ecef !important; color: #adb5bd !important; border-color: #e9ecef !important; }
 
     /* 수정된 전광판 CSS */
@@ -781,7 +779,7 @@
       </div>
 
       <div class="admin-marquee-wrapper">
-        <span class="admin-marquee-text">※ 시험 세팅(단원명/배점)을 수정하여 저장할 경우, 이미 입력된 학생들의 성적은 자동 업데이트됩니다.</span>
+        <span class="admin-marquee-text">※ 시험 세팅(단원명/배점)을 수정하여 저장할 경우, 이미 성적이 입력된 전체 학생의 총점과 등수가 '자동으로 재계산'되어 업데이트됩니다.</span>
       </div>
 
       <div style="position: fixed; bottom: 52px; left: 40px; z-index: 150;">
@@ -809,6 +807,41 @@
 
     const courseAbbrMap = { "3가": "초등 3-1", "3나": "초등 3-2", "초3-1": "초등 3-1", "초3-2": "초등 3-2", "4가": "초등 4-1", "4나": "초등 4-2", "초4-1": "초등 4-1", "초4-2": "초등 4-2", "5가": "초등 5-1", "5나": "초등 5-2", "초5-1": "초등 5-1", "초5-2": "초등 5-2", "6가": "초등 6-1", "6나": "초등 6-2", "초6-1": "초등 6-1", "초6-2": "초등 6-2", "7가": "중등 1-1", "7나": "중등 1-2", "중1-1": "중등 1-1", "중1-2": "중등 1-2", "8가": "중등 2-1", "8나": "중등 2-2", "중2-1": "중등 2-1", "중2-2": "중등 2-2", "9가": "중등 3-1", "9나": "중등 3-2", "중3-1": "중등 3-1", "중3-2": "중등 3-2", "10가": "고등 공통수학1", "10나": "고등 공통수학2", "공통수학1": "고등 공통수학1", "공통수학2": "고등 공통수학2", "공수1": "고등 공통수학1", "공수2": "고등 공통수학2", "수학1": "고등 수학1", "수학2": "고등 수학2", "수1": "고등 수학1", "수2": "고등 수학2", "수I": "고등 수학1", "수II": "고등 수학2", "미적": "고등 미적분", "미적1": "고등 미적분1", "미적2": "고등 미적분2", "기하": "고등 기하", "확통": "고등 확률과 통계", "대수": "고등 대수" };
 
+    // 💡 [추가] 네트워크 통신 자동 재시도 함수 (모든 fetch에 일괄 적용됨)
+    async function fetchWithRetry(url, options, retries = 3, delay = 1500) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const response = await fetch(url, options);
+          if (!response.ok && response.status >= 500) throw new Error(`서버 에러 (${response.status})`);
+          return response;
+        } catch (e) {
+          if (i === retries - 1) throw e;
+          await new Promise(res => setTimeout(res, delay));
+        }
+      }
+    }
+
+    // 💡 [추가] 7일 지난 오래된 임시저장(Draft) 찌꺼기 자동 삭제 함수
+    function cleanupOldDrafts() {
+      const now = Date.now();
+      const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+      let keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        if (key && key.startsWith('LT_Draft_')) {
+          try {
+            let data = JSON.parse(localStorage.getItem(key));
+            if (data.timestamp && (now - data.timestamp > SEVEN_DAYS)) {
+              keysToRemove.push(key);
+            } else if (!data.timestamp) {
+              keysToRemove.push(key); 
+            }
+          } catch (e) { keysToRemove.push(key); }
+        }
+      }
+      keysToRemove.forEach(k => localStorage.removeItem(k));
+    }
+
     // 💡 임시 저장(Draft) 기능 함수들
     function getDraftKey(ctx) { return `LT_Draft_${ctx.term}_${ctx.test}_${ctx.campus}_${ctx.course}_${ctx.teacher}_${ctx.className}`; }
     
@@ -829,7 +862,7 @@
                 draftGrades.push(g);
             }
         });
-        localStorage.setItem(key, JSON.stringify({ students: draftStudents, grades: draftGrades }));
+        localStorage.setItem(key, JSON.stringify({ timestamp: Date.now(), students: draftStudents, grades: draftGrades }));
     }
 
     function clearUnsavedState() {
@@ -894,7 +927,6 @@
       document.getElementById('inputTableContainer').style.display = 'none'; document.getElementById('inputEmptyState').style.display = 'block'; document.getElementById('reportContainer').style.display = 'none'; document.getElementById('reportEmptyState').style.display = 'block'; document.getElementById('reportSummaryMemo').style.display = 'none'; document.getElementById('reportBatchSaveWrap').style.display = 'none'; document.getElementById('dashContainer').style.display = 'none'; document.getElementById('dashEmptyState').style.display = 'block'; loadedExamContext = null; filterCourses('main', true); showSuccessAlert("검색 조건이 초기화되었습니다."); 
     }
 
-    // 💡 관리자 화면 초기화(리셋) 헬퍼 함수
     function resetAdminFilters() {
       document.getElementById('setupCombinedTest').value = "";
       document.getElementById('setupLevel').value = "";
@@ -917,7 +949,6 @@
     function renderSetupStatusTable() { const tt = getTermAndTest('setup'); const tbody = document.getElementById('setupStatusTableBody'); if (!tbody) return; if (!tt.term || !tt.test) { tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; color: #888; text-align: center;">테스트를 선택하세요.</td></tr>'; return; } const levels = globalData.settings.levels || [], courses = globalData.settings.courses || []; if (levels.length === 0 || courses.length === 0) { tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; color: #888; text-align: center;">환경설정에서 난이도와 과정을 등록해주세요.</td></tr>'; return; } let html = ''; levels.forEach((level, levelIdx) => { let levelBg = (levelIdx % 2 === 0) ? '#ffffff' : '#f8f9fa'; courses.forEach(course => { let combined = level + " " + course; let isSaved = globalData.setups.some(s => s.term === tt.term && s.test === tt.test && ((s.level === level && s.courseName === course) || s.course === combined)); html += `<tr style="cursor: pointer; border-bottom: 1px solid #eee; background-color: ${levelBg};" onclick="selectSetupFromStatus('${level}', '${course}')"><td style="padding: 6px 4px; color: #333;">${level}</td><td style="padding: 6px 4px; color: #333; text-align: left; padding-left: 8px;">${course}</td><td style="padding: 6px 4px; color: ${isSaved ? '#28a745' : '#adb5bd'}; font-weight: bold;">${isSaved ? '✔' : '-'}</td></tr>`; }); }); tbody.innerHTML = html; }
     function selectSetupFromStatus(level, course) { document.getElementById('setupLevel').value = level; document.getElementById('setupCourse').value = course; checkExistingSetup(); }
 
-    // 💡 네비게이션 이동 시 변경사항 확인 팝업
     function switchNav(navId) {
       const currentActive = document.querySelector('.nav-btn.active');
       const navNames = { 'input': '성적 입력', 'report': '성적표 출력', 'data': '성적 분석' };
@@ -941,7 +972,6 @@
       syncMainDropdownColors();
     }
 
-    // 💡 관리자/메인 페이지 이동 시 변경사항 확인 팝업
     function switchPage(pageId) { 
       const isActive = document.getElementById(pageId).classList.contains('active');
       if (hasUnsavedChanges && !isActive) {
@@ -956,12 +986,13 @@
       document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active')); document.getElementById(pageId).classList.add('active'); const adminBtn = document.getElementById('headerAdminBtn'), mainBtn = document.getElementById('headerMainBtn'), headerTitle = document.getElementById('mainHeaderTitle'), navTabs = document.getElementById('navTabs'); if (pageId === 'page-main') { adminBtn.style.display = 'flex'; mainBtn.style.display = 'none'; navTabs.style.display = 'flex'; headerTitle.innerHTML = `<img src="https://i.imgur.com/PQRrCSI.png" alt="로고"> 성적표 통합 시스템`; } else { adminBtn.style.display = 'none'; mainBtn.style.display = 'flex'; navTabs.style.display = 'none'; headerTitle.innerHTML = `<img src="https://i.imgur.com/PQRrCSI.png" alt="로고"> 시험 기본 세팅 (관리자)`; renderSetupStatusTable(); } 
     }
 
-    window.onload = function() { fetchMetadata(); renderSetupTable(); };
+    // 💡 초기화 시 Draft 청소 함수 호출
+    window.onload = function() { cleanupOldDrafts(); fetchMetadata(); renderSetupTable(); };
 
     function fetchMetadata(silent = false, preserveState = false) {
       const url = document.getElementById('backendUrl').value.trim(); if (url.includes('YOUR_GAS_ID_HERE')) return;
       if(!silent) { if(!isInitialAppLoad) showLoading(true, "시스템 로딩 중..."); }
-      fetch(url, { method: 'POST', body: JSON.stringify({ action: 'getDropdownData' }) }).then(async res => { const text = await res.text(); try { return JSON.parse(text); } catch (e) { throw new Error("구글 계정 권한 오류이거나 URL 연결 실패입니다."); } }).then(res => {
+      fetchWithRetry(url, { method: 'POST', body: JSON.stringify({ action: 'getDropdownData' }) }).then(async res => { const text = await res.text(); try { return JSON.parse(text); } catch (e) { throw new Error("구글 계정 권한 오류이거나 URL 연결 실패입니다."); } }).then(res => {
         if(!silent) { if(!isInitialAppLoad) showLoading(false); }
         if(isInitialAppLoad) { setTimeout(() => { const splash = document.getElementById('introSplash'); if (splash) { splash.classList.add('hidden'); setTimeout(() => splash.style.display = 'none', 800); } isInitialAppLoad = false; }, 400); }
         if(res.success) { globalData = res.data; populateSettingsAndDropdowns(preserveState); renderSetupStatusTable(); } else { showAlert(res.error || "서버 통신 지연입니다. 다시 시도해 주세요."); }
@@ -975,7 +1006,7 @@
     function appendSettingsRow(c='', t='', ts='', l='', cr='') { const tbody = document.getElementById('settingsGridBody'); const tr = document.createElement('tr'); tr.innerHTML = `<td><input type="text" class="set-input set-campus" value="${c}" onkeydown="handleSettingsKeydown(event, this, 0)"></td><td><input type="text" class="set-input set-term" value="${t}" onkeydown="handleSettingsKeydown(event, this, 1)"></td><td><input type="text" class="set-input set-test" value="${ts}" onkeydown="handleSettingsKeydown(event, this, 2)"></td><td><input type="text" class="set-input set-level" value="${l}" onkeydown="handleSettingsKeydown(event, this, 3)"></td><td style="border-right: none;"><input type="text" class="set-input set-course" value="${cr}" onkeydown="handleSettingsKeydown(event, this, 4)"></td>`; tbody.appendChild(tr); }
     function handleSettingsKeydown(e, input, colIdx) { const tr = input.closest('tr'); const tbody = tr.parentElement; const rows = Array.from(tbody.children); const rowIdx = rows.indexOf(tr); let nextInput = null; if (e.key === "Enter" || e.key === "ArrowDown") { e.preventDefault(); if (rowIdx < rows.length - 1) { nextInput = rows[rowIdx + 1].querySelectorAll('.set-input')[colIdx]; } else if (input.value.trim() !== '') { appendSettingsRow(); nextInput = rows[rowIdx + 1].querySelectorAll('.set-input')[colIdx]; tbody.parentElement.parentElement.scrollTop = tbody.parentElement.parentElement.scrollHeight; } } else if (e.key === "ArrowUp") { e.preventDefault(); if (rowIdx > 0) nextInput = rows[rowIdx - 1].querySelectorAll('.set-input')[colIdx]; } else if (e.key === "ArrowRight" && input.selectionStart === input.value.length) { e.preventDefault(); if (colIdx < 4) nextInput = tr.querySelectorAll('.set-input')[colIdx + 1]; } else if (e.key === "ArrowLeft" && input.selectionEnd === 0) { e.preventDefault(); if (colIdx > 0) nextInput = tr.querySelectorAll('.set-input')[colIdx - 1]; } if (nextInput) nextInput.focus(); }
 
-    function saveSettings() { const extract = (className) => Array.from(document.querySelectorAll(className)).map(i => i.value.trim()).filter(v => v); const payload = { action: 'saveSettings', campuses: extract('.set-campus'), terms: extract('.set-term'), tests: extract('.set-test'), levels: extract('.set-level'), courses: extract('.set-course') }; if(payload.campuses.length === 0 || payload.terms.length === 0 || payload.tests.length === 0) return showAlert("캠퍼스, 학기, 테스트 목록은 최소 1개 이상 입력해야 합니다."); showLoading(true, "환경설정 저장 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify(payload) }).then(res => res.json()).then(res => { if(res.success) { document.getElementById('settingsModal').style.display = 'none'; fetchMetadata(true); showLoading(false); showSuccessAlert("설정이 안전하게 저장되었습니다."); } else { showLoading(false); showAlert(res.error); } }).catch(handleError); }
+    function saveSettings() { const extract = (className) => Array.from(document.querySelectorAll(className)).map(i => i.value.trim()).filter(v => v); const payload = { action: 'saveSettings', campuses: extract('.set-campus'), terms: extract('.set-term'), tests: extract('.set-test'), levels: extract('.set-level'), courses: extract('.set-course') }; if(payload.campuses.length === 0 || payload.terms.length === 0 || payload.tests.length === 0) return showAlert("캠퍼스, 학기, 테스트 목록은 최소 1개 이상 입력해야 합니다."); showLoading(true, "환경설정 저장 중..."); fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify(payload) }).then(res => res.json()).then(res => { if(res.success) { document.getElementById('settingsModal').style.display = 'none'; fetchMetadata(true); showLoading(false); showSuccessAlert("설정이 안전하게 저장되었습니다."); } else { showLoading(false); showAlert(res.error); } }).catch(handleError); }
 
     function populateSettingsAndDropdowns(preserveState = false) {
       const s = globalData.settings;
@@ -1039,7 +1070,7 @@
           for (let i = headerRowIdx + 1; i < jsonArr.length; i++) { let row = jsonArr[i]; if (!row || row.length === 0) continue; let ban = String(row[colMap.ban] || '').trim(); let name = String(row[colMap.name] || '').replace(/\([^)]*\)/g, '').trim(); if (!ban || !name) continue; let school = colMap.school !== -1 ? String(row[colMap.school] || '').trim() : '', grade = colMap.grade !== -1 ? String(row[colMap.grade] || '').trim() : '', teacher = colMap.teacher !== -1 ? String(row[colMap.teacher] || '').trim() : ''; parsedStudents.push([termName, testName, campusName, teacher, ban, name, school, grade]); }
           if(parsedStudents.length === 0) throw new Error("데이터가 없습니다.");
           let isDuplicate = globalData.rosters.some(r => r.term === termName && r.test === testName && r.campus === campusName);
-          const executeUpload = () => { showLoading(true, "저장 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'uploadRoster', term: termName, test: testName, campus: campusName, students: parsedStudents }) }).then(res => res.json()).then(result => { showLoading(false); document.getElementById('fileInput').value = ''; if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showSuccessAlert(`업로드 완료!`); fetchMetadata(true, true); } else { showAlert(result.error); } }).catch(err => { document.getElementById('fileInput').value = ''; handleError(err); }); };
+          const executeUpload = () => { showLoading(true, "저장 중..."); fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'uploadRoster', term: termName, test: testName, campus: campusName, students: parsedStudents }) }).then(res => res.json()).then(result => { showLoading(false); document.getElementById('fileInput').value = ''; if(result.success) { document.getElementById('rosterUploadModal').style.display = 'none'; showSuccessAlert(`업로드 완료!`); fetchMetadata(true, true); } else { showAlert(result.error); } }).catch(err => { document.getElementById('fileInput').value = ''; handleError(err); }); };
           if (isDuplicate) { showLoading(false); setTimeout(() => { if (confirm(`해당 테스트의 명단이 이미 있습니다.\n기존 명단을 삭제하고 새로 덮어쓰시겠습니까?`)) executeUpload(); else document.getElementById('fileInput').value = ''; }, 50); } else { executeUpload(); }
         } catch (err) { showLoading(false); document.getElementById('fileInput').value = ''; showAlert(err.message); }
       }; reader.readAsArrayBuffer(file);
@@ -1416,7 +1447,6 @@
       }
     }
 
-    // 💡 다중 일괄 등록 시 덮어쓰기 팝업 로직 추가
     function executeBatchSetup() {
       const tt = getTermAndTest('setup');
       if (!tt.term || !tt.test) return showAlert("상단에서 테스트를 선택해주세요.");
@@ -1474,7 +1504,7 @@
 
     function performBatchSave(setupsPayload) {
       showLoading(true, "일괄 저장 중...");
-      fetch(document.getElementById('backendUrl').value.trim(), {
+      fetchWithRetry(document.getElementById('backendUrl').value.trim(), {
         method: 'POST',
         body: JSON.stringify({ action: 'batchSaveExamSetup', setups: setupsPayload })
       })
@@ -1495,10 +1525,9 @@
     function checkExistingSetup() {
       const tt = getTermAndTest('setup'); const t = tt.term; const ts = tt.test; const l = document.getElementById('setupLevel')?.value; const cr = document.getElementById('setupCourse')?.value; clearAllSetupData();
       if (!t || !ts || !l || !cr) return; showLoading(true, "기존 세팅 불러오는 중...");
-      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getExamSetup', term: t, test: ts, level: l, course: cr }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success && res.data) { document.getElementById('setupStartNum').value = res.data.startNum; document.getElementById('setupEndNum').value = res.data.startNum + res.data.totalCount - 1; clearAllSetupData(); renderSetupTable(); res.data.items.forEach(item => { let u = document.getElementById(`unit_${item.num}`); let s = document.getElementById(`score_${item.num}`); if(u) u.value = item.unit; if(s) { s.value = item.score; updateDiff(item.num); } }); } else { renderSetupTable(); } }).catch(err => { showLoading(false); handleError(err); });
+      fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getExamSetup', term: t, test: ts, level: l, course: cr }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success && res.data) { document.getElementById('setupStartNum').value = res.data.startNum; document.getElementById('setupEndNum').value = res.data.startNum + res.data.totalCount - 1; clearAllSetupData(); renderSetupTable(); res.data.items.forEach(item => { let u = document.getElementById(`unit_${item.num}`); let s = document.getElementById(`score_${item.num}`); if(u) u.value = item.unit; if(s) { s.value = item.score; updateDiff(item.num); } }); } else { renderSetupTable(); } }).catch(err => { showLoading(false); handleError(err); });
     }
 
-    // 💡 단일 저장 시 덮어쓰기 팝업 로직 추가
     function saveExamSetup() {
       const tt = getTermAndTest('setup'); const term = tt.term, test = tt.test, level = document.getElementById('setupLevel').value, course = document.getElementById('setupCourse').value; if(!term || !test || !level || !course) return showAlert("상단 항목을 모두 선택하세요.");
       const startNum = parseInt(document.getElementById('setupStartNum').value) || 1; const endNum = parseInt(document.getElementById('setupEndNum').value) || 45; const totalCount = endNum - startNum + 1; const items = [];
@@ -1507,7 +1536,7 @@
       let isDuplicate = globalData.setups && globalData.setups.some(s => s.term === term && s.test === test && s.course === (level + " " + course));
       
       if (isDuplicate) {
-        showConfirmModal(`[<b>${level} ${course}</b>] 과정의 시험 세팅이 이미 존재합니다.<br>덮어쓰시겠습니까?<br><br><span style="color:#dc3545; font-size:12px;">(저장 시, 이미 성적이 입력된 전체 학생의 총점 및 등수는<br>자동으로 <b>업데이트</b>됩니다.)</span>`, function() { 
+        showConfirmModal(`[<b>${level} ${course}</b>] 과정의 시험 세팅이 이미 존재합니다.<br><br>덮어쓰시겠습니까?<br><br><span style="color:#dc3545; font-size:12px;">(저장 시, 이미 성적이 입력된 전체 학생의 총점 및 등수는<br>자동으로 <b>업데이트</b>됩니다.)</span>`, function() { 
           executeSaveExamSetup(term, test, level, course, totalCount, startNum, items); 
         }, function(){});
       } else {
@@ -1516,10 +1545,9 @@
     }
 
     function executeSaveExamSetup(term, test, level, course, totalCount, startNum, items) {
-      showLoading(true, "저장 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveExamSetup', term, test, level, course, totalCount, startNum, items }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success) { showSuccessAlert("시험 기본 세팅 정보가 안전하게 저장되었습니다."); fetchMetadata(true, true); } else { showAlert(res.error); } }).catch(handleError);
+      showLoading(true, "저장 중..."); fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveExamSetup', term, test, level, course, totalCount, startNum, items }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success) { showSuccessAlert("시험 기본 세팅 정보가 안전하게 저장되었습니다."); fetchMetadata(true, true); } else { showAlert(res.error); } }).catch(handleError);
     }
 
-    // 💡 명단 로딩 시 저장되지 않은 데이터 덮어쓰기 방지 추가
     function loadGradesData(afterLoadMsg = null, highlightedStudentName = null) {
         const tt = getTermAndTest('main'); const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value; 
         if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
@@ -1558,10 +1586,9 @@
         executeLoadGradesData(term, test, campus, course, teacher, className, afterLoadMsg, highlightedStudentName);
     }
 
-    // 💡 임시 저장 데이터(Draft) 발견 시 복구 팝업 로직 추가
     function executeLoadGradesData(term, test, campus, course, teacher, className, afterLoadMsg, highlightedStudentName) {
         studentUndoSnapshots = {}; isDeleteMode = false; const delBtn = document.getElementById('toggleDeleteBtn'); if(delBtn) { delBtn.classList.remove('active'); const textWrap = delBtn.querySelector('.btn-text-wrap'); if(textWrap) textWrap.innerText = '학생삭제'; }
-        showLoading(true, "데이터 불러오는 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, test, campus, course, teacher, className }) }).then(res => res.json()).then(res => { 
+        showLoading(true, "데이터 불러오는 중..."); fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, test, campus, course, teacher, className }) }).then(res => res.json()).then(res => { 
             showLoading(false); 
             if(res.success) { 
               loadedExamContext = { term, test, campus, course, teacher, className };
@@ -1570,7 +1597,6 @@
 
               if (savedDraft) {
                   showConfirmModal(`이전에 작성하다가 저장하지 않은 임시 데이터가<br>발견되었습니다.<br>복구하시겠습니까?`, function() {
-                      // 임시 데이터 복구 (예)
                       let parsedDraft = JSON.parse(savedDraft);
                       currentGlobalOtherScores = res.data.globalOtherScores || []; 
                       renderInputTable(res.data.setupData, parsedDraft.students, parsedDraft.grades);
@@ -1578,7 +1604,6 @@
                       if (afterLoadMsg) { setTimeout(() => showSuccessAlert(afterLoadMsg), 50); } 
                       if (highlightedStudentName) { let targetIdx = parsedDraft.students.findIndex(s => s.name.trim() === highlightedStudentName.trim()); if (targetIdx !== -1) { setTimeout(() => { highlightCells(document.querySelectorAll(`.grid-nav[data-s="${targetIdx}"], #totalScore_${targetIdx}, #rank_${targetIdx}`)); }, 150); } } 
                   }, function() {
-                      // 임시 데이터 무시 및 삭제 (아니오)
                       localStorage.removeItem(draftKey);
                       hasUnsavedChanges = false;
                       currentGlobalOtherScores = res.data.globalOtherScores || []; 
@@ -1587,7 +1612,6 @@
                       if (highlightedStudentName) { let targetIdx = res.data.students.findIndex(s => s.name.trim() === highlightedStudentName.trim()); if (targetIdx !== -1) { setTimeout(() => { highlightCells(document.querySelectorAll(`.grid-nav[data-s="${targetIdx}"], #totalScore_${targetIdx}, #rank_${targetIdx}`)); }, 150); } } 
                   });
               } else {
-                  // 임시 데이터가 없는 정상적인 로드
                   hasUnsavedChanges = false;
                   currentGlobalOtherScores = res.data.globalOtherScores || []; 
                   renderInputTable(res.data.setupData, res.data.students, res.data.grades); 
@@ -1625,21 +1649,21 @@
       document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { let qIdx = input.dataset.q; snapshot.answers[qIdx] = input.value; }); studentUndoSnapshots[sIdx] = snapshot;
       document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { input.value = val; input.classList.remove('val-o', 'val-x'); if (val === 'O') input.classList.add('val-o'); else if (val === 'X') input.classList.add('val-x'); });
       calculateStudentScore(sIdx); updateAllRanks();
-      markAsUnsaved(); // 💡 상태 변경 임시저장
+      markAsUnsaved(); 
     }
 
     function undoStudentAnswers(sIdx) {
       if (currentStudentsList[sIdx].isDeleted) return; let snapshot = studentUndoSnapshots[sIdx]; if (!snapshot) { return showAlert("해당 학생의 되돌릴 직전 일괄 입력 기록이 없습니다."); }
       document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { let qIdx = input.dataset.q; let prevVal = snapshot.answers[qIdx] || ''; input.value = prevVal; input.classList.remove('val-o', 'val-x'); if (prevVal === 'O') input.classList.add('val-o'); else if (prevVal === 'X') input.classList.add('val-x'); });
       calculateStudentScore(sIdx); updateAllRanks();
-      markAsUnsaved(); // 💡 상태 변경 임시저장
+      markAsUnsaved(); 
     }
 
     function handleOxInput(e, qIdx, sIdx) {
       let inputEl = e.target; let val = inputEl.value.trim().toLowerCase(); inputEl.classList.remove('val-o', 'val-x'); let isValidInput = false;
       if (['1', 'o', '0', 'ㅇ', 'ㅐ'].includes(val)) { inputEl.value = 'O'; inputEl.classList.add('val-o'); isValidInput = true; } else if (['2', 'x', 'ㅂ', 'ㅌ'].includes(val)) { inputEl.value = 'X'; inputEl.classList.add('val-x'); isValidInput = true; } else { inputEl.value = ''; isValidInput = (val === ''); }
       calculateStudentScore(sIdx); updateAllRanks();
-      markAsUnsaved(); // 💡 입력 즉시 임시저장 트리거
+      markAsUnsaved(); 
 
       if (isValidInput && val !== '') { if (qIdx === currentExamSetup.totalCount - 1) { let nextValidIdx = -1; for (let i = sIdx + 1; i < currentStudentsCount; i++) { if (!currentStudentsList[i].isEmpty && !currentStudentsList[i].isDeleted) { nextValidIdx = i; break; } } if (nextValidIdx !== -1) { pendingNextStudentIdx = nextValidIdx; document.getElementById('nextStudentName').innerText = currentStudentsList[pendingNextStudentIdx].name; document.getElementById('nextStudentModal').style.display = 'flex'; } else { showAlert("모든 학생의 채점이 완료되었습니다."); } } else { let next = document.querySelector(`.grid-nav[data-q="${qIdx + 1}"][data-s="${sIdx}"]`); focusNextCell(next); } }
     }
@@ -1683,7 +1707,7 @@
       if (emptyIdx !== -1) { currentStudentsList[emptyIdx] = newStudentObj; } else { currentStudentsList.push(newStudentObj); }
       document.getElementById('addStudentModal').style.display = 'none'; 
       renderInputTable(currentExamSetup, currentStudentsList, currentGrades);
-      markAsUnsaved(); // 💡 상태 변경 임시저장
+      markAsUnsaved(); 
     }
 
     function toggleStudentDeleteMode() {
@@ -1725,7 +1749,6 @@
       executeSaveGrades(); 
     }
 
-    // 💡 성적 저장 완료 시 임시 데이터 초기화 (초안 삭제)
     function executeSaveGrades() {
       if (!loadedExamContext || !loadedExamContext.term) return showAlert("저장할 명단 정보가 없습니다. 명단을 다시 불러와 주세요.");
       const { term, test, campus, course, teacher, className } = loadedExamContext;
@@ -1733,10 +1756,10 @@
       let studentsData = []; let rosterUpdates = { added: [], deleted: [], restored: [] };
       for (let sIdx = 0; sIdx < currentStudentsCount; sIdx++) { let stObj = currentStudentsList[sIdx]; if (stObj.isDeleted) { if (!stObj.isNew) rosterUpdates.deleted.push(stObj.name); continue; } if (stObj.isNew) { rosterUpdates.added.push({ name: stObj.name, school: stObj.school || '', grade: stObj.grade || '' }); } else { rosterUpdates.restored.push(stObj.name); } let totalEl = document.getElementById(`totalScore_${sIdx}`); let rankEl = document.getElementById(`rank_${sIdx}`); if (totalEl.dataset.valid === 'true') { let total = totalEl.innerText; let rank = rankEl ? rankEl.innerText : ''; let answers = {}; document.querySelectorAll(`.grid-nav[data-s="${sIdx}"]`).forEach(input => { let qNum = currentExamSetup.startNum + parseInt(input.dataset.q); answers[qNum] = input.value; }); studentsData.push({ name: stObj.name, school: stObj.school || '', grade: stObj.grade || '', totalScore: total, rank: rank, answers: answers }); } }
       if (studentsData.length === 0 && rosterUpdates.added.length === 0 && rosterUpdates.deleted.length === 0 && rosterUpdates.restored.length === 0) { return showAlert("저장할 성적 또는 명단 변경 데이터가 없습니다."); }
-      showLoading(true, "결과 및 명단 변경사항 저장 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveStudentGrades', term, test, campus, course, teacher, className, students: studentsData, rosterUpdates: rosterUpdates }) }).then(res => res.json()).then(res => { 
+      showLoading(true, "결과 및 명단 변경사항 저장 중..."); fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveStudentGrades', term, test, campus, course, teacher, className, students: studentsData, rosterUpdates: rosterUpdates }) }).then(res => res.json()).then(res => { 
         showLoading(false); 
         if(res.success) { 
-          clearUnsavedState(); // 💡 DB저장 성공 시 임시저장 내용 초기화
+          clearUnsavedState(); 
           showSuccessAlert("결과 및 명단 변경사항이 안전하게 저장되었습니다."); 
           currentStudentsList.forEach(s => s.isNew = false); 
           fetchMetadata(true, true); 
@@ -1750,7 +1773,7 @@
 
     function generateReports() {
       const tt = getTermAndTest('main'); const term = tt.term, test = tt.test, course = document.getElementById('mainCourse').value; const campus = document.getElementById('mainCampus').value || ""; const teacher = document.getElementById('mainTeacher').value || ""; const className = document.getElementById('mainClass').value || ""; if (!term || !test || !course) return showAlert("테스트와 과정명을 선택해주세요.");
-      showLoading(true, "성적 분석 및 렌더링 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getReportData', term, test, campus, course, teacher, className }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success) { document.getElementById('reportEmptyState').style.display = 'none'; document.getElementById('reportContainer').style.display = 'flex'; renderReportCards(res.data.examInfo, res.data.students); } else { showAlert(res.error); } }).catch(handleError);
+      showLoading(true, "성적 분석 및 렌더링 중..."); fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getReportData', term, test, campus, course, teacher, className }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success) { document.getElementById('reportEmptyState').style.display = 'none'; document.getElementById('reportContainer').style.display = 'flex'; renderReportCards(res.data.examInfo, res.data.students); } else { showAlert(res.error); } }).catch(handleError);
     }
 
     function renderReportCards(examInfo, students) {
@@ -1801,18 +1824,45 @@
     }
 
     function saveSingleReportImage(btnEl, studentName) { const pageEl = btnEl.closest('.report-page'); const tt = getTermAndTest('main'); const fileName = `${tt.term}_${tt.test}_${studentName}.jpg`; showLoading(true, `[${studentName}] 성적표 이미지 생성 중...`); html2canvas(pageEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff', ignoreElements: (el) => el.classList.contains('no-capture') }).then(canvas => { showLoading(false); canvas.toBlob(blob => { saveAs(blob, fileName); }, 'image/jpeg', 0.95); }).catch(err => { showLoading(false); showAlert("이미지 저장 중 오류가 발생했습니다: " + err.message); }); }
-    async function saveAllReportsZip() { const pages = document.querySelectorAll('.report-page'); if (!pages || pages.length === 0) return showAlert("렌더링된 성적표가 없습니다."); const tt = getTermAndTest('main'); const course = document.getElementById('mainCourse').value || "성적표"; const zipFileName = `${tt.term}_${tt.test}_${course}_성적표.zip`; const zip = new JSZip(); const imgFolder = zip.folder("성적표_이미지"); showLoading(true, `전체 성적표(${pages.length}장) 압축 이미지 생성 중... (0/${pages.length})`); for (let i = 0; i < pages.length; i++) { const pageEl = pages[i]; const stNameEl = pageEl.querySelector('.report-info strong[style*="color:#3b82f6"]'); const stName = stNameEl ? stNameEl.innerText.trim() : `학생_${i+1}`; showLoading(true, `전체 성적표(${pages.length}장) 압축 이미지 생성 중... (${i+1}/${pages.length})`); const canvas = await html2canvas(pageEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff', ignoreElements: (el) => el.classList.contains('no-capture') }); const blobData = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92)); imgFolder.file(`${tt.term}_${tt.test}_${stName}.jpg`, blobData); } showLoading(true, "ZIP 압축 파일 생성 중..."); const content = await zip.generateAsync({ type: "blob" }); showLoading(false); saveAs(content, zipFileName); showSuccessAlert(`총 ${pages.length}장의 성적표가 ZIP 파일로 저장되었습니다!`); }
+    
+    // 💡 ZIP 다운로드 메모리 최적화 로직 적용 완료
+    async function saveAllReportsZip() { 
+      const pages = document.querySelectorAll('.report-page'); 
+      if (!pages || pages.length === 0) return showAlert("렌더링된 성적표가 없습니다."); 
+      const tt = getTermAndTest('main'); const course = document.getElementById('mainCourse').value || "성적표"; 
+      const zipFileName = `${tt.term}_${tt.test}_${course}_성적표.zip`; 
+      const zip = new JSZip(); const imgFolder = zip.folder("성적표_이미지"); 
+      showLoading(true, `전체 성적표(${pages.length}장) 압축 이미지 생성 중... (0/${pages.length})`); 
+      for (let i = 0; i < pages.length; i++) { 
+        const pageEl = pages[i]; 
+        const stNameEl = pageEl.querySelector('.report-info strong[style*="color:#3b82f6"]'); 
+        const stName = stNameEl ? stNameEl.innerText.trim() : `학생_${i+1}`; 
+        showLoading(true, `전체 성적표(${pages.length}장) 압축 이미지 생성 중... (${i+1}/${pages.length})`); 
+        
+        // 💡 브라우저 UI 갱신 및 메모리 정리를 위한 50ms 비동기 휴식 부여
+        await new Promise(resolve => setTimeout(resolve, 50)); 
+        
+        const canvas = await html2canvas(pageEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff', ignoreElements: (el) => el.classList.contains('no-capture') }); 
+        const blobData = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92)); 
+        imgFolder.file(`${tt.term}_${tt.test}_${stName}.jpg`, blobData); 
+      } 
+      showLoading(true, "ZIP 압축 파일 생성 중..."); 
+      const content = await zip.generateAsync({ type: "blob" }); 
+      showLoading(false); 
+      saveAs(content, zipFileName); 
+      showSuccessAlert(`총 ${pages.length}장의 성적표가 ZIP 파일로 저장되었습니다!`); 
+    }
 
-    function openBackupModal() { showLoading(true, "학기 목록 조회 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getBackupTermList' }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success) { renderBackupTermList(res.data.terms); document.getElementById('backupModal').style.display = 'flex'; } else { showAlert(res.error); } }).catch(handleError); }
+    function openBackupModal() { showLoading(true, "학기 목록 조회 중..."); fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getBackupTermList' }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success) { renderBackupTermList(res.data.terms); document.getElementById('backupModal').style.display = 'flex'; } else { showAlert(res.error); } }).catch(handleError); }
     function renderBackupTermList(terms) { const tbody = document.getElementById('backupTermTableBody'); tbody.innerHTML = ''; if (!terms || terms.length === 0) { tbody.innerHTML = '<tr><td colspan="3" style="padding: 25px; color: #888; text-align: center;">저장된 학기 데이터가 없습니다.</td></tr>'; return; } terms.forEach(term => { tbody.innerHTML += `<tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px; text-align: center;"><input type="checkbox" class="backup-term-chk" value="${term}" style="width:16px; height:16px; cursor:pointer;"></td><td style="padding: 8px; font-weight: bold; color: #333; text-align: center;">${term}</td><td style="padding: 8px; text-align: center;"><button class="batch-btn batch-btn-o" style="margin: 0 auto; width: 66px; height: 24px;" onclick="downloadTermExcel('${term}')">엑셀 다운</button></td></tr>`; }); }
     function confirmBackupTerms() { const checked = Array.from(document.querySelectorAll('.backup-term-chk:checked')).map(c => c.value); if (checked.length === 0) return showAlert("백업할 학기를 최소 1개 이상 선택하세요."); document.getElementById('backupModal').style.display = 'none'; showConfirmModal(`선택한 학기 데이터를 새 파일로 백업합니다.<br><b>[선택 학기]</b><br><b>${checked.join("<br>")}</b>`, function() { executeBackupTerms(checked); }, function() { document.getElementById('backupModal').style.display = 'flex'; }); }
-    function executeBackupTerms(terms) { showLoading(true, "구글 드라이브 새 파일로 백업 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'backupTermData', terms: terms }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success) { askDeleteAfterBackup(terms); } else { showAlert(res.error); document.getElementById('backupModal').style.display = 'flex'; } }).catch(handleError); }
+    function executeBackupTerms(terms) { showLoading(true, "구글 드라이브 새 파일로 백업 중..."); fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'backupTermData', terms: terms }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success) { askDeleteAfterBackup(terms); } else { showAlert(res.error); document.getElementById('backupModal').style.display = 'flex'; } }).catch(handleError); }
     function askDeleteAfterBackup(terms) { showConfirmModal(`해당 학기 데이터가 백업 되었습니다.<br>해당 데이터를 삭제할까요?<br><span style="color:#28a745; font-size:13px;"><b>[백업 완료 학기]</b><br><b>${terms.join("<br>")}</b></span>`, function() { executeDeleteTerms(terms); }, function() { showSuccessAlert("백업만 완료되었으며, 원본 시트는 삭제되지 않고 유지됩니다."); }); }
-    function executeDeleteTerms(terms) { showLoading(true, "원본 학기 시트 삭제 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'deleteTermSheets', terms: terms }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success) { showSuccessAlert("백업 및 원본 시트 삭제가 안전하게 완료되었습니다."); fetchMetadata(true, true); } else { showAlert(res.error); } }).catch(handleError); }
+    function executeDeleteTerms(terms) { showLoading(true, "원본 학기 시트 삭제 중..."); fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'deleteTermSheets', terms: terms }) }).then(res => res.json()).then(res => { showLoading(false); if (res.success) { showSuccessAlert("백업 및 원본 시트 삭제가 안전하게 완료되었습니다."); fetchMetadata(true, true); } else { showAlert(res.error); } }).catch(handleError); }
     
     function downloadTermExcel(termName) { 
         showLoading(true, `[${termName}] 명단, 성적DB, 시험세팅 데이터 조회 중...`); 
-        fetch(document.getElementById('backendUrl').value.trim(), { 
+        fetchWithRetry(document.getElementById('backendUrl').value.trim(), { 
             method: 'POST', 
             body: JSON.stringify({ action: 'getTermExcelData', term: termName }) 
         }).then(res => res.json()).then(res => { 
@@ -1867,7 +1917,7 @@
     function generateDashboard() {
       const tt = getTermAndTest('main'); const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value; if (!term || !test || !campus || !course) return showAlert("[테스트, 과정, 캠퍼스]를 모두 선택해주세요."); showLoading(true, "분석 중...");
       
-      fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getDashboardData', term: term, test: test, campus: campus, course: course }) })
+      fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'getDashboardData', term: term, test: test, campus: campus, course: course }) })
       .then(res => res.json()).then(res => {
         showLoading(false);
         if(res.success) { 
