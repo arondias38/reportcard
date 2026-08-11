@@ -64,9 +64,9 @@
     #customAlertModal { z-index: 10030 !important; }
     #customConfirmModal { z-index: 10025 !important; }
     #batchSetupModal { z-index: 10020 !important; }
-    .modal-box { background: white; border-radius: 12px; padding: 25px 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .modal-box { background: white; border-radius: 12px; padding: 25px 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); line-height: 1.6; }
     .modal-btn { padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; background-color: #1366ce; color: white; transition: 0.2s; }
-    .modal-btn:hover { background-color: #0f52a8; }
+    .modal-btn:hover { background-color: #0f52a8; opacity: 0.9; }
 
     .top-nav-bar { flex-shrink: 0; background-color: #fff; border-radius: 50px; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 20px; position: relative; }
     .main-title { font-size: 18px; font-weight: normal; color: #111; margin: 0; display: flex; align-items: center; letter-spacing: -0.5px; }
@@ -361,9 +361,10 @@
 
   <div class="modal-overlay" id="customConfirmModal" style="z-index: 10010;">
     <div class="modal-box" style="width: 380px; padding: 25px;">
-      <div id="confirmMessage" class="modal-message" style="text-align: center; font-size: 15px; margin-bottom: 25px; font-weight:bold;"></div>
+      <div id="confirmMessage" class="modal-message" style="text-align: center; font-size: 15px; margin-bottom: 25px; font-weight:bold; line-height: 1.6;"></div>
+      <!-- 💡 수정사항 반영: 취소/아니오 버튼 회색 배경, 진한 회색 폰트 -->
       <div style="display: flex; gap: 10px;">
-        <button class="modal-btn" style="background-color: #6c757d;" onclick="closeConfirm(false)">아니오</button>
+        <button class="modal-btn" style="background-color: #e9ecef; color: #495057;" onclick="closeConfirm(false)">아니오</button>
         <button class="modal-btn" style="background-color: #28a745;" onclick="closeConfirm(true)">예</button>
       </div>
     </div>
@@ -386,8 +387,9 @@
             <input type="text" id="newStudentGrade" placeholder="ex. 1, 2..." style="width:100%; height:34px; padding:6px 10px; border:1px solid #ced4da; border-radius:4px; font-size:14px;">
          </div>
       </div>
-      <div style="display: flex; gap: 10px; justify-content: flex-end;">
-        <button class="modal-btn" style="background-color: #6c757d; width: 100px;" onclick="document.getElementById('addStudentModal').style.display='none'">취소</button>
+      <!-- 💡 수정사항 반영: 취소 버튼 너비 120px 변경 및 중앙 정렬 -->
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button class="modal-btn" style="background-color: #e9ecef; color: #495057; width: 120px;" onclick="document.getElementById('addStudentModal').style.display='none'">취소</button>
         <button class="modal-btn" style="background-color: #28a745; width: 120px;" onclick="addStudentToUI()">추가하기</button>
       </div>
     </div>
@@ -411,7 +413,7 @@
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-box" style="width: 700px; padding: 25px; text-align: left;">
       <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">필수 환경설정</div>
-      <p style="font-size: 13px; color: #666; margin-bottom: 15px;">기본 세팅 항목을 차례대로 입력해 주세요.</p>
+      <p style="font-size: 13px; color: #666; margin-bottom: 15px; line-height: 1.6;">기본 세팅 항목을 차례대로 입력해 주세요.</p>
       <div class="settings-table-wrapper">
         <table class="settings-table">
           <thead><tr><th width="20%">캠퍼스 목록</th><th width="20%">학기 목록</th><th width="20%">테스트 목록</th><th width="20%">난이도 목록</th><th width="20%" style="border-right: none;">과정명 목록</th></tr></thead>
@@ -419,7 +421,7 @@
         </table>
       </div>
       <div style="display: flex; justify-content: center; align-items: center; position: relative; width: 100%;">
-        <button class="modal-btn" style="background-color: #6c757d; width: 130px;" onclick="document.getElementById('settingsModal').style.display='none'">닫기</button>
+        <button class="modal-btn" style="background-color: #e9ecef; color: #495057; width: 130px;" onclick="document.getElementById('settingsModal').style.display='none'">닫기</button>
         <button class="modal-btn" style="background-color: #28a745; width: 130px; position: absolute; right: 0;" onclick="saveSettings()">설정 저장</button>
       </div>
     </div>
@@ -428,7 +430,7 @@
   <div class="modal-overlay" id="backupModal">
     <div class="modal-box" style="width: 480px; padding: 25px; text-align: left;">
       <div style="font-size: 20px; font-weight: 900; color: #28a745; margin-bottom: 6px; text-align: center;">데이터 백업</div>
-      <p style="font-size: 12px; color: #666; margin: 0 0 18px 0; text-align: center;">(데이터 백업 후 삭제 여부를 결정합니다.)</p>
+      <p style="font-size: 12px; color: #666; margin: 0 0 18px 0; text-align: center; line-height: 1.6;">(데이터 백업 후 삭제 여부를 결정합니다.)</p>
       <div class="settings-table-wrapper" style="max-height: 260px; margin-bottom: 20px;">
         <table class="settings-table" style="width: 100%;">
           <thead>
@@ -444,7 +446,7 @@
         </table>
       </div>
       <div style="position: relative; width: 100%; height: 38px; display: flex; align-items: center; justify-content: center; margin-top: 10px;">
-        <button class="modal-btn" style="background-color: #6c757d; width: 110px;" onclick="document.getElementById('backupModal').style.display='none'">닫기</button>
+        <button class="modal-btn" style="background-color: #e9ecef; color: #495057; width: 110px;" onclick="document.getElementById('backupModal').style.display='none'">닫기</button>
         <button class="modal-btn" style="background-color: #28a745; width: 125px; position: absolute; right: 0;" onclick="confirmBackupTerms()">백업 / 삭제</button>
       </div>
     </div>
@@ -460,11 +462,11 @@
       <div id="dropZone" class="paste-zone" style="padding: 40px 15px; margin-bottom: 20px;">
          <div style="font-size:32px; margin-bottom:10px;">📂</div>
          <div style="font-size:15px; font-weight:bold; color:#28a745; margin-bottom:8px;">엑셀 파일을 이곳에 끌어다 놓거나 클릭하세요.</div>
-         <div style="font-size:13px; color:#888; line-height: 1.4;">※ '담임명, 반명, 학생명, 학교, 학년' 열을 자동으로 추출합니다.</div>
+         <div style="font-size:13px; color:#888; line-height: 1.6;">※ '담임명, 반명, 학생명, 학교, 학년' 열을 자동으로 추출합니다.</div>
          <input type="file" id="fileInput" accept=".xlsx, .xls" style="display:none;">
       </div>
       <div class="modal-buttons" style="display: flex; justify-content: center; width: 100%;">
-        <button class="modal-btn btn-no" style="width: 25%; border-radius: 50px; padding: 10px 0; background-color: #6c757d;" onclick="document.getElementById('rosterUploadModal').style.display='none'">닫기</button>
+        <button class="modal-btn btn-no" style="width: 25%; border-radius: 50px; padding: 10px 0; background-color: #e9ecef; color: #495057;" onclick="document.getElementById('rosterUploadModal').style.display='none'">닫기</button>
       </div>
     </div>
   </div>
@@ -472,7 +474,7 @@
   <div class="modal-overlay" id="batchSetupModal">
     <div class="modal-box" style="width: 850px; max-width: 90vw; padding: 25px;">
       <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px;">시험 출제표 다중 일괄 등록</div>
-      <div style="font-size: 13px; color: #666; margin-bottom: 15px; text-align: left; line-height: 1.4;">
+      <div style="font-size: 13px; color: #666; margin-bottom: 15px; text-align: left; line-height: 1.6;">
         ※ 업로드한 파일명 기반으로 난이도와 과정명이 자동 매핑되었습니다.<br>
         ※ 각 파일에 적용할 <b>시작번호</b>와 <b>종료번호</b>를 입력 후 [일괄 저장]을 클릭해 주세요.<br>
         <span style="color: #dc3545; font-weight: bold;">※ 제외할 파일은 적용 열의 체크박스를 해제해 주세요.</span>
@@ -494,7 +496,7 @@
         </table>
       </div>
       <div style="position: relative; display: flex; justify-content: center; align-items: center; margin-top: 15px; width: 100%;">
-        <button class="modal-btn" style="background-color: #6c757d; width: 140px;" onclick="document.getElementById('batchSetupModal').style.display='none'">취소</button>
+        <button class="modal-btn" style="background-color: #e9ecef; color: #495057; width: 140px;" onclick="document.getElementById('batchSetupModal').style.display='none'">취소</button>
         <button class="modal-btn" style="background-color: #28a745; width: 140px; position: absolute; right: 0;" onclick="executeBatchSetup()">일괄 저장</button>
       </div>
     </div>
@@ -702,7 +704,6 @@
         <div class="select-group"><label>문항시작번호</label><input type="number" id="setupStartNum" value="1" min="1" max="100" style="width: 90px; text-align: center;" onchange="renderSetupTable()"></div>
         <div class="select-group"><label>문항종료번호</label><input type="number" id="setupEndNum" value="45" min="1" max="100" style="width: 90px; text-align: center;" onchange="renderSetupTable()"></div>
         
-        <!-- 💡 덮어쓰기 안내 팝업 및 초기화 버튼 연동 -->
         <div style="display: flex; align-items: center; margin-left: 5px;">
           <button class="btn-primary" style="background-color: #495057;" onclick="saveExamSetup()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
@@ -779,12 +780,10 @@
         </div>
       </div>
 
-      <!-- 🟢 추가된 전광판 영역 -->
       <div class="admin-marquee-wrapper">
-        <span class="admin-marquee-text">※ 시험 세팅(단원명/배점)의 수정 저장시 해당 과정 성적이 입력된 전체 학생의 총점과 등수는 자동으로 업데이트 됩니다</span>
+        <span class="admin-marquee-text">※ 시험 세팅(단원명/배점)을 수정하여 저장할 경우, 이미 성적이 입력된 전체 학생의 총점과 등수가 '자동으로 재계산'되어 업데이트됩니다.</span>
       </div>
 
-      <!-- 다운로드 버튼 위치 bottom: 52px 로 상향 조정 (입력내용삭제 버튼과 동일 선상) -->
       <div style="position: fixed; bottom: 52px; left: 40px; z-index: 150;">
         <button class="btn-download-tool" onclick="window.open('https://drive.google.com/file/d/1_g1GWVlzgPYA8oMHs4XwpSMAgitWZxYy/view?usp=sharing', '_blank')">
           <span class="btn-icon-wrap">
@@ -805,12 +804,12 @@
     let globalData = { settings: {}, setups: [], rosters: [], gradeRecords: [] };
     let currentExamSetup = null; let chartInstances = []; let dashChartInstances = []; let currentStudentsCount = 0; let currentStudentsList = []; let pendingNextStudentIdx = -1; let currentGlobalOtherScores = []; let isDeleteMode = false; let studentUndoSnapshots = {}; let lastSelectedCampus = ""; let lastSelectedCourse = ""; let confirmCallback = null; let cancelCallback = null; let loadedExamContext = null; let currentBatchParsedRows = [];
 
-    // 💡 [추가] 임시 저장 및 상태 관리용 변수
+    // 💡 임시 저장 및 상태 관리용 변수
     let hasUnsavedChanges = false;
 
     const courseAbbrMap = { "3가": "초등 3-1", "3나": "초등 3-2", "초3-1": "초등 3-1", "초3-2": "초등 3-2", "4가": "초등 4-1", "4나": "초등 4-2", "초4-1": "초등 4-1", "초4-2": "초등 4-2", "5가": "초등 5-1", "5나": "초등 5-2", "초5-1": "초등 5-1", "초5-2": "초등 5-2", "6가": "초등 6-1", "6나": "초등 6-2", "초6-1": "초등 6-1", "초6-2": "초등 6-2", "7가": "중등 1-1", "7나": "중등 1-2", "중1-1": "중등 1-1", "중1-2": "중등 1-2", "8가": "중등 2-1", "8나": "중등 2-2", "중2-1": "중등 2-1", "중2-2": "중등 2-2", "9가": "중등 3-1", "9나": "중등 3-2", "중3-1": "중등 3-1", "중3-2": "중등 3-2", "10가": "고등 공통수학1", "10나": "고등 공통수학2", "공통수학1": "고등 공통수학1", "공통수학2": "고등 공통수학2", "공수1": "고등 공통수학1", "공수2": "고등 공통수학2", "수학1": "고등 수학1", "수학2": "고등 수학2", "수1": "고등 수학1", "수2": "고등 수학2", "수I": "고등 수학1", "수II": "고등 수학2", "미적": "고등 미적분", "미적1": "고등 미적분1", "미적2": "고등 미적분2", "기하": "고등 기하", "확통": "고등 확률과 통계", "대수": "고등 대수" };
 
-    // 💡 [추가] 임시 저장(Draft) 기능 함수들
+    // 💡 임시 저장(Draft) 기능 함수들
     function getDraftKey(ctx) { return `LT_Draft_${ctx.term}_${ctx.test}_${ctx.campus}_${ctx.course}_${ctx.teacher}_${ctx.className}`; }
     
     function markAsUnsaved() {
@@ -838,7 +837,7 @@
         if (loadedExamContext) localStorage.removeItem(getDraftKey(loadedExamContext));
     }
 
-    // 💡 [추가] 브라우저 창 닫힘/새로고침 방지 (네이티브 팝업 호출)
+    // 💡 브라우저 창 닫힘/새로고침 방지 (네이티브 팝업 호출)
     window.addEventListener('beforeunload', function (e) {
         if (hasUnsavedChanges) {
             markAsUnsaved(); // 닫히기 전 최종 상태 한 번 더 임시저장
@@ -917,7 +916,7 @@
     function renderSetupStatusTable() { const tt = getTermAndTest('setup'); const tbody = document.getElementById('setupStatusTableBody'); if (!tbody) return; if (!tt.term || !tt.test) { tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; color: #888; text-align: center;">테스트를 선택하세요.</td></tr>'; return; } const levels = globalData.settings.levels || [], courses = globalData.settings.courses || []; if (levels.length === 0 || courses.length === 0) { tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; color: #888; text-align: center;">환경설정에서 난이도와 과정을 등록해주세요.</td></tr>'; return; } let html = ''; levels.forEach((level, levelIdx) => { let levelBg = (levelIdx % 2 === 0) ? '#ffffff' : '#f8f9fa'; courses.forEach(course => { let combined = level + " " + course; let isSaved = globalData.setups.some(s => s.term === tt.term && s.test === tt.test && ((s.level === level && s.courseName === course) || s.course === combined)); html += `<tr style="cursor: pointer; border-bottom: 1px solid #eee; background-color: ${levelBg};" onclick="selectSetupFromStatus('${level}', '${course}')"><td style="padding: 6px 4px; color: #333;">${level}</td><td style="padding: 6px 4px; color: #333; text-align: left; padding-left: 8px;">${course}</td><td style="padding: 6px 4px; color: ${isSaved ? '#28a745' : '#adb5bd'}; font-weight: bold;">${isSaved ? '✔' : '-'}</td></tr>`; }); }); tbody.innerHTML = html; }
     function selectSetupFromStatus(level, course) { document.getElementById('setupLevel').value = level; document.getElementById('setupCourse').value = course; checkExistingSetup(); }
 
-    // 💡 [수정] 네비게이션 이동 시 변경사항 확인 팝업 추가
+    // 💡 네비게이션 이동 시 변경사항 확인 팝업
     function switchNav(navId) {
       const currentActive = document.querySelector('.nav-btn.active');
       const navNames = { 'input': '성적 입력', 'report': '성적표 출력', 'data': '성적 분석' };
@@ -941,7 +940,7 @@
       syncMainDropdownColors();
     }
 
-    // 💡 [수정] 관리자/메인 페이지 이동 시 변경사항 확인 팝업 추가
+    // 💡 관리자/메인 페이지 이동 시 변경사항 확인 팝업
     function switchPage(pageId) { 
       const isActive = document.getElementById(pageId).classList.contains('active');
       if (hasUnsavedChanges && !isActive) {
@@ -1517,7 +1516,7 @@
       showLoading(true, "저장 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'saveExamSetup', term, test, level, course, totalCount, startNum, items }) }).then(res => res.json()).then(res => { showLoading(false); if(res.success) { showSuccessAlert("시험 기본 세팅 정보가 안전하게 저장되었습니다."); fetchMetadata(true, true); } else { showAlert(res.error); } }).catch(handleError);
     }
 
-    // 💡 [수정] 명단 로딩 시 저장되지 않은 데이터 덮어쓰기 방지 추가
+    // 💡 명단 로딩 시 저장되지 않은 데이터 덮어쓰기 방지 추가
     function loadGradesData(afterLoadMsg = null, highlightedStudentName = null) {
         const tt = getTermAndTest('main'); const term = tt.term, test = tt.test, campus = document.getElementById('mainCampus').value, course = document.getElementById('mainCourse').value, teacher = document.getElementById('mainTeacher').value, className = document.getElementById('mainClass').value; 
         if (!term || !test || !campus || !course || !teacher || !className) return showAlert("검색 조건을 모두 선택해주세요.");
@@ -1556,7 +1555,7 @@
         executeLoadGradesData(term, test, campus, course, teacher, className, afterLoadMsg, highlightedStudentName);
     }
 
-    // 💡 [수정] 임시 저장 데이터(Draft) 발견 시 복구 팝업 로직 추가
+    // 💡 임시 저장 데이터(Draft) 발견 시 복구 팝업 로직 추가
     function executeLoadGradesData(term, test, campus, course, teacher, className, afterLoadMsg, highlightedStudentName) {
         studentUndoSnapshots = {}; isDeleteMode = false; const delBtn = document.getElementById('toggleDeleteBtn'); if(delBtn) { delBtn.classList.remove('active'); const textWrap = delBtn.querySelector('.btn-text-wrap'); if(textWrap) textWrap.innerText = '학생삭제'; }
         showLoading(true, "데이터 불러오는 중..."); fetch(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, test, campus, course, teacher, className }) }).then(res => res.json()).then(res => { 
@@ -1723,7 +1722,7 @@
       executeSaveGrades(); 
     }
 
-    // 💡 [수정] 성적 저장 완료 시 임시 데이터 초기화 (초안 삭제)
+    // 💡 성적 저장 완료 시 임시 데이터 초기화 (초안 삭제)
     function executeSaveGrades() {
       if (!loadedExamContext || !loadedExamContext.term) return showAlert("저장할 명단 정보가 없습니다. 명단을 다시 불러와 주세요.");
       const { term, test, campus, course, teacher, className } = loadedExamContext;
@@ -1901,5 +1900,3 @@
       }).catch(handleError);
     }
   </script>
-</body>
-</html>
