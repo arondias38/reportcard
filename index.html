@@ -412,12 +412,15 @@
   </div>
 
   <div class="modal-overlay" id="settingsModal">
-    <div class="modal-box" style="width: 700px; padding: 25px; text-align: left;">
+    <div class="modal-box" style="width: 760px; padding: 25px; text-align: left;">
       <div style="font-size: 18px; font-weight: 900; background-color: #495057; color: white; padding: 12px 0; border-radius: 8px; margin-bottom: 15px; text-align: center;">필수 환경설정</div>
-      <p style="font-size: 13px; color: #666; margin-bottom: 15px; line-height: 1.6;">기본 세팅 항목을 차례대로 입력해 주세요.</p>
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px;">
+        <p style="font-size: 13px; color: #666; margin: 0; line-height: 1.6;">기본 세팅 항목을 차례대로 입력해 주세요.</p>
+        <div style="font-size: 12px; color: #1366ce; font-weight: bold;">🗹 성적입력 앱 표시여부</div>
+      </div>
       <div class="settings-table-wrapper">
         <table class="settings-table">
-          <thead><tr><th width="20%">캠퍼스 목록</th><th width="20%">학기 목록</th><th width="20%">테스트 목록</th><th width="20%">난이도 목록</th><th width="20%" style="border-right: none;">과정명 목록</th></tr></thead>
+          <thead><tr><th width="19%">캠퍼스 목록</th><th width="7%">표시</th><th width="20%">학기 목록</th><th width="18%">테스트 목록</th><th width="18%">난이도 목록</th><th width="18%" style="border-right: none;">과정명 목록</th></tr></thead>
           <tbody id="settingsGridBody"></tbody>
         </table>
       </div>
@@ -876,7 +879,7 @@
     // 💡 브라우저 창 닫힘/새로고침 방지 (네이티브 팝업 호출)
     window.addEventListener('beforeunload', function (e) {
         if (hasUnsavedChanges) {
-            markAsUnsaved(); // 닫히기 전 최종 상태 한 번 더 임시저장
+            markAsUnsaved(); // 닫히기 전 최종 상태 한 일 더 임시저장
             e.preventDefault();
             e.returnValue = ''; // 크롬 등에서 네이티브 팝업을 띄우기 위한 필수 설정
         }
@@ -1004,12 +1007,68 @@
       });
     }
 
+    // 💡 변경된 환경설정 테이블 렌더링 로직 (체크박스 반영)
     function openSettingsModal() { renderSettingsGrid(); document.getElementById('settingsModal').style.display = 'flex'; }
-    function renderSettingsGrid() { const tbody = document.getElementById('settingsGridBody'); tbody.innerHTML = ''; const s = globalData.settings; const maxLen = Math.max(15, (s.campuses||[]).length+1, (s.terms||[]).length+1, (s.tests||[]).length+1, (s.levels||[]).length+1, (s.courses||[]).length+1); for(let i=0; i<maxLen; i++) appendSettingsRow((s.campuses||[])[i] || '', (s.terms||[])[i] || '', (s.tests||[])[i] || '', (s.levels||[])[i] || '', (s.courses||[])[i] || ''); }
-    function appendSettingsRow(c='', t='', ts='', l='', cr='') { const tbody = document.getElementById('settingsGridBody'); const tr = document.createElement('tr'); tr.innerHTML = `<td><input type="text" class="set-input set-campus" value="${c}" onkeydown="handleSettingsKeydown(event, this, 0)"></td><td><input type="text" class="set-input set-term" value="${t}" onkeydown="handleSettingsKeydown(event, this, 1)"></td><td><input type="text" class="set-input set-test" value="${ts}" onkeydown="handleSettingsKeydown(event, this, 2)"></td><td><input type="text" class="set-input set-level" value="${l}" onkeydown="handleSettingsKeydown(event, this, 3)"></td><td style="border-right: none;"><input type="text" class="set-input set-course" value="${cr}" onkeydown="handleSettingsKeydown(event, this, 4)"></td>`; tbody.appendChild(tr); }
+    function renderSettingsGrid() { 
+      const tbody = document.getElementById('settingsGridBody'); tbody.innerHTML = ''; 
+      const s = globalData.settings; 
+      let allTerms = s.allTerms || (s.terms || []).map(t => ({name: t, visible: true}));
+      const maxLen = Math.max(15, (s.campuses||[]).length+1, allTerms.length+1, (s.tests||[]).length+1, (s.levels||[]).length+1, (s.courses||[]).length+1); 
+      for(let i=0; i<maxLen; i++) {
+        let termObj = allTerms[i] || {name: '', visible: true};
+        appendSettingsRow((s.campuses||[])[i] || '', termObj.visible, termObj.name, (s.tests||[])[i] || '', (s.levels||[])[i] || '', (s.courses||[])[i] || '');
+      }
+    }
+    
+    function appendSettingsRow(c='', tv=true, t='', ts='', l='', cr='') { 
+      const tbody = document.getElementById('settingsGridBody'); const tr = document.createElement('tr'); 
+      tr.innerHTML = `<td><input type="text" class="set-input set-campus" value="${c}" onkeydown="handleSettingsKeydown(event, this, 0)"></td>
+      <td style="text-align:center; vertical-align:middle;"><input type="checkbox" class="set-term-visible" ${tv ? 'checked' : ''} style="cursor:pointer; width:16px; height:16px; margin-top:5px;"></td>
+      <td><input type="text" class="set-input set-term" value="${t}" onkeydown="handleSettingsKeydown(event, this, 1)"></td>
+      <td><input type="text" class="set-input set-test" value="${ts}" onkeydown="handleSettingsKeydown(event, this, 2)"></td>
+      <td><input type="text" class="set-input set-level" value="${l}" onkeydown="handleSettingsKeydown(event, this, 3)"></td>
+      <td style="border-right: none;"><input type="text" class="set-input set-course" value="${cr}" onkeydown="handleSettingsKeydown(event, this, 4)"></td>`; 
+      tbody.appendChild(tr); 
+    }
+    
     function handleSettingsKeydown(e, input, colIdx) { const tr = input.closest('tr'); const tbody = tr.parentElement; const rows = Array.from(tbody.children); const rowIdx = rows.indexOf(tr); let nextInput = null; if (e.key === "Enter" || e.key === "ArrowDown") { e.preventDefault(); if (rowIdx < rows.length - 1) { nextInput = rows[rowIdx + 1].querySelectorAll('.set-input')[colIdx]; } else if (input.value.trim() !== '') { appendSettingsRow(); nextInput = rows[rowIdx + 1].querySelectorAll('.set-input')[colIdx]; tbody.parentElement.parentElement.scrollTop = tbody.parentElement.parentElement.scrollHeight; } } else if (e.key === "ArrowUp") { e.preventDefault(); if (rowIdx > 0) nextInput = rows[rowIdx - 1].querySelectorAll('.set-input')[colIdx]; } else if (e.key === "ArrowRight" && input.selectionStart === input.value.length) { e.preventDefault(); if (colIdx < 4) nextInput = tr.querySelectorAll('.set-input')[colIdx + 1]; } else if (e.key === "ArrowLeft" && input.selectionEnd === 0) { e.preventDefault(); if (colIdx > 0) nextInput = tr.querySelectorAll('.set-input')[colIdx - 1]; } if (nextInput) nextInput.focus(); }
 
-    function saveSettings() { const extract = (className) => Array.from(document.querySelectorAll(className)).map(i => i.value.trim()).filter(v => v); const payload = { action: 'saveSettings', campuses: extract('.set-campus'), terms: extract('.set-term'), tests: extract('.set-test'), levels: extract('.set-level'), courses: extract('.set-course') }; if(payload.campuses.length === 0 || payload.terms.length === 0 || payload.tests.length === 0) return showAlert("캠퍼스, 학기, 테스트 목록은 최소 1개 이상 입력해야 합니다."); showLoading(true, "환경설정 저장 중..."); fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify(payload) }).then(res => res.json()).then(res => { if(res.success) { document.getElementById('settingsModal').style.display = 'none'; fetchMetadata(true); showLoading(false); showSuccessAlert("설정이 안전하게 저장되었습니다."); } else { showLoading(false); showAlert(res.error); } }).catch(handleError); }
+    // 💡 저장 시 표시여부(체크박스) 데이터 추출 추가
+    function saveSettings() { 
+      const extract = (className) => Array.from(document.querySelectorAll(className)).map(i => i.value.trim()).filter(v => v); 
+      let terms = [], vis = [];
+      document.querySelectorAll('#settingsGridBody tr').forEach(tr => {
+          let tVal = tr.querySelector('.set-term').value.trim();
+          if(tVal) {
+              terms.push(tVal);
+              vis.push(tr.querySelector('.set-term-visible').checked);
+          }
+      });
+      const payload = { 
+        action: 'saveSettings', 
+        campuses: extract('.set-campus'), 
+        terms: terms, 
+        termVisibles: vis,
+        tests: extract('.set-test'), 
+        levels: extract('.set-level'), 
+        courses: extract('.set-course') 
+      }; 
+      if(payload.campuses.length === 0 || payload.terms.length === 0 || payload.tests.length === 0) return showAlert("캠퍼스, 학기, 테스트 목록은 최소 1개 이상 입력해야 합니다."); 
+      showLoading(true, "환경설정 저장 중..."); 
+      fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify(payload) })
+      .then(res => res.json())
+      .then(res => { 
+        if(res.success) { 
+          document.getElementById('settingsModal').style.display = 'none'; 
+          fetchMetadata(true); 
+          showLoading(false); 
+          showSuccessAlert("설정이 안전하게 저장되었습니다."); 
+        } else { 
+          showLoading(false); 
+          showAlert(res.error); 
+        } 
+      }).catch(handleError); 
+    }
 
     function populateSettingsAndDropdowns(preserveState = false) {
       const s = globalData.settings;
