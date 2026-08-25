@@ -1745,7 +1745,7 @@
               const savedDraft = localStorage.getItem(draftKey);
 
               if (savedDraft) {
-                  showConfirmModal(`이전에 작성하다가 저장하지 않은<br>임시 데이터가 발견되었습니다.<br>복구하시겠습니까?`, function() {
+                  showConfirmModal(`이전에 작성하다가 저장하지 않은<br>임시 데이터가 발견되었습니다.<br><br>복구하시겠습니까?`, function() {
                       let parsedDraft = JSON.parse(savedDraft);
                       currentGlobalOtherScores = res.data.globalOtherScores || []; 
                       renderInputTable(res.data.setupData, parsedDraft.students, parsedDraft.grades);
