@@ -1736,7 +1736,7 @@
     }
 
     function executeLoadGradesData(term, test, campus, course, teacher, className, afterLoadMsg, highlightedStudentName) {
-        studentUndoSnapshots = {}; isDeleteMode = false; const delBtn = document.getElementById('toggleDeleteBtn'); if(delBtn) { delBtn.classList.remove('active'); const textWrap = delBtn.querySelector('.btn-text-wrap'); if(textWrap) textWrap.innerText = '학생삭제'; }
+        studentUndoSnapshots = {}; isDeleteMode = false; const delBtn = document.getElementById('toggleDeleteBtn'); if(delBtn) { delBtn.classList.remove('active'); const textWrap = delBtn.querySelector('.btn-text-wrap'); if(textWrap) textWrap.innerText = '학생삭제/복구'; }
         showLoading(true, "데이터 불러오는 중..."); fetchWithRetry(document.getElementById('backendUrl').value.trim(), { method: 'POST', body: JSON.stringify({ action: 'loadInputWorkflow', term, test, campus, course, teacher, className }) }).then(res => res.json()).then(res => { 
             showLoading(false); 
             if(res.success) { 
