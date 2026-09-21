@@ -815,8 +815,6 @@
   </div>
 
   <script>
-
-  <script>
     let isInitialAppLoad = true;
 
     const inlineDataLabelsPlugin = { id: 'inlineDataLabels', afterDatasetsDraw(chart) { const ctx = chart.ctx; ctx.save(); chart.data.datasets.forEach((dataset, i) => { const meta = chart.getDatasetMeta(i); meta.data.forEach((bar, index) => { const value = dataset.data[index]; if (value > 0) { ctx.fillStyle = '#d1e7dd'; ctx.font = 'bold 12px Pretendard'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(value + '%', bar.base + 6, bar.y); } }); }); ctx.restore(); } };
