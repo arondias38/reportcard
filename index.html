@@ -283,35 +283,33 @@
     .batch-row-disabled td { color: #adb5bd !important; background-color: #f8f9fa !important; }
     .batch-row-disabled select, .batch-row-disabled input[type="number"] { background-color: #e9ecef !important; color: #adb5bd !important; border-color: #e9ecef !important; }
 
-    /* 수정된 전광판 CSS (우측 정렬 & 페이드 효과) */
     .admin-marquee-wrapper {
       position: relative;
       width: 100%;
-      height: 28px; /* 높이 확장: 글자 하단이 잘리지 않도록 넉넉한 내부 공간 확보 */
+      height: 22px; 
       overflow: hidden;
-      margin-top: 3px; /* 여백 축소: 늘어난 높이만큼 외부 여백을 줄여 전체 레이아웃 변동 0 */
-      margin-bottom: -13px; /* 여백 축소: 늘어난 높이만큼 외부 여백을 줄여 전체 레이아웃 변동 0 */
+      margin-top: 6px;   
+      margin-bottom: -10px; 
       flex-shrink: 0;
       background-color: transparent;
       border: none;
+      display: flex;
+      align-items: center; /* 원본의 완벽한 중앙 정렬 속성 복구 */
     }
     .admin-marquee-text {
       position: absolute;
-      right: 0; 
-      top: 0;
-      height: 100%; /* 부모의 28px 공간을 모두 차지하도록 설정 */
-      display: flex;
-      align-items: center; /* Flexbox 기반의 가장 완벽한 수직 중앙 정렬 */
+      right: 0; /* 우측 정렬 유지 */
       white-space: nowrap;
       color: #555;       
       font-size: 14px;   
       font-weight: 400;
+      margin-top: -11px; /* 원본의 하단 잘림 방지용 위치값 복구 */
       opacity: 0; 
       pointer-events: none;
       transition: opacity 1s ease-in-out; 
     }
     .admin-marquee-text.active {
-      opacity: 1; /* active 클래스가 붙으면 화면에 나타남 */
+      opacity: 1; 
     }
 
     @media print {
